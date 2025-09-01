@@ -41,7 +41,7 @@
    * GRADIENT COLOR
    */
 
-  --loading-text-gradient: linear-gradient(90deg, transparent 0% 16.66%, var(--smoky-black-3) 33.33% 50%, transparent 66.66% 75%);
+  --loading-text-gradient: linear-gradient(90deg, var(--gold-crayola) 0% 16.66%, var(--smoky-black-3) 33.33% 50%, var(--gold-crayola) 66.66% 75%);
   --gradient-1: linear-gradient(to top, hsla(0, 0%, 0%, 0.9), hsla(0, 0%, 0%, 0.7), transparent);
 
   /**
@@ -622,8 +622,8 @@ body.nav-active {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--gold-crayola);
-  z-index: 10;
+  background-color: var(--white);
+  z-index: 99999;
   display: grid;
   place-content: center;
   justify-items: center;
@@ -644,10 +644,10 @@ body.nav-active {
 }
 
 .circle {
-  width: 112px;
-  height: 112px;
+  width: 90px;
+  height: 90px;
   border-radius: var(--radius-circle);
-  border: 3px solid var(--white);
+  border: 5px solid var(--gold-crayola);
   border-block-start-color: var(--smoky-black-3);
   margin-block-end: 45px;
   animation: rotate360 1s linear infinite;
@@ -3694,6 +3694,7 @@ textarea.input-field {
 /* --- Preloader (from custom.css) --- */
 .preload {
   background-color: var(--white) !important;
+  z-index: 99999 !important;
 }
 
 .preload .text {

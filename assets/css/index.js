@@ -13,7 +13,6 @@ export const typography = './typography.css';
 export const components = './components.css';
 
 // Layout Components
-export const preloader = './preloader.css';
 export const header = './header.css';
 export const hero = './hero.css';
 
