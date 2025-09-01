@@ -1,0 +1,36 @@
+/*-----------------------------------*\
+  #MAIN CSS - MODULAR IMPORTS
+\*-----------------------------------*/
+
+/**
+ * Peppino's Dosa Restaurant Website
+ * Modular CSS Architecture for ES6 Module Compatibility
+ */
+
+/* Core Styles */
+@import url('./variables.css');
+@import url('./reset.css');
+@import url('./typography.css');
+@import url('./components.css');
+
+/* Layout Components */
+@import url('./preloader.css');
+@import url('./header.css');
+@import url('./hero.css');
+
+/* Page Sections */
+@import url('./service.css');
+@import url('./about.css');
+@import url('./special-dish.css');
+@import url('./menu.css');
+@import url('./testimonials.css');
+@import url('./reservation.css');
+@import url('./features.css');
+@import url('./event.css');
+@import url('./footer.css');
+
+/* Responsive Design */
+@import url('./media-queries.css');
+
+/* Theme Overrides */
+@import url('./custom.css');

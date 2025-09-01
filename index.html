@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!--
+    - primary meta tags
+  -->
+  <title>Peppino's Dosa - Amazing & Delicious Food</title>
+  <meta name="title" content="Peppino's Dosa - Amazing & Delicious Food">
+  <meta name="description" content="Experience authentic and delicious dosas at Peppino's Dosa restaurant">
+
+  <!--
+    - favicon
+  -->
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  <!--
+    - google font link
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+   
+  <!--
+    - custom css link
+  -->
+  <link rel="stylesheet" href="./assets/css/style.css">
+
+  <!--
+    - custom overrides css
+  -->
+  <!-- <link rel="stylesheet" href="./assets/css/custom.css"> -->
+  
+  <!--
+    - header and hero specific css
+  -->
+  <!-- <link rel="stylesheet" href="./assets/css/header-hero.css"> -->
+
+  <!--
+    - preload images
+  -->
+  <link rel="preload" as="image" href="./assets/images/hero-slider-1.png">
+  <link rel="preload" as="image" href="./assets/images/hero-slider-2.png">
+  <link rel="preload" as="image" href="./assets/images/hero-slider-3.png">
+
+</head>
+
+<body id="top" class="home-page">
+
+  <!--
+    - #PRELOADER
+  -->
+
+  <div class="preload" data-preaload>
+    <div class="circle"></div>
+    <p class="text">Peppino's Dosa</p>
+  </div>
+
+
+
+
+
+  <!--
+    - #TOP BAR
+  -->
+
+  <div class="topbar">
+    <div class="container">
+
+      <address class="topbar-item">
+        <div class="icon">
+          <ion-icon name="location-outline" aria-hidden="true"></ion-icon>
+        </div>
+
+        <span class="span">
+          434 Moody St, Waltham, MA 02453
+        </span>
+      </address>
+
+      <div class="separator"></div>
+
+      <div class="topbar-item item-2">
+        <div class="icon text-white">
+          <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+        </div>
+
+        <span class="span">Mon-Thu: 11:30AM-3PM, 5-10PM | Fri-Sun: 11:30AM-3:30PM, 4:30-10PM</span>
+      </div>
+
+      <a href="tel:+17815476099" class="topbar-item link">
+        <div class="icon">
+          <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
+        </div>
+
+        <span class="span">(781) 547-6099</span>
+      </a>
+
+      <div class="separator"></div>
+
+      <a href="mailto:Walthampeppinosdosa@gmail.com" class="topbar-item link">
+        <div class="icon">
+          <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+        </div>
+
+        <span class="span">Walthampeppinosdosa@gmail.com</span>
+      </a>
+
+    </div>
+  </div>
+
+
+
+
+
+  <!--
+    - #HEADER
+  -->
+
+  <header class="header" data-header>
+    <div class="container">
+
+      <a href="index.html" class="logo">
+        <div class="logo-container">
+          <div class="logo-spinner">
+            <div class="logo-face logo-face-1">
+              <img src="./assets/images/logo-1.png" width="360" height="114" alt="Peppino's Dosa - Home">
+            </div>
+            <div class="logo-face logo-face-2">
+              <img src="./assets/images/logo-2.png" width="360" height="114" alt="Peppino's Dosa - Home">
+            </div>
+            <div class="logo-face logo-face-3">
+              <img src="./assets/images/logo-3.png" width="360" height="114" alt="Peppino's Dosa - Home">
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <nav class="navbar" data-navbar>
+
+        <button class="close-btn" aria-label="close menu" data-nav-toggler>
+          <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+        </button>
+
+        <a href="index.html" class="logo">
+          <div class="logo-container">
+            <div class="logo-spinner">
+              <div class="logo-face logo-face-1">
+                <img src="./assets/images/logo-1.png" width="360" height="114" alt="Peppino's Dosa - Home">
+              </div>
+              <div class="logo-face logo-face-2">
+                <img src="./assets/images/logo-2.png" width="360" height="114" alt="Peppino's Dosa - Home">
+              </div>
+              <div class="logo-face logo-face-3">
+                <img src="./assets/images/logo-3.png" width="360" height="114" alt="Peppino's Dosa - Home">
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <ul class="navbar-list">
+
+          <li class="navbar-item">
+            <a href="index.html" class="navbar-link hover-underline active">
+              <div class="separator"></div>
+
+              <span class="span">Home</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="menu.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Menus</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="about.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">About Us</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="chefs.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Our Chefs</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="catering.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Catering</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="contact.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Contact</span>
+            </a>
+          </li>
+
+        </ul>
+
+        <div class="text-center">
+          <p class="headline-1 text-white navbar-title">Visit Us</p>
+
+          <address class="body-4">
+            434 Moody St, <br>
+            Waltham, MA 02453
+          </address>
+
+          <p class="body-4 navbar-text">Lunch Buffet: Mon-Fri 11:30AM-3PM</p>
+
+          <a href="mailto:Walthampeppinosdosa@gmail.com" class="body-4 sidebar-link">Walthampeppinosdosa@gmail.com</a>
+
+          <div class="separator"></div>
+
+          <p class="contact-label">Booking Request</p>
+
+          <a href="tel:+17815476099" class="body-1 contact-number hover-underline">
+            (781) 547-6099
+          </a>
+        </div>
+
+        <div class="navbar-actions">
+          <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google navbar-btn" rel="noopener">
+            <span class="text text-1">Google Reviews</span>
+            <span class="text text-2" aria-hidden="true">Google Reviews</span>
+          </a>
+
+          <a href="contact.html#reservation" class="btn btn-secondary navbar-btn">
+            <span class="text text-1">Find A Table</span>
+            <span class="text text-2" aria-hidden="true">Find A Table</span>
+          </a>
+        </div>
+
+      </nav>
+
+      <div class="header-actions">
+        <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google" rel="noopener">
+          <span class="text text-1">Google Reviews</span>
+          <span class="text text-2" aria-hidden="true">Google Reviews</span>
+        </a>
+
+        <a href="contact.html" class="btn btn-secondary">
+          <span class="text text-1">Find A Table</span>
+          <span class="text text-2" aria-hidden="true">Find A Table</span>
+        </a>
+      </div>
+
+      <button class="nav-open-btn" aria-label="open menu" data-nav-toggler>
+        <span class="line line-1"></span>
+        <span class="line line-2"></span>
+        <span class="line line-3"></span>
+      </button>
+
+      <div class="overlay" data-nav-toggler data-overlay></div>
+
+    </div>
+  </header>
+
+
+
+
+
+  <main>
+    <article>
+
+      <!--
+        - #HERO
+      -->
+
+      <section class="hero text-center" aria-label="home" id="home">
+
+        <ul class="hero-slider" data-hero-slider>
+
+          <li class="slider-item active" data-hero-slider-item>
+
+            <div class="slider-bg">
+              <img src="./assets/images/hero-slider-1.png" width="1880" height="950" alt="" class="img-cover">
+            </div>
+
+            <p class="label-2 section-subtitle slider-reveal">Authentic & Fresh</p>
+
+            <h1 class="display-1 hero-title slider-reveal">
+              For the love of <br>
+              authentic dosas
+            </h1>
+
+            <p class="body-2 hero-text slider-reveal">
+              Casual eatery in Waltham where Chef Peppino & Chef Laddi bring authentic North & South Indian cooking
+            </p>
+
+            <a href="menu.html" class="btn btn-primary slider-reveal">
+              <span class="text text-1">View Our Menu</span>
+
+              <span class="text text-2" aria-hidden="true">View Our Menu</span>
+            </a>
+
+          </li>
+
+          <li class="slider-item" data-hero-slider-item>
+
+            <div class="slider-bg">
+              <img src="./assets/images/hero-slider-2.png" width="1880" height="950" alt="" class="img-cover">
+            </div>
+
+            <p class="label-2 section-subtitle slider-reveal">Delightful Experience</p>
+
+            <h1 class="display-1 hero-title slider-reveal">
+              Crispy Dosas <br>
+              Made with Love
+            </h1>
+
+            <p class="body-2 hero-text slider-reveal">
+              One place, two tasty worlds. Craving plant-based? Prefer something meaty? We've got you covered.
+            </p>
+
+            <a href="menu.html" class="btn btn-primary slider-reveal">
+              <span class="text text-1">View Our Menu</span>
+
+              <span class="text text-2" aria-hidden="true">View Our Menu</span>
+            </a>
+
+          </li>
+
+          <li class="slider-item" data-hero-slider-item>
+
+            <div class="slider-bg">
+              <img src="./assets/images/hero-slider-3.png" width="1880" height="950" alt="" class="img-cover">
+            </div>
+
+            <p class="label-2 section-subtitle slider-reveal">Amazing & Delicious</p>
+
+            <h1 class="display-1 hero-title slider-reveal">
+              Where every dosa <br>
+              tells a story
+            </h1>
+
+            <p class="body-2 hero-text slider-reveal">
+              Separate kitchens for fresh vegan & vegetarian dishes and flavorful meat options
+            </p>
+
+            <a href="menu.html" class="btn btn-primary slider-reveal">
+              <span class="text text-1">View Our Menu</span>
+
+              <span class="text text-2" aria-hidden="true">View Our Menu</span>
+            </a>
+
+          </li>
+
+        </ul>
+
+        <button class="slider-btn prev" aria-label="slide to previous" data-prev-btn>
+          <ion-icon name="chevron-back"></ion-icon>
+        </button>
+
+        <button class="slider-btn next" aria-label="slide to next" data-next-btn>
+          <ion-icon name="chevron-forward"></ion-icon>
+        </button>
+
+        <a href="contact.html" class="hero-btn has-after">
+          <img src="./assets/images/hero-icon.png" width="48" height="48" alt="booking icon">
+
+          <span class="label-2 text-center span">Book A Table</span>
+        </a>
+
+      </section>
+
+
+
+
+
+      <!--
+        - #SERVICE
+      -->
+
+      <section class="section service bg-black-10 text-center" aria-label="service">
+        <div class="container">
+
+          <p class="section-subtitle label-2">Authentic Experience</p>
+
+          <h2 class="headline section-title">We Offer Exceptional Service</h2>
+
+          <p class="section-text">
+            Peppino's Dosa casual eatery in Waltham, where Chef Peppino along with Chef Laddi bring you authentic North and South Indian cooking paired with excellent service and a wonderful ambiance to create a very unique Indian dining experience.
+          </p>
+
+          <ul class="grid-list">
+
+            <li>
+              <div class="service-card">
+
+                <a href="menu.html" class="has-before hover:shine">
+                  <figure class="card-banner img-holder" style="--width: 285; --height: 336;">
+                    <img src="./assets/images/service-1.png" width="285" height="336" loading="lazy" alt="Breakfast"
+                      class="img-cover">
+                  </figure>
+                </a>
+
+                <div class="card-content">
+
+                  <h3 class="title-4 card-title">
+                    <a href="menu.html">Classic Dosas</a>
+                  </h3>
+
+                  <a href="menu.html" class="btn-text hover-underline label-2">View Menu</a>
+
+                </div>
+
+              </div>
+            </li>
+
+            <li>
+              <div class="service-card">
+
+                <a href="menu.html" class="has-before hover:shine">
+                  <figure class="card-banner img-holder" style="--width: 285; --height: 336;">
+                    <img src="./assets/images/service-2.png" width="285" height="336" loading="lazy" alt="Appetizers"
+                      class="img-cover">
+                  </figure>
+                </a>
+
+                <div class="card-content">
+
+                  <h3 class="title-4 card-title">
+                    <a href="menu.html">Stuffed Dosas</a>
+                  </h3>
+
+                  <a href="menu.html" class="btn-text hover-underline label-2">View Menu</a>
+
+                </div>
+
+              </div>
+            </li>
+
+            <li>
+              <div class="service-card">
+
+                <a href="menu.html" class="has-before hover:shine">
+                  <figure class="card-banner img-holder" style="--width: 285; --height: 336;">
+                    <img src="./assets/images/service-3.png" width="285" height="336" loading="lazy" alt="Drinks"
+                      class="img-cover">
+                  </figure>
+                </a>
+
+                <div class="card-content">
+
+                  <h3 class="title-4 card-title">
+                    <a href="menu.html">Beverages</a>
+                  </h3>
+
+                  <a href="menu.html" class="btn-text hover-underline label-2">View Menu</a>
+
+                </div>
+
+              </div>
+            </li>
+
+          </ul>
+
+          <img src="./assets/images/shape-1.png" width="246" height="412" loading="lazy" alt="shape"
+            class="shape shape-1 move-anim">
+          <img src="./assets/images/shape-2.png" width="343" height="345" loading="lazy" alt="shape"
+            class="shape shape-2 move-anim">
+
+        </div>
+      </section>
+
+
+
+
+      <!--
+        - #CHEFS VIDEO
+      -->
+
+      <section class="section chefs-video" aria-label="chefs video">
+
+        <div class="video-container">
+          <div class="video-wrapper">
+            <video class="chef-video" poster="./assets/images/chef-cooking.png" preload="metadata">
+              <source src="./assets/videos/chef-cooking.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+
+            <div class="video-overlay">
+              <div class="play-btn" data-video-btn>
+                <ion-icon name="play" aria-hidden="true"></ion-icon>
+              </div>
+
+              <div class="overlay-content">
+                <h3 class="overlay-title">Chef Peppino & Chef Laddi</h3>
+                <p class="overlay-text">Masters of Authentic Indian Cuisine</p>
+              </div>
+            </div>
+
+            <div class="video-quotes">
+              <div class="floating-quote quote-1">"Authentic flavors from the heart"</div>
+              <div class="floating-quote quote-2">"Traditional recipes, modern excellence"</div>
+              <div class="floating-quote quote-3">"Passion in every dish we create"</div>
+              <div class="floating-quote quote-4">"Where spices tell their story"</div>
+              <div class="floating-quote quote-5">"Crafted with love and tradition"</div>
+              <div class="floating-quote quote-6">"Every bite tells our story"</div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+
+
+
+
+      <!--
+        - #ABOUT
+      -->
+
+      <section class="section about text-center" aria-labelledby="about-label" id="about">
+        <div class="container">
+
+          <div class="about-content">
+
+            <p class="label-2 section-subtitle" id="about-label">Our Story</p>
+
+            <h2 class="headline section-title">Authentic Indian Dining Experience</h2>
+
+            <p class="section-text">
+              Peppino's Dosa casual eatery in Waltham, where Chef Peppino along with Chef Laddi bring you authentic North and South Indian cooking paired with excellent service and a wonderful ambiance to create a very unique Indian dining experience. One place, two tasty worlds. Craving plant-based? Prefer something meaty? We've got you covered. Our unique setup features separate kitchens-one for fresh vegan and vegetarian dishes, the other for flavorful meat options.
+            </p>
+
+            <div class="contact-label">Book Through Call</div>
+
+            <a href="tel:+17815476099" class="body-1 contact-number hover-underline">(781) 547-6099</a>
+
+            <a href="about.html" class="btn btn-primary">
+              <span class="text text-1">Read More</span>
+
+              <span class="text text-2" aria-hidden="true">Read More</span>
+            </a>
+
+          </div>
+
+          <figure class="about-banner">
+
+            <img src="./assets/images/about-banner.jpg" width="570" height="570" loading="lazy" alt="about banner"
+              class="w-100" data-parallax-item data-parallax-speed="1">
+
+            <div class="abs-img abs-img-1 has-before" data-parallax-item data-parallax-speed="1.75">
+              <img src="./assets/images/about-abs-image.jpg" width="285" height="285" loading="lazy" alt=""
+                class="w-100">
+            </div>
+
+            <div class="abs-img abs-img-2 has-before">
+              <img src="./assets/images/badge-2.png" width="133" height="134" loading="lazy" alt="">
+            </div>
+
+          </figure>
+
+          <img src="./assets/images/shape-3.png" width="197" height="194" loading="lazy" alt="" class="shape">
+
+        </div>
+      </section>
+
+
+
+
+
+      <!--
+        - #SPECIAL DISH
+      -->
+
+      <section class="special-dish text-center" aria-labelledby="dish-label">
+
+        <div class="special-dish-banner">
+          <img src="./assets/images/special-dish-banner.png" width="940" height="900" loading="lazy" alt="special dish"
+            class="img-cover">
+        </div>
+
+        <div class="special-dish-content bg-black-10">
+          <div class="container">
+
+            <img src="./assets/images/badge-1.png" width="28" height="41" loading="lazy" alt="badge" class="abs-img">
+
+            <p class="section-subtitle label-2">Special Dish</p>
+
+            <h2 class="headline section-title">Masala Dosa</h2>
+
+            <p class="section-text">
+              Our signature crispy golden dosa filled with spiced potato curry, served with fresh coconut chutney and sambar.
+              A perfect blend of traditional South Indian flavors that will transport you to the streets of Bangalore.
+            </p>
+
+            <div class="wrapper">
+              <del class="del body-3">$18.00</del>
+
+              <span class="span body-1">$12.00</span>
+            </div>
+
+            <a href="menu.html" class="btn btn-primary">
+              <span class="text text-1">View All Menu</span>
+
+              <span class="text text-2" aria-hidden="true">View All Menu</span>
+            </a>
+
+          </div>
+        </div>
+
+        <img src="./assets/images/shape-4.png" width="179" height="359" loading="lazy" alt="" class="shape shape-1">
+
+        <img src="./assets/images/shape-9.png" width="351" height="462" loading="lazy" alt="" class="shape shape-2">
+
+      </section>
+
+
+
+
+
+      <!--
+        - #MENU
+      -->
+
+      <section class="section menu" aria-label="menu-label" id="menu">
+        <div class="container">
+
+          <p class="section-subtitle text-center label-2">Authentic Indian Cuisine</p>
+
+          <h2 class="headline section-title text-center">Our Signature Dishes</h2>
+
+          <ul class="grid-list">
+
+            <li>
+              <div class="menu-card hover:card">
+
+                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
+                  <img src="./assets/images/menu-1.png" width="100" height="100" loading="lazy" alt="Masala Dosa"
+                    class="img-cover">
+                </figure>
+
+                <div>
+
+                  <div class="title-wrapper">
+                    <h3 class="title-3">
+                      <a href="menu.html" class="card-title">Masala Dosa</a>
+                    </h3>
+
+                    <span class="badge label-1">Popular</span>
+
+                    <span class="span title-2">$12.99</span>
+                  </div>
+
+                  <p class="card-text label-1">
+                    Crispy rice and lentil crepe filled with spiced potato curry, served with sambar and chutneys.
+                  </p>
+
+                </div>
+
+              </div>
+            </li>
+
+            <li>
+              <div class="menu-card hover:card">
+
+                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
+                  <img src="./assets/images/menu-2.png" width="100" height="100" loading="lazy" alt="Chicken Biryani"
+                    class="img-cover">
+                </figure>
+
+                <div>
+
+                  <div class="title-wrapper">
+                    <h3 class="title-3">
+                      <a href="menu.html" class="card-title">Chicken Biryani</a>
+                    </h3>
+
+                    <span class="span title-2">$16.99</span>
+                  </div>
+
+                  <p class="card-text label-1">
+                    Fragrant basmati rice layered with tender chicken, aromatic spices, and fresh herbs.
+                  </p>
+
+                </div>
+
+              </div>
+            </li>
+
+            <li>
+              <div class="menu-card hover:card">
+
+                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
+                  <img src="./assets/images/menu-3.png" width="100" height="100" loading="lazy" alt="Paneer Tikka"
+                    class="img-cover">
+                </figure>
+
+                <div>
+
+                  <div class="title-wrapper">
+                    <h3 class="title-3">
+                      <a href="menu.html" class="card-title">Paneer Tikka</a>
+                    </h3>
+
+                    <span class="span title-2">$14.99</span>
+                  </div>
+
+                  <p class="card-text label-1">
+                    Marinated cottage cheese cubes grilled to perfection with bell peppers and onions.
+                  </p>
+
+                </div>
+
+              </div>
+            </li>
+
+            <li>
+              <div class="menu-card hover:card">
+
+                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
+                  <img src="./assets/images/menu-4.png" width="100" height="100" loading="lazy" alt="Butter Chicken"
+                    class="img-cover">
+                </figure>
+
+                <div>
+
+                  <div class="title-wrapper">
+                    <h3 class="title-3">
+                      <a href="menu.html" class="card-title">Butter Chicken</a>
+                    </h3>
+
+                    <span class="badge label-1">Chef Special</span>
+
+                    <span class="span title-2">$18.99</span>
+                  </div>
+
+                  <p class="card-text label-1">
+                    Tender chicken in a rich, creamy tomato-based sauce with aromatic spices and herbs.
+                  </p>
+
+                </div>
+
+              </div>
+            </li>
+
+            <li>
+              <div class="menu-card hover:card">
+
+                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
+                  <img src="./assets/images/menu-5.png" width="100" height="100" loading="lazy" alt="Samosa Chaat"
+                    class="img-cover">
+                </figure>
+
+                <div>
+
+                  <div class="title-wrapper">
+                    <h3 class="title-3">
+                      <a href="menu.html" class="card-title">Samosa Chaat</a>
+                    </h3>
+
+                    <span class="span title-2">$8.99</span>
+                  </div>
+
+                  <p class="card-text label-1">
+                    Crispy samosas topped with yogurt, chutneys, onions, and fresh herbs for a burst of flavors.
+                  </p>
+
+                </div>
+
+              </div>
+            </li>
+
+            <li>
+              <div class="menu-card hover:card">
+
+                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
+                  <img src="./assets/images/menu-6.png" width="100" height="100" loading="lazy" alt="Lamb Curry"
+                    class="img-cover">
+                </figure>
+
+                <div>
+
+                  <div class="title-wrapper">
+                    <h3 class="title-3">
+                      <a href="menu.html" class="card-title">Lamb Curry</a>
+                    </h3>
+
+                    <span class="span title-2">$22.99</span>
+                  </div>
+
+                  <p class="card-text label-1">
+                    Tender lamb slow-cooked in a rich blend of traditional spices and aromatic curry sauce.
+                  </p>
+
+                </div>
+
+              </div>
+            </li>
+
+          </ul>
+
+          <p class="menu-text text-center">
+            During winter daily from <span class="span">7:00 pm</span> to <span class="span">9:00 pm</span>
+          </p>
+
+          <a href="menu.html" class="btn btn-primary">
+            <span class="text text-1">View All Menu</span>
+
+            <span class="text text-2" aria-hidden="true">View All Menu</span>
+          </a>
+
+          <img src="./assets/images/shape-5.png" width="921" height="1036" loading="lazy" alt="shape"
+            class="shape shape-2 move-anim">
+          <img src="./assets/images/shape-6.png" width="343" height="345" loading="lazy" alt="shape"
+            class="shape shape-3 move-anim">
+
+        </div>
+      </section>
+
+
+
+
+
+      <!--
+        - #TESTIMONIALS
+      -->
+
+      <section class="section testi  text-center has-bg-image"
+        style="background-image: url('./assets/images/testimonial-bg.png')" aria-label="testimonials">
+        <div class="container">
+
+          <div class="quote">”</div>
+
+          <div class="testimonial-slider" data-testimonial-slider>
+
+            <!-- Testimonial 1 -->
+            <div class="testimonial-slide active" data-testimonial-slide>
+              <p class="headline-2 testi-text">
+                The authentic flavors and exceptional service at Peppino's Dosa make it our go-to place for Indian cuisine. Every dish is a masterpiece!
+              </p>
+            </div>
+
+            <!-- Testimonial 2 -->
+            <div class="testimonial-slide" data-testimonial-slide>
+              <p class="headline-2 testi-text">
+                Chef Peppino's dosas are absolutely incredible! The perfect balance of spices and textures. This place is a hidden gem in Waltham.
+              </p>
+            </div>
+
+            <!-- Testimonial 3 -->
+            <div class="testimonial-slide" data-testimonial-slide>
+              <p class="headline-2 testi-text">
+                The lunch buffet is amazing! Fresh, flavorful, and authentic. The staff is incredibly welcoming and the atmosphere is perfect for family dining.
+              </p>
+            </div>
+
+            <!-- Testimonial 4 -->
+            <div class="testimonial-slide" data-testimonial-slide>
+              <p class="headline-2 testi-text">
+                Outstanding Indian cuisine! The chefs truly understand traditional flavors. Every visit is a delightful culinary journey through India.
+              </p>
+            </div>
+
+          </div>
+
+          <div class="wrapper">
+            <div class="separator"></div>
+            <div class="separator"></div>
+            <div class="separator"></div>
+          </div>
+
+          <div class="profile-slider" data-profile-slider>
+
+            <!-- Profile 1 -->
+            <div class="profile-slide active" data-profile-slide>
+              <div class="profile">
+                <img src="./assets/images/testi-avatar-1.png" width="100" height="100" loading="lazy" alt="Sarah Johnson" class="img">
+                <p class="label-2 profile-name">Sarah Johnson</p>
+                <p class="body-4">Food Blogger</p>
+              </div>
+            </div>
+
+            <!-- Profile 2 -->
+            <div class="profile-slide" data-profile-slide>
+              <div class="profile">
+                <img src="./assets/images/testi-avatar-2.png" width="100" height="100" loading="lazy" alt="Michael Chen" class="img">
+                <p class="label-2 profile-name">Michael Chen</p>
+                <p class="body-4">Local Food Critic</p>
+              </div>
+            </div>
+
+            <!-- Profile 3 -->
+            <div class="profile-slide" data-profile-slide>
+              <div class="profile">
+                <img src="./assets/images/testi-avatar-3.png" width="100" height="100" loading="lazy" alt="Priya Patel" class="img">
+                <p class="label-2 profile-name">Priya Patel</p>
+                <p class="body-4">Regular Customer</p>
+              </div>
+            </div>
+
+            <!-- Profile 4 -->
+            <div class="profile-slide" data-profile-slide>
+              <div class="profile">
+                <img src="./assets/images/testi-avatar-4.jpg" width="100" height="100" loading="lazy" alt="David Rodriguez" class="img">
+                <p class="label-2 profile-name">David Rodriguez</p>
+                <p class="body-4">Restaurant Owner</p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+
+
+
+
+      <!--
+        - #RESERVATION
+      -->
+
+      <section class="reservation">
+        <div class="container">
+
+          <div class="form reservation-form bg-black-10">
+
+            <form action="" class="form-left">
+
+              <h2 class="headline text-center">Online Reservation</h2>
+
+              <p class="form-text text-center">
+                Booking request <a href="tel:+88123123456" class="link">+88-123-123456</a>
+                or fill out the order form
+              </p>
+
+              <div class="input-wrapper">
+                <input type="text" name="name" placeholder="Your Name" autocomplete="off" class="input-field">
+
+                <input type="tel" name="phone" placeholder="Phone Number" autocomplete="off" class="input-field">
+              </div>
+
+              <div class="input-wrapper">
+
+                <div class="icon-wrapper">
+                  <ion-icon name="person-outline" aria-hidden="true"></ion-icon>
+
+                  <select name="person" class="input-field">
+                    <option value="1-person">1 Person</option>
+                    <option value="2-person">2 Person</option>
+                    <option value="3-person">3 Person</option>
+                    <option value="4-person">4 Person</option>
+                    <option value="5-person">5 Person</option>
+                    <option value="6-person">6 Person</option>
+                    <option value="7-person">7 Person</option>
+                  </select>
+
+                  <ion-icon name="chevron-down" aria-hidden="true"></ion-icon>
+                </div>
+
+                <div class="icon-wrapper">
+                  <ion-icon name="calendar-clear-outline" aria-hidden="true"></ion-icon>
+
+                  <input type="date" name="reservation-date" class="input-field">
+
+                  <ion-icon name="chevron-down" aria-hidden="true"></ion-icon>
+                </div>
+
+                <div class="icon-wrapper">
+                  <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+
+                  <select name="person" class="input-field">
+                    <option value="08:00am">08 : 00 am</option>
+                    <option value="09:00am">09 : 00 am</option>
+                    <option value="010:00am">10 : 00 am</option>
+                    <option value="011:00am">11 : 00 am</option>
+                    <option value="012:00am">12 : 00 am</option>
+                    <option value="01:00pm">01 : 00 pm</option>
+                    <option value="02:00pm">02 : 00 pm</option>
+                    <option value="03:00pm">03 : 00 pm</option>
+                    <option value="04:00pm">04 : 00 pm</option>
+                    <option value="05:00pm">05 : 00 pm</option>
+                    <option value="06:00pm">06 : 00 pm</option>
+                    <option value="07:00pm">07 : 00 pm</option>
+                    <option value="08:00pm">08 : 00 pm</option>
+                    <option value="09:00pm">09 : 00 pm</option>
+                    <option value="10:00pm">10 : 00 pm</option>
+                  </select>
+
+                  <ion-icon name="chevron-down" aria-hidden="true"></ion-icon>
+                </div>
+
+              </div>
+
+              <textarea name="message" placeholder="Message" autocomplete="off" class="input-field"></textarea>
+
+              <button type="submit" class="btn btn-secondary">
+                <span class="text text-1">Book A Table</span>
+
+                <span class="text text-2" aria-hidden="true">Book A Table</span>
+              </button>
+
+            </form>
+
+            <div class="form-right text-center" style="background-image: url('./assets/images/form-pattern.png')">
+
+              <h2 class="headline text-center">Contact Us</h2>
+
+              <p class="contact-label">Booking Request</p>
+
+              <a href="tel:+17815476099" class="text-4xl text-black contact-number hover-underline">(781) 547-6099</a>
+
+              <div class="separator"></div>
+
+              <p class="contact-label">Location</p>
+
+              <address class="text-black">
+                434 Moody St, <br>
+                Waltham, MA 02453
+              </address>
+
+              <p class="contact-label">Lunch Time</p>
+
+              <p class="text-black">
+                Monday to Sunday <br>
+                11.00 am - 2.30pm
+              </p>
+
+              <p class="contact-label">Dinner Time</p>
+
+              <p class="text-black">
+                Monday to Sunday <br>
+                05.00 pm - 10.00pm
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+
+
+
+
+      <!--
+        - #FEATURES
+      -->
+
+      <section class="section features text-center" aria-label="features">
+        <div class="container">
+
+          <p class="section-subtitle label-2">Why Choose Us</p>
+
+          <h2 class="headline section-title">Our Strength</h2>
+
+          <ul class="grid-list">
+
+            <li class="feature-item">
+              <div class="feature-card">
+
+                <div class="card-icon">
+                  <img src="./assets/images/features-icon-1.png" width="100" height="80" loading="lazy" alt="icon">
+                </div>
+
+                <h3 class="title-2 card-title">Authentic Recipes</h3>
+
+                <p class="label-1 card-text">Traditional North and South Indian recipes passed down through generations.</p>
+
+              </div>
+            </li>
+
+            <li class="feature-item">
+              <div class="feature-card">
+
+                <div class="card-icon">
+                  <img src="./assets/images/features-icon-2.png" width="100" height="80" loading="lazy" alt="icon">
+                </div>
+
+                <h3 class="title-2 card-title">Separate Kitchens</h3>
+
+                <p class="label-1 card-text">Dedicated kitchens for vegetarian and non-vegetarian dishes ensuring quality.</p>
+
+              </div>
+            </li>
+
+            <li class="feature-item">
+              <div class="feature-card">
+
+                <div class="card-icon">
+                  <img src="./assets/images/features-icon-3.png" width="100" height="80" loading="lazy" alt="icon">
+                </div>
+
+                <h3 class="title-2 card-title">Expert Chefs</h3>
+
+                <p class="label-1 card-text">Chef Peppino and Chef Laddi bring years of expertise in Indian cuisine.</p>
+
+              </div>
+            </li>
+
+            <li class="feature-item">
+              <div class="feature-card">
+
+                <div class="card-icon">
+                  <img src="./assets/images/features-icon-4.png" width="100" height="80" loading="lazy" alt="icon">
+                </div>
+
+                <h3 class="title-2 card-title">Catering Services</h3>
+
+                <p class="label-1 card-text">Perfect for events and parties with our authentic Indian catering options.</p>
+
+              </div>
+            </li>
+
+          </ul>
+
+          <img src="./assets/images/shape-7.png" width="208" height="178" loading="lazy" alt="shape"
+            class="shape shape-1">
+
+          <img src="./assets/images/shape-8.png" width="120" height="115" loading="lazy" alt="shape"
+            class="shape shape-2">
+
+        </div>
+      </section>
+
+
+
+
+
+      <!--
+        - #EVENT
+      -->
+
+      <section class="section event bg-black-10" aria-label="event">
+        <div class="container">
+
+          <p class="section-subtitle label-2 text-center">Latest Stories</p>
+
+          <h2 class="section-title headline text-center">Our Blog</h2>
+
+          <ul class="grid-list">
+
+            <li>
+              <a href="blog-detail-1.html" class="event-card has-before hover:shine">
+
+                <div class="card-banner img-holder" style="--width: 350; --height: 450;">
+                  <img src="./assets/images/event-1.png" width="350" height="450" loading="lazy"
+                    alt="Flavour so good you’ll try to eat with your eyes." class="img-cover">
+
+                  <time class="publish-date label-2" datetime="2024-01-15">15/01/2024</time>
+                </div>
+
+                <div class="card-content">
+                  <p class="card-subtitle label-2 text-center">Cooking Tips</p>
+
+                  <h3 class="card-title title-2 text-center">
+                    Flavour so good you’ll try to eat with your eyes.
+                  </h3>
+                </div>
+
+              </a>
+            </li>
+
+            <li>
+              <a href="blog-detail-2.html" class="event-card has-before hover:shine">
+
+                <div class="card-banner img-holder" style="--width: 350; --height: 450;">
+                  <img src="./assets/images/event-2.png" width="350" height="450" loading="lazy"
+                    alt="Flavour so good you’ll try to eat with your eyes." class="img-cover">
+
+                  <time class="publish-date label-2" datetime="2024-01-08">08/01/2024</time>
+                </div>
+
+                <div class="card-content">
+                  <p class="card-subtitle label-2 text-center">Healthy Food</p>
+
+                  <h3 class="card-title title-2 text-center">
+                    Flavour so good you’ll try to eat with your eyes.
+                  </h3>
+                </div>
+
+              </a>
+            </li>
+
+            <li>
+              <a href="blog-detail-3.html" class="event-card has-before hover:shine">
+
+                <div class="card-banner img-holder" style="--width: 350; --height: 450;">
+                  <img src="./assets/images/event-3.png" width="350" height="450" loading="lazy"
+                    alt="Flavour so good you’ll try to eat with your eyes." class="img-cover">
+
+                  <time class="publish-date label-2" datetime="2024-01-03">03/01/2024</time>
+                </div>
+
+                <div class="card-content">
+                  <p class="card-subtitle label-2 text-center">Recipe</p>
+
+                  <h3 class="card-title title-2 text-center">
+                    Flavour so good you’ll try to eat with your eyes.
+                  </h3>
+                </div>
+
+              </a>
+            </li>
+
+          </ul>
+
+          <a href="blog.html" class="btn btn-primary">
+            <span class="text text-1">View Our Blog</span>
+
+            <span class="text text-2" aria-hidden="true">View Our Blog</span>
+          </a>
+
+        </div>
+      </section>
+
+    </article>
+  </main>
+
+
+
+
+
+  <!--
+    - #FOOTER
+  -->
+
+  <footer class="footer section has-bg-image text-center"
+    style="background-image: url('./assets/images/footer-bg.jpg')">
+    <div class="container">
+
+      <div class="footer-top grid-list">
+
+        <div class="footer-brand has-before has-after">
+
+          <a href="index.html" class="logo">
+            <img src="./assets/images/logo-1.png" width="120" height="38" loading="lazy" alt="Peppino's Dosa home">
+          </a>
+
+          <address class="body-4">
+            434 Moody St, Waltham, MA 02453
+          </address>
+
+          <a href="mailto:Walthampeppinosdosa@gmail.com" class="body-4 contact-link">Walthampeppinosdosa@gmail.com</a>
+
+          <a href="tel:+17815476099" class="body-4 contact-link">Booking Request : (781) 547-6099</a>
+
+          <p class="body-4">
+            Lunch Buffet: Mon-Fri 11:30AM-3PM<br>
+            Dining: Mon-Thu 11:30AM-3PM, 5-10PM<br>
+            Fri-Sun 11:30AM-3:30PM, 4:30-10PM
+          </p>
+
+          <div class="wrapper">
+            <div class="separator"></div>
+            <div class="separator"></div>
+            <div class="separator"></div>
+          </div>
+
+          <p class="title-1">Get News & Offers</p>
+
+          <p class="label-1">
+            Subscribe us & Get <span class="span">25% Off.</span>
+          </p>
+
+          <form action="" class="input-wrapper">
+            <div class="icon-wrapper">
+              <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+
+              <input type="email" name="email_address" placeholder="Your email" autocomplete="off" class="input-field">
+            </div>
+
+            <button type="submit" class="btn btn-secondary">
+              <span class="text text-1">Subscribe</span>
+
+              <span class="text text-2" aria-hidden="true">Subscribe</span>
+            </button>
+          </form>
+
+        </div>
+
+        <ul class="footer-list">
+
+          <li>
+            <a href="index.html" class="text-white footer-link hover-underline">Home</a>
+          </li>
+
+          <li>
+            <a href="menu.html" class="text-white footer-link hover-underline">Menus</a>
+          </li>
+
+          <li>
+            <a href="about.html" class="text-white footer-link hover-underline">About Us</a>
+          </li>
+
+          <li>
+            <a href="chefs.html" class="text-white footer-link hover-underline">Our Chefs</a>
+          </li>
+
+          <li>
+            <a href="catering.html" class="text-white footer-link hover-underline">Catering</a>
+          </li>
+
+          <li>
+            <a href="blog.html" class="text-white footer-link hover-underline">Blog</a>
+          </li>
+
+          <li>
+            <a href="contact.html" class="text-white footer-link hover-underline">Contact</a>
+          </li>
+
+        </ul>
+
+        <ul class="footer-list">
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Facebook</a>
+          </li>
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Instagram</a>
+          </li>
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Twitter</a>
+          </li>
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Youtube</a>
+          </li>
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Google Map</a>
+          </li>
+
+        </ul>
+
+      </div>
+
+      <div class="footer-bottom">
+
+        <p class="copyright">
+          &copy; 2025 Peppinos. All Rights Reserved
+        </p>
+
+      </div>
+
+    </div>
+  </footer>
+
+
+
+
+
+  <!--
+    - #BACK TO TOP
+  -->
+
+  <a href="#top" class="back-top-btn active" aria-label="back to top" data-back-top-btn>
+    <ion-icon name="chevron-up" aria-hidden="true"></ion-icon>
+  </a>
+
+
+
+
+
+  <!--
+    - custom js link
+  -->
+  <script src="./assets/js/script.js"></script>
+
+  <!--
+    - ionicon link
+  -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+</body>
+
+</html>
