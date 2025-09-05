@@ -284,16 +284,95 @@
           </p>
 
           <!-- Chef profiles -->
-          <div class="grid-list" style="margin-top: 50px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
-            <div class="feature-card" style="padding: 20px;">
-              <img src="./assets/images/chef-peppino.png" width="200" height="200" loading="lazy" alt="Chef Peppino" class="img" style="border-radius: 50%; margin-bottom: 20px;">
-              <h3 class="title-2 card-title">Chef Peppino</h3>
-              <p class="label-1 card-text">Master of authentic North and South Indian cuisine, Chef Peppino brings traditional recipes and innovative techniques to create exceptional dining experiences.</p>
+          <div class="chefs-grid" style="margin-top: 50px;">
+            <!-- Chef Peppino Card -->
+            <div class="chef-profile-card">
+              <div class="chef-card-header">
+                <div class="chef-avatar">
+                  <img src="./assets/images/chef-peppino.png" width="120" height="120" loading="lazy" alt="Chef Peppino" class="chef-img">
+                </div>
+                <div class="chef-info">
+                  <h3 class="title-2 chef-name">Chef Peppino</h3>
+                  <p class="chef-title">Master Chef & Co-Founder</p>
+                  <div class="chef-specialty">
+                    <span class="specialty-tag">North Indian Cuisine</span>
+                    <span class="specialty-tag">Traditional Recipes</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chef-description">
+                <p class="label-1">Master of authentic North and South Indian cuisine, Chef Peppino brings traditional recipes and innovative techniques to create exceptional dining experiences.</p>
+              </div>
+
+              <!-- Chef Peppino Video Section -->
+              <div class="chef-video-section">
+                <div class="video-header">
+                  <h4 class="video-title">Watch Chef Peppino in Action</h4>
+                  <div class="video-divider"></div>
+                </div>
+
+                <div class="chef-video-frame">
+                  <video class="chef-video-player" poster="./assets/images/chef-cooking.png" preload="metadata" data-chef="peppino">
+                    <source src="./assets/videos/chef-cooking.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                  </video>
+
+                  <div class="chef-video-overlay">
+                    <div class="video-play-button" data-chef-video-btn="peppino">
+                      <div class="play-icon">
+                        <ion-icon name="play" aria-hidden="true"></ion-icon>
+                      </div>
+                      <span class="play-text">Play Video</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="feature-card" style="padding: 20px;">
-              <img src="./assets/images/chef-laddi.png" width="200" height="200" loading="lazy" alt="Chef Laddi" class="img" style="border-radius: 50%; margin-bottom: 20px;">
-              <h3 class="title-2 card-title">Chef Laddi</h3>
-              <p class="label-1 card-text">Specializing in both vegetarian and non-vegetarian Indian dishes, Chef Laddi ensures every meal is prepared with passion and authentic flavors.</p>
+
+            <!-- Chef Laddi Card -->
+            <div class="chef-profile-card">
+              <div class="chef-card-header">
+                <div class="chef-avatar">
+                  <img src="./assets/images/chef-laddi.png" width="120" height="120" loading="lazy" alt="Chef Laddi" class="chef-img">
+                </div>
+                <div class="chef-info">
+                  <h3 class="title-2 chef-name">Chef Laddi</h3>
+                  <p class="chef-title">Executive Chef & Co-Founder</p>
+                  <div class="chef-specialty">
+                    <span class="specialty-tag">South Indian Cuisine</span>
+                    <span class="specialty-tag">Dosa Artistry</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chef-description">
+                <p class="label-1">Specializing in both vegetarian and non-vegetarian Indian dishes, Chef Laddi ensures every meal is prepared with passion and authentic flavors.</p>
+              </div>
+
+              <!-- Chef Laddi Video Section -->
+              <div class="chef-video-section">
+                <div class="video-header">
+                  <h4 class="video-title">Watch Chef Laddi in Action</h4>
+                  <div class="video-divider"></div>
+                </div>
+
+                <div class="chef-video-frame">
+                  <video class="chef-video-player" poster="./assets/images/chef-laddi.png" preload="metadata" data-chef="laddi">
+                    <source src="./assets/videos/chef-laddi.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                  </video>
+
+                  <div class="chef-video-overlay">
+                    <div class="video-play-button" data-chef-video-btn="laddi">
+                      <div class="play-icon">
+                        <ion-icon name="play" aria-hidden="true"></ion-icon>
+                      </div>
+                      <span class="play-text">Play Video</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 

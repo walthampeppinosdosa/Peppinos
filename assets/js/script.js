@@ -540,3 +540,187 @@ if (videoBtn && video) {
     videoBtn.style.display = "flex";
   });
 }
+
+/**
+ * CHEF PROFILE VIDEO PLAYERS
+ */
+
+// Handle multiple chef video players
+const chefVideoButtons = document.querySelectorAll("[data-chef-video-btn]");
+const chefVideos = document.querySelectorAll(".chef-video-player");
+
+chefVideoButtons.forEach((btn) => {
+  const chefName = btn.getAttribute("data-chef-video-btn");
+  const correspondingVideo = document.querySelector(`[data-chef="${chefName}"]`);
+  const overlay = btn.closest(".chef-video-overlay");
+
+  if (correspondingVideo && overlay) {
+    // Play button click handler
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+
+      // Pause all other chef videos
+      chefVideos.forEach(video => {
+        if (video !== correspondingVideo && !video.paused) {
+          video.pause();
+          video.setAttribute("data-paused", "true");
+          const otherOverlay = video.parentElement.querySelector(".chef-video-overlay");
+          if (otherOverlay) {
+            otherOverlay.style.opacity = "1";
+            otherOverlay.style.pointerEvents = "auto";
+          }
+        }
+      });
+
+      if (correspondingVideo.paused) {
+        correspondingVideo.play();
+        correspondingVideo.removeAttribute("data-paused");
+        overlay.style.opacity = "0";
+        overlay.style.pointerEvents = "none";
+      } else {
+        correspondingVideo.pause();
+        correspondingVideo.setAttribute("data-paused", "true");
+        overlay.style.opacity = "1";
+        overlay.style.pointerEvents = "auto";
+      }
+    });
+
+    // Overlay click handler (entire overlay area)
+    overlay.addEventListener("click", function () {
+      // Pause all other chef videos
+      chefVideos.forEach(video => {
+        if (video !== correspondingVideo && !video.paused) {
+          video.pause();
+          video.setAttribute("data-paused", "true");
+          const otherOverlay = video.parentElement.querySelector(".chef-video-overlay");
+          if (otherOverlay) {
+            otherOverlay.style.opacity = "1";
+            otherOverlay.style.pointerEvents = "auto";
+          }
+        }
+      });
+
+      if (correspondingVideo.paused) {
+        correspondingVideo.play();
+        correspondingVideo.removeAttribute("data-paused");
+        overlay.style.opacity = "0";
+        overlay.style.pointerEvents = "none";
+      }
+    });
+
+    // Video click handler
+    correspondingVideo.addEventListener("click", function () {
+      if (correspondingVideo.paused) {
+        correspondingVideo.play();
+        correspondingVideo.removeAttribute("data-paused");
+        overlay.style.opacity = "0";
+        overlay.style.pointerEvents = "none";
+      } else {
+        correspondingVideo.pause();
+        correspondingVideo.setAttribute("data-paused", "true");
+        overlay.style.opacity = "1";
+        overlay.style.pointerEvents = "auto";
+      }
+    });
+
+    // Video ended handler
+    correspondingVideo.addEventListener("ended", function () {
+      correspondingVideo.setAttribute("data-paused", "true");
+      overlay.style.opacity = "1";
+      overlay.style.pointerEvents = "auto";
+    });
+
+    // Initialize video as paused
+    correspondingVideo.setAttribute("data-paused", "true");
+  }
+});
+
+/**
+ * ABOUT VIDEO PLAYER
+ */
+
+const aboutVideoButton = document.querySelector("[data-about-video-btn]");
+const aboutVideo = document.querySelector(".about-video-player");
+const aboutOverlay = document.querySelector(".about-video-overlay");
+
+if (aboutVideoButton && aboutVideo && aboutOverlay) {
+  // Play button click handler
+  aboutVideoButton.addEventListener("click", function (e) {
+    e.stopPropagation();
+
+    // Pause all chef videos if any are playing
+    const chefVideos = document.querySelectorAll(".chef-video-player");
+    chefVideos.forEach(video => {
+      if (!video.paused) {
+        video.pause();
+        video.setAttribute("data-paused", "true");
+        const otherOverlay = video.parentElement.querySelector(".chef-video-overlay");
+        if (otherOverlay) {
+          otherOverlay.style.opacity = "1";
+          otherOverlay.style.pointerEvents = "auto";
+        }
+      }
+    });
+
+    if (aboutVideo.paused) {
+      aboutVideo.play();
+      aboutVideo.removeAttribute("data-paused");
+      aboutOverlay.style.opacity = "0";
+      aboutOverlay.style.pointerEvents = "none";
+    } else {
+      aboutVideo.pause();
+      aboutVideo.setAttribute("data-paused", "true");
+      aboutOverlay.style.opacity = "1";
+      aboutOverlay.style.pointerEvents = "auto";
+    }
+  });
+
+  // Overlay click handler
+  aboutOverlay.addEventListener("click", function () {
+    // Pause all chef videos if any are playing
+    const chefVideos = document.querySelectorAll(".chef-video-player");
+    chefVideos.forEach(video => {
+      if (!video.paused) {
+        video.pause();
+        video.setAttribute("data-paused", "true");
+        const otherOverlay = video.parentElement.querySelector(".chef-video-overlay");
+        if (otherOverlay) {
+          otherOverlay.style.opacity = "1";
+          otherOverlay.style.pointerEvents = "auto";
+        }
+      }
+    });
+
+    if (aboutVideo.paused) {
+      aboutVideo.play();
+      aboutVideo.removeAttribute("data-paused");
+      aboutOverlay.style.opacity = "0";
+      aboutOverlay.style.pointerEvents = "none";
+    }
+  });
+
+  // Video click handler
+  aboutVideo.addEventListener("click", function () {
+    if (aboutVideo.paused) {
+      aboutVideo.play();
+      aboutVideo.removeAttribute("data-paused");
+      aboutOverlay.style.opacity = "0";
+      aboutOverlay.style.pointerEvents = "none";
+    } else {
+      aboutVideo.pause();
+      aboutVideo.setAttribute("data-paused", "true");
+      aboutOverlay.style.opacity = "1";
+      aboutOverlay.style.pointerEvents = "auto";
+    }
+  });
+
+  // Video ended handler
+  aboutVideo.addEventListener("ended", function () {
+    aboutVideo.setAttribute("data-paused", "true");
+    aboutOverlay.style.opacity = "1";
+    aboutOverlay.style.pointerEvents = "auto";
+  });
+
+  // Initialize video as paused
+  aboutVideo.setAttribute("data-paused", "true");
+}

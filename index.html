@@ -552,21 +552,34 @@
 
           </div>
 
-          <figure class="about-banner">
+          <!-- About Video Section -->
+          <div class="about-video-section">
+            <div class="about-video-container">
+              <div class="about-video-wrapper">
+                <video class="about-video-player" poster="./assets/images/about-banner.jpg" preload="metadata" data-about-video="main">
+                  <source src="./assets/videos/about-video.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
 
-            <img src="./assets/images/about-banner.jpg" width="570" height="570" loading="lazy" alt="about banner"
-              class="w-100" data-parallax-item data-parallax-speed="1">
+                <div class="about-video-overlay">
+                  <div class="about-video-content">
+                    <div class="about-play-button" data-about-video-btn="main">
+                      <div class="about-play-icon">
+                        <ion-icon name="play" aria-hidden="true"></ion-icon>
+                      </div>
+                    </div>
+                    <h3 class="about-video-title">Experience Our Story</h3>
+                    <p class="about-video-subtitle">Discover the passion behind Peppino's Dosa</p>
+                  </div>
+                </div>
+              </div>
 
-            <div class="abs-img abs-img-1 has-before" data-parallax-item data-parallax-speed="1.75">
-              <img src="./assets/images/about-abs-image.jpg" width="285" height="285" loading="lazy" alt=""
-                class="w-100">
+              <!-- Decorative Elements -->
+              <div class="about-video-badge">
+                <img src="./assets/images/badge-2.png" width="100" height="101" loading="lazy" alt="Quality Badge">
+              </div>
             </div>
-
-            <div class="abs-img abs-img-2 has-before">
-              <img src="./assets/images/badge-2.png" width="133" height="134" loading="lazy" alt="">
-            </div>
-
-          </figure>
+          </div>
 
           <img src="./assets/images/shape-3.png" width="197" height="194" loading="lazy" alt="" class="shape">
 
