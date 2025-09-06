@@ -1,0 +1,338 @@
+Task:
+Build a scalable backend for Peppino's Restaurant, supporting both Admin and Client applications. The backend must provide RESTful APIs for product management, orders, payments, users, and analytics. Use Express.js, MongoDB, Cloudinary, JWT, Kinde, and Stripe. Deploy on Vercel.
+
+Tech Stack:
+
+Framework: Express.js
+
+Database: MongoDB + Mongoose
+
+File Storage: Cloudinary (for product & category images)
+
+Authentication: JWT (email/password) + Kinde (Google OAuth)
+
+Payments: Stripe
+
+Email Service: Nodemailer (for order confirmations, newsletters, etc.)
+
+Deployment: Vercel (with vercel.json)
+
+Core Features
+Admin Roles:
+
+Super Admin – View only
+
+Veg Admin – Manage only veg products & related categories.
+
+Non-Veg Admin – Manage only non-veg products & related categories.
+
+Role-based access:
+
+Implement middleware to check user roles and restrict access at the route level.
+
+Modules & Endpoints
+1. Authentication
+
+Register, login, and logout with JWT.
+
+Login/Signup via Kinde (Google OAuth).
+
+Both JWT and Kinde users must be streamlined into the same User collection.
+
+Refresh token mechanism.
+
+Endpoints:
+
+POST /api/auth/register
+
+POST /api/auth/login
+
+POST /api/auth/google
+
+POST /api/auth/logout
+
+GET /api/auth/profile
+
+2. Product Management
+
+Each product should have:
+
+Name
+
+Quantity (Qty)
+
+Size (Small, Medium, Large)
+
+Spicy Level
+
+Preparation Time
+
+Add-ons (array of objects with name and price)
+
+Special Instructions
+
+Multiple images (stored on Cloudinary)
+
+Description
+
+MRP & Discounted Price
+
+Reviews
+
+Category ID (Veg / Non-Veg link)
+
+Admin Features:
+
+Create, update, delete products.
+
+Bulk upload via CSV.
+
+Search and filter by category, name, price.
+
+Client Features:
+
+View all products.
+
+Filter & sort menu by category or custom filters.
+
+Endpoints:
+
+POST /api/admin/products (upload to Cloudinary)
+
+PUT /api/admin/products/:id
+
+DELETE /api/admin/products/:id
+
+GET /api/shop/products (public listing)
+
+GET /api/shop/products/:id
+
+3. Category Management
+
+Name
+
+Description
+
+Image (stored on Cloudinary)
+
+Endpoints:
+
+POST /api/admin/categories
+
+PUT /api/admin/categories/:id
+
+DELETE /api/admin/categories/:id
+
+GET /api/shop/categories
+
+4. Orders Management
+
+Order Structure:
+
+User ID
+
+Cart items (product ID, qty, price, add-ons)
+
+Address ID
+
+Payment status (pending, paid, failed)
+
+Delivery status (pending, preparing, delivered, cancelled)
+
+Total price
+
+Timestamp
+
+Admin Endpoints:
+
+GET /api/admin/orders (filter by status/date)
+
+PUT /api/admin/orders/:id/status
+
+GET /api/admin/orders/:id
+
+Client Endpoints:
+
+POST /api/shop/orders (Stripe checkout integration)
+
+GET /api/shop/orders/:userId
+
+Stripe Integration:
+
+Stripe session for payments (/api/shop/payment/checkout).
+
+Webhook to update order status after successful payment.
+
+5. User Management
+
+Fields:
+
+Name
+
+Email
+
+Phone Number
+
+Role (super-admin, veg-admin, non-veg-admin, customer)
+
+Google OAuth ID (if signed up via Kinde)
+
+Admin Features:
+
+View all registered users.
+
+Filter by role or status.
+
+Endpoints:
+
+GET /api/admin/users
+
+GET /api/admin/users/:id
+
+PUT /api/admin/users/:id
+
+6. Address Management
+
+Street, City, State, ZIP, Country, linked to user.
+
+Endpoints:
+
+POST /api/shop/address
+
+GET /api/shop/address/:userId
+
+PUT /api/shop/address/:id
+
+DELETE /api/shop/address/:id
+
+7. Reviews
+
+Users can leave reviews on products.
+
+Admins can moderate (approve/reject).
+
+Endpoints:
+
+POST /api/shop/reviews
+
+GET /api/shop/reviews/:productId
+
+DELETE /api/admin/reviews/:id
+
+8. Cart Management
+
+Add/remove products to/from cart.
+
+Update quantities.
+
+Auto-calculate total price.
+
+Endpoints:
+
+POST /api/shop/cart
+
+GET /api/shop/cart/:userId
+
+PUT /api/shop/cart/:id
+
+DELETE /api/shop/cart/:id
+
+9. Reports & Analytics
+
+Average Cart Value (by date range).
+
+Lifetime Cart Value (per customer).
+
+Export reports as Excel and PDF.
+
+Endpoints:
+
+GET /api/admin/reports/cart-stats
+
+GET /api/admin/reports/export?type=excel
+
+10. Newsletter, Feedback, and Contact
+
+Newsletter signups and campaigns.
+
+Feedback forms for users.
+
+Contact submissions.
+
+Endpoints:
+
+POST /api/shop/newsletter
+
+GET /api/admin/newsletter
+
+POST /api/shop/contact
+
+POST /api/shop/feedback
+
+Directory Structure
+server/
+├── controllers/
+│   ├── admin/
+│   │   ├── category-controller.js
+│   │   ├── dashboard-controller.js
+│   │   ├── order-controller.js
+│   │   ├── product-controller.js
+│   │   ├── review-controller.js
+│   │   └── user-controller.js
+│   ├── auth/
+│   │   └── auth-controller.js
+│   └── shop/
+│       ├── address-controller.js
+│       ├── cart-controller.js
+│       ├── order-controller.js
+│       ├── product-controller.js
+│       └── review-controller.js
+│
+├── helpers/
+│   ├── cloudinary.js
+│   ├── send-email.js
+│   └── upload-middleware.js
+│
+├── models/
+│   ├── Address.js
+│   ├── Cart.js
+│   ├── Category.js
+│   ├── Order.js
+│   ├── Product.js
+│   ├── Review.js
+│   └── User.js
+│
+├── routes/
+│   ├── admin/
+│   │   ├── category-routes.js
+│   │   ├── dashboard-routes.js
+│   │   ├── order-routes.js
+│   │   ├── product-routes.js
+│   │   └── user-routes.js
+│   ├── auth/
+│   │   └── auth-routes.js
+│   └── shop/
+│       ├── address-routes.js
+│       ├── cart-routes.js
+│       ├── order-routes.js
+│       ├── product-routes.js
+│       └── review-routes.js
+│
+├── server.js
+└── vercel.json
+
+Security & Best Practices
+
+Use bcrypt.js for password hashing.
+
+Use Helmet and CORS middleware.
+
+Validate all incoming requests with Joi or custom middleware.
+
+Sanitize input to prevent MongoDB injection.
+
+Rate limit login and sensitive routes.
+
+Final Goal
+
+Deliver a production-ready backend that seamlessly powers both the admin panel and client app for Peppino's, handling everything from menu management to Stripe-based payments, while keeping security, scalability, and maintainability at the core.

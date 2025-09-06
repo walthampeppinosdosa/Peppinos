@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!--
+    - primary meta tags
+  -->
+  <title>Peppinos - About Us</title>
+  <meta name="title" content="Peppinos - About Us">
+  <meta name="description" content="Learn about Peppinos Restaurant and our story">
+
+  <!--
+    - favicon
+  -->
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  <!--
+    - google font link
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap" rel="stylesheet">
+
+  <!--
+    - custom css link
+  -->
+  <link rel="stylesheet" href="./assets/css/style.css">
+
+  <!--
+    - tailwind css cdn
+  -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!--
+    - custom overrides css
+  -->
+  <!-- <link rel="stylesheet" href="./assets/css/custom.css"> -->
+  
+  <!--
+    - header and hero specific css
+  -->
+  <!-- <link rel="stylesheet" href="./assets/css/header-hero.css"> -->
+
+  <!--
+    - preload images
+  -->
+  <link rel="preload" as="image" href="./assets/images/hero-slider-1.png">
+  <link rel="preload" as="image" href="./assets/images/hero-slider-2.png">
+  <link rel="preload" as="image" href="./assets/images/hero-slider-3.png">
+
+</head>
+
+<body id="top" class="about-page">
+
+  <!--
+    - #PRELOADER
+  -->
+
+  <div class="preload" data-preaload>
+    <div class="circle"></div>
+    <p class="text">Peppinos</p>
+  </div>
+
+
+
+
+
+  <!--
+    - #TOP BAR
+  -->
+
+  <div class="topbar">
+    <div class="container">
+
+      <address class="topbar-item">
+        <div class="icon">
+          <ion-icon name="location-outline" aria-hidden="true"></ion-icon>
+        </div>
+
+        <span class="span">
+          434 Moody St, Waltham, MA 02453
+        </span>
+      </address>
+
+      <div class="separator"></div>
+
+      <div class="topbar-item item-2">
+        <div class="icon">
+          <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+        </div>
+
+        <span class="span">Mon-Thu: 11:30AM-3PM, 5-10PM | Fri-Sun: 11:30AM-3:30PM, 4:30-10PM</span>
+      </div>
+
+      <a href="tel:+17815476099" class="topbar-item link">
+        <div class="icon">
+          <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
+        </div>
+
+        <span class="span">(781) 547-6099</span>
+      </a>
+
+      <div class="separator"></div>
+
+      <a href="mailto:booking@peppinosdosa.com" class="topbar-item link">
+        <div class="icon">
+          <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+        </div>
+
+        <span class="span">booking@peppinosdosa.com</span>
+      </a>
+
+    </div>
+  </div>
+
+
+
+
+
+  <!--
+    - #HEADER
+  -->
+
+  <header class="header" data-header>
+    <div class="container">
+
+         <a href="index.html" class="logo">
+        <div class="logo-container">
+          <div class="logo-spinner">
+            <div class="logo-face logo-face-1">
+              <img src="./assets/images/logo-1.png" width="360" height="114" alt="Peppino's Dosa - Home">
+            </div>
+            <div class="logo-face logo-face-2">
+              <img src="./assets/images/logo-2.png" width="360" height="114" alt="Peppino's Dosa - Home">
+            </div>
+            <div class="logo-face logo-face-3">
+              <img src="./assets/images/logo-3.png" width="360" height="114" alt="Peppino's Dosa - Home">
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <nav class="navbar" data-navbar>
+
+        <button class="close-btn" aria-label="close menu" data-nav-toggler>
+          <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+        </button>
+
+
+
+        <ul class="navbar-list">
+
+          <li class="navbar-item">
+            <a href="index.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Home</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="menu.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Menus</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="about.html" class="navbar-link hover-underline active">
+              <div class="separator"></div>
+
+              <span class="span">About Us</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="chefs.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Our Chefs</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="catering.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Catering</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="contact.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Contact</span>
+            </a>
+          </li>
+
+        </ul>
+
+        <div class="text-center">
+          <p class="headline-1 navbar-title">Visit Us</p>
+
+          <address class="body-4">
+            434 Moody St, <br>
+            Waltham, MA 02453
+          </address>
+
+          <p class="body-4 navbar-text">Lunch Buffet: Mon-Fri 11:30AM-3PM</p>
+
+          <a href="mailto:booking@peppinosdosa.com" class="body-4 sidebar-link">booking@peppinosdosa.com</a>
+
+          <div class="separator"></div>
+
+          <p class="contact-label">Booking Request</p>
+
+          <a href="tel:+17815476099" class="body-1 contact-number hover-underline">
+            (781) 547-6099
+          </a>
+        </div>
+
+        <div class="navbar-actions">
+          <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google navbar-btn" rel="noopener">
+            <span class="text text-1">Google Reviews</span>
+            <span class="text text-2" aria-hidden="true">Google Reviews</span>
+          </a>
+
+          <a href="contact.html#reservation" class="btn btn-secondary navbar-btn">
+            <span class="text text-1">Find A Table</span>
+            <span class="text text-2" aria-hidden="true">Find A Table</span>
+          </a>
+        </div>
+
+      </nav>
+
+      <div class="header-actions">
+        <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google" rel="noopener">
+          <span class="text text-1">Google Reviews</span>
+          <span class="text text-2" aria-hidden="true">Google Reviews</span>
+        </a>
+
+        <a href="contact.html#reservation" class="btn btn-secondary">
+          <span class="text text-1">Find A Table</span>
+          <span class="text text-2" aria-hidden="true">Find A Table</span>
+        </a>
+      </div>
+
+      <button class="nav-open-btn" aria-label="open menu" data-nav-toggler>
+        <span class="line line-1"></span>
+        <span class="line line-2"></span>
+        <span class="line line-3"></span>
+      </button>
+
+      <div class="overlay" data-nav-toggler data-overlay></div>
+
+    </div>
+  </header>
+
+
+
+
+
+  <main>
+    <article>
+
+      <!--
+        - #ABOUT
+      -->
+
+      <section class="section about text-center" aria-labelledby="about-label" id="about">
+        <div class="container">
+
+          <div class="about-content">
+
+            <p class="label-2 section-subtitle" id="about-label">Our Story</p>
+
+            <h2 class="headline section-title">Authentic Indian Dining Experience</h2>
+
+            <p class="section-text">
+              Peppino's Dosa casual eatery in Waltham, where Chef Peppino along with Chef Laddi bring you authentic North and South Indian cooking paired with excellent service and a wonderful ambiance to create a very unique Indian dining experience. One place, two tasty worlds. Craving plant-based? Prefer something meaty? We've got you covered. Our unique setup features separate kitchens-one for fresh vegan and vegetarian dishes, the other for flavorful meat options.
+            </p>
+
+            <div class="contact-label">Book Through Call</div>
+
+            <a href="tel:+17815476099" class="body-1 contact-number hover-underline">(781) 547-6099</a>
+
+            <!-- <a href="#" class="btn btn-primary">
+              <span class="text text-1">Read More</span>
+
+              <span class="text text-2" aria-hidden="true">Read More</span>
+            </a> -->
+
+          </div>
+
+          <!-- About Video Section -->
+          <div class="about-video-section">
+            <div class="about-video-container">
+              <div class="about-video-wrapper">
+                <video class="about-video-player" poster="./assets/images/about-banner.jpg" preload="metadata" data-about-video="main">
+                  <source src="./assets/videos/about-video.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+
+                <div class="about-video-overlay">
+                  <div class="about-video-content">
+                    <div class="about-play-button" data-about-video-btn="main">
+                      <div class="about-play-icon">
+                        <ion-icon name="play" aria-hidden="true"></ion-icon>
+                      </div>
+                    </div>
+                    <h3 class="about-video-title">Experience Our Story</h3>
+                    <p class="about-video-subtitle">Discover the passion behind Peppino's Dosa</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Decorative Elements -->
+              <div class="about-video-badge">
+                <img src="./assets/images/badge-2.png" width="100" height="101" loading="lazy" alt="Quality Badge">
+              </div>
+            </div>
+          </div>
+
+          <img src="./assets/images/shape-3.png" width="197" height="194" loading="lazy" alt="" class="shape">
+
+        </div>
+      </section>
+
+      <!-- Restaurant Experience Section (Only in about.html) -->
+      <section class="section restaurant-experience" aria-label="restaurant experience">
+        <div class="container">
+          <div class="restaurant-experience-section">
+            <div class="experience-header">
+              <p class="section-subtitle label-2">Experience Excellence</p>
+              <h3 class="experience-title headline">Step Into Our World</h3>
+              <p class="experience-description">
+                From our elegant dining spaces to our open kitchen concept, every corner of Peppino's Dosa tells a story of passion, tradition, and culinary excellence. Discover the ambiance that makes every meal memorable.
+              </p>
+            </div>
+
+            <div class="experience-showcase">
+              <!-- Main Feature Image -->
+              <div class="feature-experience">
+                <div class="feature-image-container">
+                  <img src="./assets/images/about-1.png" width="600" height="400" loading="lazy" alt="Elegant Dining Space" class="feature-img">
+                  <div class="feature-overlay">
+                    <div class="feature-content">
+                      <h4 class="feature-title">Elegant Dining Experience</h4>
+                      <p class="feature-text">Our thoughtfully designed dining spaces create the perfect atmosphere for intimate dinners, family gatherings, and special celebrations.</p>
+                      <div class="feature-highlights">
+                        <span class="highlight-item">Comfortable Seating</span>
+                        <span class="highlight-item">Ambient Lighting</span>
+                        <span class="highlight-item">Cultural Decor</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Side Experiences -->
+              <div class="side-experiences">
+                <div class="experience-card">
+                  <div class="card-image">
+                    <img src="./assets/images/about-2.png" width="350" height="250" loading="lazy" alt="Open Kitchen" class="card-img">
+                  </div>
+                  <div class="card-content">
+                    <h4 class="card-title">Open Kitchen Concept</h4>
+                    <p class="card-text">Watch our skilled chefs craft authentic Indian dishes with traditional techniques and fresh ingredients.</p>
+                    <div class="card-features">
+                      <div class="feature-point">
+                        <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
+                        <span>Live Cooking Experience</span>
+                      </div>
+                      <div class="feature-point">
+                        <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
+                        <span>Fresh Ingredients Daily</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="experience-card">
+                  <div class="card-image">
+                    <img src="./assets/images/about-3.png" width="350" height="250" loading="lazy" alt="Restaurant Ambiance" class="card-img">
+                  </div>
+                  <div class="card-content">
+                    <h4 class="card-title">Warm & Welcoming</h4>
+                    <p class="card-text">Every detail is designed to make you feel at home while experiencing the rich culture of Indian hospitality.</p>
+                    <div class="card-features">
+                      <div class="feature-point">
+                        <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
+                        <span>Family-Friendly Environment</span>
+                      </div>
+                      <div class="feature-point">
+                        <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
+                        <span>Cultural Atmosphere</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Experience Stats -->
+            <div class="experience-stats">
+              <div class="stat-item">
+                <div class="stat-number">15+</div>
+                <div class="stat-label">Years of Excellence</div>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <div class="stat-number">2</div>
+                <div class="stat-label">Specialized Kitchens</div>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <div class="stat-number">100+</div>
+                <div class="stat-label">Authentic Dishes</div>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <div class="stat-number">5★</div>
+                <div class="stat-label">Customer Rating</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!--
+        - #FEATURES
+      -->
+
+      <section class="section features text-center" aria-label="features">
+        <div class="container">
+
+          <p class="section-subtitle label-2">Why Choose Us</p>
+
+          <h2 class="headline section-title">Our Strength</h2>
+
+          <ul class="grid-list">
+
+            <li class="feature-item">
+              <div class="feature-card">
+
+                <div class="card-icon">
+                  <img src="./assets/images/features-icon-1.png" width="100" height="80" loading="lazy" alt="icon">
+                </div>
+
+                <h3 class="title-2 card-title">Hygienic Food</h3>
+
+                <p class="label-1 card-text">Lorem Ipsum is simply dummy printing and typesetting.</p>
+
+              </div>
+            </li>
+
+            <li class="feature-item">
+              <div class="feature-card">
+
+                <div class="card-icon">
+                  <img src="./assets/images/features-icon-2.png" width="100" height="80" loading="lazy" alt="icon">
+                </div>
+
+                <h3 class="title-2 card-title">Fresh Environment</h3>
+
+                <p class="label-1 card-text">Lorem Ipsum is simply dummy printing and typesetting.</p>
+
+              </div>
+            </li>
+
+            <li class="feature-item">
+              <div class="feature-card">
+
+                <div class="card-icon">
+                  <img src="./assets/images/features-icon-3.png" width="100" height="80" loading="lazy" alt="icon">
+                </div>
+
+                <h3 class="title-2 card-title">Skilled Chefs</h3>
+
+                <p class="label-1 card-text">Lorem Ipsum is simply dummy printing and typesetting.</p>
+
+              </div>
+            </li>
+
+            <li class="feature-item">
+              <div class="feature-card">
+
+                <div class="card-icon">
+                  <img src="./assets/images/features-icon-4.png" width="100" height="80" loading="lazy" alt="icon">
+                </div>
+
+                <h3 class="title-2 card-title">Event & Party</h3>
+
+                <p class="label-1 card-text">Lorem Ipsum is simply dummy printing and typesetting.</p>
+
+              </div>
+            </li>
+
+          </ul>
+
+          <img src="./assets/images/shape-7.png" width="208" height="178" loading="lazy" alt="shape"
+            class="shape shape-1">
+
+          <img src="./assets/images/shape-8.png" width="120" height="115" loading="lazy" alt="shape"
+            class="shape shape-2">
+
+        </div>
+      </section>
+
+    </article>
+  </main>
+
+
+
+
+
+  <!--
+    - #FOOTER
+  -->
+
+  <footer class="footer section has-bg-image text-center"
+    style="background-image: url('./assets/images/footer-bg.jpg')">
+    <div class="container">
+
+      <div class="footer-top grid-list">
+
+        <div class="footer-brand has-before has-after">
+
+          <a href="index.html" class="logo">
+            <img src="./assets/images/logo-1.png" width="90" height="24" loading="lazy" alt="peppinos home">
+          </a>
+
+          <address class="body-4">
+            434 Moody St, Waltham, MA 02453
+          </address>
+
+          <a href="mailto:booking@peppinosdosa.com" class="body-4 contact-link">booking@peppinosdosa.com</a>
+
+          <a href="tel:+17815476099" class="body-4 contact-link">Booking Request : (781) 547-6099</a>
+
+          <p class="body-4">
+            Lunch Buffet: Mon-Fri 11:30AM-3PM<br>
+            Dining: Mon-Thu 11:30AM-3PM, 5-10PM<br>
+            Fri-Sun 11:30AM-3:30PM, 4:30-10PM
+          </p>
+
+          <div class="wrapper">
+            <div class="separator"></div>
+            <div class="separator"></div>
+            <div class="separator"></div>
+          </div>
+
+          <p class="title-1">Get News & Offers</p>
+
+          <p class="label-1">
+            Subscribe us & Get <span class="span">25% Off.</span>
+          </p>
+
+          <form action="" class="input-wrapper">
+            <div class="icon-wrapper">
+              <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+
+              <input type="email" name="email_address" placeholder="Your email" autocomplete="off" class="input-field">
+            </div>
+
+            <button type="submit" class="btn btn-secondary">
+              <span class="text text-1">Subscribe</span>
+
+              <span class="text text-2" aria-hidden="true">Subscribe</span>
+            </button>
+          </form>
+
+        </div>
+
+        <ul class="footer-list">
+
+          <li>
+            <a href="index.html" class="text-white footer-link hover-underline">Home</a>
+          </li>
+
+          <li>
+            <a href="menu.html" class="text-white footer-link hover-underline">Menus</a>
+          </li>
+
+          <li>
+            <a href="about.html" class="text-white footer-link hover-underline">About Us</a>
+          </li>
+
+          <li>
+            <a href="chefs.html" class="text-white footer-link hover-underline">Our Chefs</a>
+          </li>
+
+          <li>
+            <a href="catering.html" class="text-white footer-link hover-underline">Catering</a>
+          </li>
+
+          <li>
+            <a href="blog.html" class="text-white footer-link hover-underline">Blog</a>
+          </li>
+
+          <li>
+            <a href="contact.html" class="text-white footer-link hover-underline">Contact</a>
+          </li>
+
+        </ul>
+
+        <ul class="footer-list">
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Facebook</a>
+          </li>
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Instagram</a>
+          </li>
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Twitter</a>
+          </li>
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Youtube</a>
+          </li>
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Google Map</a>
+          </li>
+
+        </ul>
+
+      </div>
+
+      <div class="footer-bottom">
+
+        <p class="copyright">
+          &copy; 2025 Peppinos. All Rights Reserved
+        </p>
+
+      </div>
+
+    </div>
+  </footer>
+
+
+
+
+
+  <!--
+    - #BACK TO TOP
+  -->
+
+  <a href="#top" class="back-top-btn active" aria-label="back to top" data-back-top-btn>
+    <ion-icon name="chevron-up" aria-hidden="true"></ion-icon>
+  </a>
+
+
+
+
+
+  <!--
+    - custom js link
+  -->
+  <script src="./assets/js/script.js"></script>
+  <script src="./assets/js/custom.js"></script>
+
+  <!--
+    - ionicon link
+  -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+</body>
+
+</html>

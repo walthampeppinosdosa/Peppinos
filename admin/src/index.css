@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Gold and White Admin Theme */
+    --background: 0 0% 100%;
+    --foreground: 45 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 45 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 45 25% 15%;
+
+    /* Rich Gold Primary - More authentic gold color */
+    --primary: 43 96% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Soft Gold Secondary */
+    --secondary: 48 100% 96%;
+    --secondary-foreground: 45 25% 15%;
+
+    --muted: 48 20% 97%;
+    --muted-foreground: 45 15% 45%;
+
+    /* Light Gold Accent */
+    --accent: 48 100% 95%;
+    --accent-foreground: 45 25% 15%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 48 30% 92%;
+    --input: 48 30% 95%;
+    --ring: 43 96% 56%;
+
+    /* Success for veg items */
+    --success: 120 60% 50%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning for spicy items */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Gold-themed gradients - More authentic gold */
+    --gradient-primary: linear-gradient(135deg, hsl(43 96% 56%), hsl(41 94% 62%));
+    --gradient-secondary: linear-gradient(135deg, hsl(48 100% 95%), hsl(45 80% 85%));
+    --gradient-warm: linear-gradient(135deg, hsl(43 96% 56%), hsl(38 100% 55%));
+
+    /* Gold-themed shadows */
+    --shadow-warm: 0 10px 30px -10px hsl(43 96% 56% / 0.25);
+    --shadow-soft: 0 4px 20px -4px hsl(45 25% 15% / 0.08);
+
+    --radius: 0.5rem;
+
+    /* Gold Sidebar Theme - More authentic gold */
+    --sidebar-background: 43 96% 56%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 43 96% 56%;
+    --sidebar-accent: 41 94% 62%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 41 80% 65%;
+    --sidebar-ring: 0 0% 100%;
+
+  }
+
+  .dark {
+    /* Dark Gold Theme */
+    --background: 45 15% 8%;
+    --foreground: 48 100% 95%;
+
+    --card: 45 20% 12%;
+    --card-foreground: 48 100% 95%;
+
+    --popover: 45 20% 12%;
+    --popover-foreground: 48 100% 95%;
+
+    --primary: 43 96% 56%;
+    --primary-foreground: 45 15% 8%;
+
+    --secondary: 45 25% 15%;
+    --secondary-foreground: 48 100% 95%;
+
+    --muted: 45 25% 15%;
+    --muted-foreground: 48 50% 70%;
+
+    --accent: 45 25% 15%;
+    --accent-foreground: 48 100% 95%;
+
+    --destructive: 0 72.2% 50.6%;
+    --destructive-foreground: 48 100% 95%;
+
+    --border: 45 25% 20%;
+    --input: 45 25% 20%;
+    --ring: 43 96% 56%;
+
+    --success: 120 60% 50%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(43 96% 56%), hsl(41 94% 62%));
+    --gradient-secondary: linear-gradient(135deg, hsl(45 25% 15%), hsl(42 30% 20%));
+    --gradient-warm: linear-gradient(135deg, hsl(43 96% 56%), hsl(38 100% 55%));
+
+    --shadow-warm: 0 10px 30px -10px hsl(43 96% 56% / 0.4);
+    --shadow-soft: 0 4px 20px -4px hsl(48 100% 95% / 0.1);
+
+    /* Dark Gold Sidebar - Better contrast */
+    --sidebar-background: 45 25% 12%;
+    --sidebar-foreground: 48 100% 95%;
+    --sidebar-primary: 43 96% 56%;
+    --sidebar-primary-foreground: 45 15% 8%;
+    --sidebar-accent: 45 30% 22%;
+    --sidebar-accent-foreground: 48 100% 95%;
+    --sidebar-border: 45 30% 22%;
+    --sidebar-ring: 43 96% 56%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}

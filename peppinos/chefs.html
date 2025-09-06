@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!--
+    - primary meta tags
+  -->
+  <title>Peppinos - Our Chefs</title>
+  <meta name="title" content="Peppinos - Our Chefs">
+  <meta name="description" content="Meet the talented chefs behind Peppinos Restaurant">
+
+  <!--
+    - favicon
+  -->
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  <!--
+    - google font link
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap" rel="stylesheet">
+
+  <!--
+    - custom css link
+  -->
+  <link rel="stylesheet" href="./assets/css/style.css">
+
+  <!--
+    - tailwind css cdn
+  -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!--
+    - custom overrides css
+  -->
+  <!-- <link rel="stylesheet" href="./assets/css/custom.css"> -->
+  
+  <!--
+    - header and hero specific css
+  -->
+  <!-- <link rel="stylesheet" href="./assets/css/header-hero.css"> -->
+
+  <!--
+    - preload images
+  -->
+  <link rel="preload" as="image" href="./assets/images/hero-slider-1.png">
+  <link rel="preload" as="image" href="./assets/images/hero-slider-2.png">
+  <link rel="preload" as="image" href="./assets/images/hero-slider-3.png">
+
+</head>
+
+<body id="top" class="chefs-page">
+
+  <!--
+    - #PRELOADER
+  -->
+
+  <div class="preload" data-preaload>
+    <div class="circle"></div>
+    <p class="text">Peppinos</p>
+  </div>
+
+
+
+
+
+  <!--
+    - #TOP BAR
+  -->
+
+  <div class="topbar">
+    <div class="container">
+
+      <address class="topbar-item">
+        <div class="icon">
+          <ion-icon name="location-outline" aria-hidden="true"></ion-icon>
+        </div>
+
+        <span class="span">
+          434 Moody St, Waltham, MA 02453
+        </span>
+      </address>
+
+      <div class="separator"></div>
+
+      <div class="topbar-item item-2">
+        <div class="icon">
+          <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+        </div>
+
+        <span class="span">Mon-Thu: 11:30AM-3PM, 5-10PM | Fri-Sun: 11:30AM-3:30PM, 4:30-10PM</span>
+      </div>
+
+      <a href="tel:+17815476099" class="topbar-item link">
+        <div class="icon">
+          <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
+        </div>
+
+        <span class="span">(781) 547-6099</span>
+      </a>
+
+      <div class="separator"></div>
+
+      <a href="mailto:booking@peppinosdosa.com" class="topbar-item link">
+        <div class="icon">
+          <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+        </div>
+
+        <span class="span">booking@peppinosdosa.com</span>
+      </a>
+
+    </div>
+  </div>
+
+
+
+
+
+  <!--
+    - #HEADER
+  -->
+
+  <header class="header" data-header>
+    <div class="container">
+
+      <a href="index.html" class="logo">
+        <div class="logo-container">
+          <div class="logo-spinner">
+            <div class="logo-face logo-face-1">
+              <img src="./assets/images/logo-1.png" width="360" height="114" alt="Peppino's Dosa - Home">
+            </div>
+            <div class="logo-face logo-face-2">
+              <img src="./assets/images/logo-2.png" width="360" height="114" alt="Peppino's Dosa - Home">
+            </div>
+            <div class="logo-face logo-face-3">
+              <img src="./assets/images/logo-3.png" width="360" height="114" alt="Peppino's Dosa - Home">
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <nav class="navbar" data-navbar>
+
+        <button class="close-btn" aria-label="close menu" data-nav-toggler>
+          <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+        </button>
+
+
+
+        <ul class="navbar-list">
+
+          <li class="navbar-item">
+            <a href="index.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Home</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="menu.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Menus</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="about.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">About Us</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="chefs.html" class="navbar-link hover-underline active">
+              <div class="separator"></div>
+
+              <span class="span">Our Chefs</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="catering.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Catering</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="contact.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Contact</span>
+            </a>
+          </li>
+
+        </ul>
+
+        <div class="text-center">
+          <p class="headline-1 navbar-title">Visit Us</p>
+
+          <address class="body-4">
+            434 Moody St, <br>
+            Waltham, MA 02453
+          </address>
+
+          <p class="body-4 navbar-text">Lunch Buffet: Mon-Fri 11:30AM-3PM</p>
+
+          <a href="mailto:booking@peppinosdosa.com" class="body-4 sidebar-link">booking@peppinosdosa.com</a>
+
+          <div class="separator"></div>
+
+          <p class="contact-label">Booking Request</p>
+
+          <a href="tel:+17815476099" class="body-1 contact-number hover-underline">
+            (781) 547-6099
+          </a>
+        </div>
+
+        <div class="navbar-actions">
+          <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google navbar-btn" rel="noopener">
+            <span class="text text-1">Google Reviews</span>
+            <span class="text text-2" aria-hidden="true">Google Reviews</span>
+          </a>
+
+          <a href="contact.html#reservation" class="btn btn-secondary navbar-btn">
+            <span class="text text-1">Find A Table</span>
+            <span class="text text-2" aria-hidden="true">Find A Table</span>
+          </a>
+        </div>
+
+      </nav>
+
+      <div class="header-actions">
+        <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google" rel="noopener">
+          <span class="text text-1">Google Reviews</span>
+          <span class="text text-2" aria-hidden="true">Google Reviews</span>
+        </a>
+
+        <a href="contact.html#reservation" class="btn btn-secondary">
+          <span class="text text-1">Find A Table</span>
+          <span class="text text-2" aria-hidden="true">Find A Table</span>
+        </a>
+      </div>
+
+      <button class="nav-open-btn" aria-label="open menu" data-nav-toggler>
+        <span class="line line-1"></span>
+        <span class="line line-2"></span>
+        <span class="line line-3"></span>
+      </button>
+
+      <div class="overlay" data-nav-toggler data-overlay></div>
+
+    </div>
+  </header>
+
+
+
+
+
+  <main>
+    <article>
+
+      <!--
+        - #CHEFS SECTION
+      -->
+
+      <section class="section features text-center" aria-label="chefs">
+        <div class="container">
+
+          <p class="section-subtitle label-2">Experience & Skill</p>
+
+          <h2 class="headline section-title">Meet Our Chefs</h2>
+
+          <p class="section-text">
+            At Peppino's Dosa, Chef Peppino along with Chef Laddi bring you authentic North and South Indian cooking paired with excellent service and a wonderful ambiance to create a very unique Indian dining experience.
+          </p>
+
+          <!-- Chef profiles -->
+          <div class="chefs-grid" style="margin-top: 50px;">
+            <!-- Chef Peppino Card -->
+            <div class="chef-profile-card">
+              <div class="chef-card-header">
+                <div class="chef-avatar">
+                  <img src="./assets/images/chef-peppino.png" width="120" height="120" loading="lazy" alt="Chef Peppino" class="chef-img">
+                </div>
+                <div class="chef-info">
+                  <h3 class="title-2 chef-name">Chef Peppino</h3>
+                  <p class="chef-title">Master Chef & Co-Founder</p>
+                  <div class="chef-specialty">
+                    <span class="specialty-tag">North Indian Cuisine</span>
+                    <span class="specialty-tag">Traditional Recipes</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chef-description">
+                <p class="label-1">Master of authentic North and South Indian cuisine, Chef Peppino brings traditional recipes and innovative techniques to create exceptional dining experiences.</p>
+              </div>
+
+              <!-- Chef Peppino Video Section -->
+              <div class="chef-video-section">
+                <div class="video-header">
+                  <h4 class="video-title">Watch Chef Peppino in Action</h4>
+                  <div class="video-divider"></div>
+                </div>
+
+                <div class="chef-video-frame">
+                  <video class="chef-video-player" poster="./assets/images/chef-cooking.png" preload="metadata" data-chef="peppino">
+                    <source src="./assets/videos/chef-cooking.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                  </video>
+
+                  <div class="chef-video-overlay">
+                    <div class="video-play-button" data-chef-video-btn="peppino">
+                      <div class="play-icon">
+                        <ion-icon name="play" aria-hidden="true"></ion-icon>
+                      </div>
+                      <span class="play-text">Play Video</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chef Laddi Card -->
+            <div class="chef-profile-card">
+              <div class="chef-card-header">
+                <div class="chef-avatar">
+                  <img src="./assets/images/chef-laddi.png" width="120" height="120" loading="lazy" alt="Chef Laddi" class="chef-img">
+                </div>
+                <div class="chef-info">
+                  <h3 class="title-2 chef-name">Chef Laddi</h3>
+                  <p class="chef-title">Executive Chef & Co-Founder</p>
+                  <div class="chef-specialty">
+                    <span class="specialty-tag">South Indian Cuisine</span>
+                    <span class="specialty-tag">Dosa Artistry</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chef-description">
+                <p class="label-1">Specializing in both vegetarian and non-vegetarian Indian dishes, Chef Laddi ensures every meal is prepared with passion and authentic flavors.</p>
+              </div>
+
+              <!-- Chef Laddi Video Section -->
+              <div class="chef-video-section">
+                <div class="video-header">
+                  <h4 class="video-title">Watch Chef Laddi in Action</h4>
+                  <div class="video-divider"></div>
+                </div>
+
+                <div class="chef-video-frame">
+                  <video class="chef-video-player" poster="./assets/images/chef-laddi.png" preload="metadata" data-chef="laddi">
+                    <source src="./assets/videos/chef-laddi.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                  </video>
+
+                  <div class="chef-video-overlay">
+                    <div class="video-play-button" data-chef-video-btn="laddi">
+                      <div class="play-icon">
+                        <ion-icon name="play" aria-hidden="true"></ion-icon>
+                      </div>
+                      <span class="play-text">Play Video</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <img src="./assets/images/shape-7.png" width="208" height="178" loading="lazy" alt="shape"
+            class="shape shape-1">
+
+          <img src="./assets/images/shape-8.png" width="120" height="115" loading="lazy" alt="shape"
+            class="shape shape-2">
+
+        </div>
+      </section>
+
+      <!--
+        - #TESTIMONIALS
+      -->
+
+
+
+      <!--
+        - #CHEFS VIDEO
+      -->
+
+      <section class="section chefs-video" aria-label="chefs video">
+
+        <div class="video-container">
+          <div class="video-wrapper">
+            <video class="chef-video" poster="./assets/images/chef-cooking.png" preload="metadata">
+              <source src="./assets/videos/chef-cooking.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+
+            <div class="video-overlay">
+              <div class="play-btn" data-video-btn>
+                <ion-icon name="play" aria-hidden="true"></ion-icon>
+              </div>
+
+              <div class="overlay-content">
+                <h3 class="overlay-title">Chef Peppino & Chef Laddi</h3>
+                <p class="overlay-text">Masters of Authentic Indian Cuisine</p>
+              </div>
+            </div>
+
+            <div class="video-quotes">
+              <div class="floating-quote quote-1">"Authentic flavors from the heart"</div>
+              <div class="floating-quote quote-2">"Traditional recipes, modern excellence"</div>
+              <div class="floating-quote quote-3">"Passion in every dish we create"</div>
+              <div class="floating-quote quote-4">"Where spices tell their story"</div>
+              <div class="floating-quote quote-5">"Crafted with love and tradition"</div>
+              <div class="floating-quote quote-6">"Every bite tells our story"</div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!--
+        - #CHEF SPECIALTIES
+      -->
+
+      <section class="section features text-center" aria-label="chef specialties">
+        <div class="container">
+
+          <p class="section-subtitle label-2">Culinary Excellence</p>
+
+          <h2 class="headline section-title">Our Chef's Specialties</h2>
+
+          <p class="section-text">
+            Discover the unique techniques and signature dishes that make Chef Peppino and Chef Laddi masters of their craft.
+          </p>
+
+          <ul class="grid-list">
+
+            <li class="feature-item">
+              <div class="feature-card">
+
+                <div class="card-icon">
+                  <img src="./assets/images/features-icon-1.png" width="100" height="80" loading="lazy" alt="Traditional Techniques">
+                </div>
+
+                <h3 class="title-2 card-title">Traditional Techniques</h3>
+
+                <p class="label-1 card-text">Authentic cooking methods passed down through generations, ensuring every dish maintains its original flavors.</p>
+
+              </div>
+            </li>
+
+            <li class="feature-item">
+              <div class="feature-card">
+
+                <div class="card-icon">
+                  <img src="./assets/images/features-icon-2.png" width="100" height="80" loading="lazy" alt="Spice Mastery">
+                </div>
+
+                <h3 class="title-2 card-title">Spice Mastery</h3>
+
+                <p class="label-1 card-text">Expert knowledge of spice combinations and timing to create perfectly balanced and aromatic dishes.</p>
+
+              </div>
+            </li>
+
+            <li class="feature-item">
+              <div class="feature-card">
+
+                <div class="card-icon">
+                  <img src="./assets/images/features-icon-3.png" width="100" height="80" loading="lazy" alt="Dosa Artistry">
+                </div>
+
+                <h3 class="title-2 card-title">Dosa Artistry</h3>
+
+                <p class="label-1 card-text">Perfecting the art of crispy, golden dosas with the ideal texture and flavor combinations.</p>
+
+              </div>
+            </li>
+
+            <li class="feature-item">
+              <div class="feature-card">
+
+                <div class="card-icon">
+                  <img src="./assets/images/features-icon-4.png" width="100" height="80" loading="lazy" alt="Regional Expertise">
+                </div>
+
+                <h3 class="title-2 card-title">Regional Expertise</h3>
+
+                <p class="label-1 card-text">Mastery of both North and South Indian cuisines, bringing diverse regional flavors to your table.</p>
+
+              </div>
+            </li>
+
+          </ul>
+
+        </div>
+      </section>
+
+      <!--
+        - #CHEF TESTIMONIAL
+      -->
+
+      <section class="section testi text-center has-bg-image"
+        style="background-image: url('./assets/images/testimonial-bg.png')" aria-label="chef testimonials">
+        <div class="container">
+
+          <div class="quote">"</div>
+
+          <div class="testimonial-slider" data-testimonial-slider>
+
+            <!-- Testimonial 1 -->
+            <div class="testimonial-slide active" data-testimonial-slide>
+              <p class="headline-2 testi-text">
+                Chef Peppino and Chef Laddi have created something truly special here. Their passion for authentic Indian cuisine shines through in every dish they prepare.
+              </p>
+            </div>
+
+            <!-- Testimonial 2 -->
+            <div class="testimonial-slide" data-testimonial-slide>
+              <p class="headline-2 testi-text">
+                The culinary expertise displayed by these chefs is remarkable. Every dosa is crafted to perfection with authentic South Indian techniques.
+              </p>
+            </div>
+
+            <!-- Testimonial 3 -->
+            <div class="testimonial-slide" data-testimonial-slide>
+              <p class="headline-2 testi-text">
+                Watching Chef Peppino work is like witnessing an artist at work. The precision and care in every dish is truly inspiring.
+              </p>
+            </div>
+
+            <!-- Testimonial 4 -->
+            <div class="testimonial-slide" data-testimonial-slide>
+              <p class="headline-2 testi-text">
+                These chefs bring generations of culinary tradition to Waltham. Their dedication to authentic flavors is unmatched in the area.
+              </p>
+            </div>
+
+          </div>
+
+          <div class="wrapper">
+            <div class="separator"></div>
+            <div class="separator"></div>
+            <div class="separator"></div>
+          </div>
+
+          <div class="profile-slider" data-profile-slider>
+
+            <!-- Profile 1 -->
+            <div class="profile-slide active" data-profile-slide>
+              <div class="profile">
+                <img src="./assets/images/testi-avatar-1.png" width="100" height="100" loading="lazy" alt="Maria Rodriguez" class="img">
+                <p class="label-2 profile-name">Maria Rodriguez</p>
+                <p class="body-4">Food Critic, Boston Globe</p>
+              </div>
+            </div>
+
+            <!-- Profile 2 -->
+            <div class="profile-slide" data-profile-slide>
+              <div class="profile">
+                <img src="./assets/images/testi-avatar-2.png" width="100" height="100" loading="lazy" alt="James Wilson" class="img">
+                <p class="label-2 profile-name">James Wilson</p>
+                <p class="body-4">Culinary Institute Graduate</p>
+              </div>
+            </div>
+
+            <!-- Profile 3 -->
+            <div class="profile-slide" data-profile-slide>
+              <div class="profile">
+                <img src="./assets/images/testi-avatar-3.png" width="100" height="100" loading="lazy" alt="Anita Sharma" class="img">
+                <p class="label-2 profile-name">Anita Sharma</p>
+                <p class="body-4">Food & Travel Writer</p>
+              </div>
+            </div>
+
+            <!-- Profile 4 -->
+            <div class="profile-slide" data-profile-slide>
+              <div class="profile">
+                <img src="./assets/images/testi-avatar-4.jpg" width="100" height="100" loading="lazy" alt="Robert Chen" class="img">
+                <p class="label-2 profile-name">Robert Chen</p>
+                <p class="body-4">Restaurant Consultant</p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+    </article>
+  </main>
+
+
+
+
+
+  <!--
+    - #FOOTER
+  -->
+
+  <footer class="footer section has-bg-image text-center"
+    style="background-image: url('./assets/images/footer-bg.jpg')">
+    <div class="container">
+
+      <div class="footer-top grid-list">
+
+        <div class="footer-brand has-before has-after">
+
+          <a href="index.html" class="logo">
+            <img src="./assets/images/logo-1.png" width="90" height="24" loading="lazy" alt="peppinos home">
+          </a>
+
+          <address class="body-4">
+            434 Moody St, Waltham, MA 02453
+          </address>
+
+          <a href="mailto:booking@peppinosdosa.com" class="body-4 contact-link">booking@peppinosdosa.com</a>
+
+          <a href="tel:+17815476099" class="body-4 contact-link">Booking Request : (781) 547-6099</a>
+
+          <p class="body-4">
+            Lunch Buffet: Mon-Fri 11:30AM-3PM<br>
+            Dining: Mon-Thu 11:30AM-3PM, 5-10PM<br>
+            Fri-Sun 11:30AM-3:30PM, 4:30-10PM
+          </p>
+
+          <div class="wrapper">
+            <div class="separator"></div>
+            <div class="separator"></div>
+            <div class="separator"></div>
+          </div>
+
+          <p class="title-1">Get News & Offers</p>
+
+          <p class="label-1">
+            Subscribe us & Get <span class="span">25% Off.</span>
+          </p>
+
+          <form action="" class="input-wrapper">
+            <div class="icon-wrapper">
+              <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+
+              <input type="email" name="email_address" placeholder="Your email" autocomplete="off" class="input-field">
+            </div>
+
+            <button type="submit" class="btn btn-secondary">
+              <span class="text text-1">Subscribe</span>
+
+              <span class="text text-2" aria-hidden="true">Subscribe</span>
+            </button>
+          </form>
+
+        </div>
+
+        <ul class="footer-list">
+
+          <li>
+            <a href="index.html" class="text-white footer-link hover-underline">Home</a>
+          </li>
+
+          <li>
+            <a href="menu.html" class="text-white footer-link hover-underline">Menus</a>
+          </li>
+
+          <li>
+            <a href="about.html" class="text-white footer-link hover-underline">About Us</a>
+          </li>
+
+          <li>
+            <a href="chefs.html" class="text-white footer-link hover-underline">Our Chefs</a>
+          </li>
+
+          <li>
+            <a href="catering.html" class="text-white footer-link hover-underline">Catering</a>
+          </li>
+
+          <li>
+            <a href="blog.html" class="text-white footer-link hover-underline">Blog</a>
+          </li>
+
+          <li>
+            <a href="contact.html" class="text-white footer-link hover-underline">Contact</a>
+          </li>
+
+        </ul>
+
+        <ul class="footer-list">
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Facebook</a>
+          </li>
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Instagram</a>
+          </li>
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Twitter</a>
+          </li>
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Youtube</a>
+          </li>
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Google Map</a>
+          </li>
+
+        </ul>
+
+      </div>
+
+      <div class="footer-bottom">
+
+        <p class="copyright">
+          &copy; 2025 Peppinos. All Rights Reserved
+        </p>
+
+      </div>
+
+    </div>
+  </footer>
+
+
+
+
+
+  <!--
+    - #BACK TO TOP
+  -->
+
+  <a href="#top" class="back-top-btn active" aria-label="back to top" data-back-top-btn>
+    <ion-icon name="chevron-up" aria-hidden="true"></ion-icon>
+  </a>
+
+
+
+
+
+  <!--
+    - custom js link
+  -->
+  <script src="./assets/js/script.js"></script>
+  <script src="./assets/js/custom.js"></script>
+
+  <!--
+    - ionicon link
+  -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server/server.js",
+      "use": "@vercel/static-build"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/admin/(.*)",
+      "dest": "server/routes/admin/$1"
+    },
+    {
+      "src": "/auth/(.*)",
+      "dest": "server/routes/auth/$1"
+    },
+    {
+      "src": "/shop/(.*)",
+      "dest": "server/routes/shop/$1"
+    }
+  ]
+}
