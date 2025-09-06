@@ -133,7 +133,7 @@ const optionalAuth = async (req, res, next) => {
 };
 
 /**
- * Middleware to check if user can manage vegetarian products/categories
+ * Middleware to check if user can manage vegetarian menu items/categories
  */
 const requireVegAccess = async (req, res, next) => {
   if (!req.user) {
@@ -147,7 +147,7 @@ const requireVegAccess = async (req, res, next) => {
   if (!allowedRoles.includes(req.user.role)) {
     return res.status(403).json({
       success: false,
-      message: 'Access denied. Vegetarian product management permission required.'
+      message: 'Access denied. Vegetarian menu item management permission required.'
     });
   }
 
@@ -155,7 +155,7 @@ const requireVegAccess = async (req, res, next) => {
 };
 
 /**
- * Middleware to check if user can manage non-vegetarian products/categories
+ * Middleware to check if user can manage non-vegetarian menu items/categories
  */
 const requireNonVegAccess = async (req, res, next) => {
   if (!req.user) {
@@ -169,7 +169,7 @@ const requireNonVegAccess = async (req, res, next) => {
   if (!allowedRoles.includes(req.user.role)) {
     return res.status(403).json({
       success: false,
-      message: 'Access denied. Non-vegetarian product management permission required.'
+      message: 'Access denied. Non-vegetarian menu item management permission required.'
     });
   }
 
@@ -177,10 +177,10 @@ const requireNonVegAccess = async (req, res, next) => {
 };
 
 /**
- * Middleware to check product access based on user role and product type
- * This middleware should be used after product is loaded into req.product
+ * Middleware to check menu item access based on user role and menu item type
+ * This middleware should be used after menu item is loaded into req.menu
  */
-const checkProductAccess = async (req, res, next) => {
+const checkMenuItemAccess = async (req, res, next) => {
   if (!req.user) {
     return res.status(401).json({
       success: false,
@@ -193,27 +193,27 @@ const checkProductAccess = async (req, res, next) => {
     return next();
   }
 
-  // Get product from request (should be loaded by previous middleware)
-  const product = req.product;
-  if (!product) {
+  // Get menu item from request (should be loaded by previous middleware)
+  const menuItem = req.menu;
+  if (!menuItem) {
     return res.status(404).json({
       success: false,
-      message: 'Product not found'
+      message: 'Menu item not found'
     });
   }
 
   // Check role-based access
-  if (req.user.role === 'veg-admin' && !product.isVegetarian) {
+  if (req.user.role === 'veg-admin' && !menuItem.isVegetarian) {
     return res.status(403).json({
       success: false,
-      message: 'Access denied. You can only manage vegetarian products.'
+      message: 'Access denied. You can only manage vegetarian menu items.'
     });
   }
 
-  if (req.user.role === 'non-veg-admin' && product.isVegetarian) {
+  if (req.user.role === 'non-veg-admin' && menuItem.isVegetarian) {
     return res.status(403).json({
       success: false,
-      message: 'Access denied. You can only manage non-vegetarian products.'
+      message: 'Access denied. You can only manage non-vegetarian menu items.'
     });
   }
 
@@ -265,7 +265,7 @@ const checkCategoryAccess = async (req, res, next) => {
 };
 
 /**
- * Middleware to filter products/categories based on user role
+ * Middleware to filter menu items/categories based on user role
  * Adds filter conditions to req.roleFilter
  */
 const addRoleFilter = (req, res, next) => {
@@ -308,7 +308,7 @@ module.exports = {
   optionalAuth,
   requireVegAccess,
   requireNonVegAccess,
-  checkProductAccess,
+  checkMenuItemAccess,
   checkCategoryAccess,
   addRoleFilter,
   checkReadOnlyAccess

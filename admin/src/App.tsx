@@ -8,14 +8,13 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Login } from "./pages/Login";
 import { Dashboard } from "./pages/Dashboard";
-import { Products } from "./pages/Products";
+import { AddMenuItem } from "./pages/AddMenuItem";
 import { Menu } from "./pages/Menu";
 import { Categories } from "./pages/Categories";
 import { Orders } from "./pages/Orders";
 import { Users } from "./pages/Users";
 import { Addresses } from "./pages/Addresses";
 import { Reports } from "./pages/Reports";
-import { TestRedux } from "./pages/TestRedux";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,10 +36,10 @@ const App = () => (
                 </AdminLayout>
               </ProtectedRoute>
             } />
-            <Route path="/products" element={
+            <Route path="/menu/new" element={
               <ProtectedRoute roles={['veg-admin', 'non-veg-admin', 'super-admin']}>
                 <AdminLayout>
-                  <Products />
+                  <AddMenuItem />
                 </AdminLayout>
               </ProtectedRoute>
             } />
@@ -86,13 +85,7 @@ const App = () => (
                 </AdminLayout>
               </ProtectedRoute>
             } />
-            <Route path="/test-redux" element={
-              <ProtectedRoute>
-                <AdminLayout>
-                  <TestRedux />
-                </AdminLayout>
-              </ProtectedRoute>
-            } />
+        
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

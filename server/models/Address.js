@@ -94,7 +94,7 @@ const addressSchema = new mongoose.Schema({
 });
 
 // Indexes
-addressSchema.index({ user: 1 });
+// Compound indexes cover user queries, so no separate user index needed
 addressSchema.index({ user: 1, isDefault: 1 });
 addressSchema.index({ user: 1, isActive: 1 });
 

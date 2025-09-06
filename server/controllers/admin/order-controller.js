@@ -1,6 +1,5 @@
 const Order = require('../../models/Order');
 const User = require('../../models/User');
-const Product = require('../../models/Product');
 const { validationResult } = require('express-validator');
 
 /**
@@ -67,7 +66,7 @@ const getAllOrders = async (req, res) => {
     // Execute query with pagination
     const orders = await Order.find(query)
       .populate('user', 'name email phoneNumber')
-      .populate('items.product', 'name images discountedPrice')
+      .populate('items.menu', 'name images discountedPrice')
       .sort(sortOptions)
       .limit(limit * 1)
       .skip((page - 1) * limit)
@@ -186,7 +185,7 @@ const updateOrderStatus = async (req, res) => {
 
     // Populate for response
     await order.populate('user', 'name email phoneNumber');
-    await order.populate('items.product', 'name images discountedPrice');
+    await order.populate('items.menu', 'name images discountedPrice');
 
     res.status(200).json({
       success: true,
@@ -279,29 +278,29 @@ const getOrderStats = async (req, res) => {
       { $sort: { _id: 1 } }
     ]);
 
-    // Get top products
-    const topProducts = await Order.aggregate([
+    // Get top menus
+    const topMenus = await Order.aggregate([
       { $match: { ...dateFilter, status: { $ne: 'cancelled' } } },
       { $unwind: '$items' },
       {
         $group: {
-          _id: '$items.product',
+          _id: '$items.menu',
           totalQuantity: { $sum: '$items.quantity' },
           totalRevenue: { $sum: { $multiply: ['$items.quantity', '$items.price'] } }
         }
       },
       {
         $lookup: {
-          from: 'products',
+          from: 'menus',
           localField: '_id',
           foreignField: '_id',
-          as: 'product'
+          as: 'menu'
         }
       },
-      { $unwind: '$product' },
+      { $unwind: '$menu' },
       {
         $project: {
-          productName: '$product.name',
+          menuName: '$menu.name',
           totalQuantity: 1,
           totalRevenue: 1
         }
@@ -328,7 +327,7 @@ const getOrderStats = async (req, res) => {
           pendingPayments: 0
         },
         dailyRevenue,
-        topProducts
+        topMenus
       }
     });
   } catch (error) {
@@ -360,7 +359,7 @@ const exportOrders = async (req, res) => {
 
     const orders = await Order.find(query)
       .populate('user', 'name email phoneNumber')
-      .populate('items.product', 'name')
+      .populate('items.menu', 'name')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -389,7 +388,7 @@ const exportOrders = async (req, res) => {
         order.paymentStatus,
         order.deliveryStatus,
         order.totalAmount,
-        order.items.map(item => `${item.product?.name || 'Unknown'} (${item.quantity})`).join('; '),
+        order.items.map(item => `${item.menu?.name || 'Unknown'} (${item.quantity})`).join('; '),
         order.createdAt.toISOString().split('T')[0],
         order.deliveryAddress ? `${order.deliveryAddress.street}, ${order.deliveryAddress.city}` : 'N/A'
       ]);

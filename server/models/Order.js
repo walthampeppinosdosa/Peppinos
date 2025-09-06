@@ -2,18 +2,18 @@ const mongoose = require('mongoose');
 
 // Order item sub-schema
 const orderItemSchema = new mongoose.Schema({
-  product: {
+  menu: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product',
-    required: [true, 'Product is required']
+    ref: 'Menu',
+    required: [true, 'Menu item is required']
   },
-  productName: {
+  menuName: {
     type: String,
-    required: [true, 'Product name is required']
+    required: [true, 'Menu name is required']
   },
-  productImage: {
+  menuImage: {
     type: String,
-    required: [true, 'Product image is required']
+    required: [true, 'Menu image is required']
   },
   quantity: {
     type: Number,
@@ -180,7 +180,7 @@ const orderSchema = new mongoose.Schema({
 });
 
 // Indexes (orderNumber already has unique index from schema definition)
-orderSchema.index({ user: 1 });
+// Compound user index covers simple user queries, so no separate user index needed
 orderSchema.index({ paymentStatus: 1 });
 orderSchema.index({ deliveryStatus: 1 });
 orderSchema.index({ createdAt: -1 });
@@ -222,7 +222,7 @@ orderSchema.virtual('statusDisplay').get(function() {
 // Method to calculate total preparation time
 orderSchema.methods.calculatePreparationTime = function() {
   return this.items.reduce((total, item) => {
-    return Math.max(total, item.product.preparationTime || 0);
+    return Math.max(total, item.menu.preparationTime || 0);
   }, 0);
 };
 

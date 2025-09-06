@@ -1,11 +1,11 @@
-const Product = require('../../models/Product');
+const Menu = require('../../models/Menu');
 const Category = require('../../models/Category');
 
 /**
- * Get all products for shop (public)
- * GET /api/shop/products
+ * Get all menu items for shop (public)
+ * GET /api/shop/menu
  */
-const getAllProducts = async (req, res) => {
+const getAllMenuItems = async (req, res) => {
   try {
     const {
       page = 1,
@@ -21,7 +21,7 @@ const getAllProducts = async (req, res) => {
       tags = ''
     } = req.query;
 
-    // Build query - only active products
+    // Build query - only active menu items
     let query = { isActive: true };
 
     // Search filter
@@ -74,7 +74,7 @@ const getAllProducts = async (req, res) => {
     }
 
     // Execute query with pagination
-    const products = await Product.find(query)
+    const menuItems = await Menu.find(query)
       .populate('category', 'name slug')
       .select('-__v')
       .sort(sortOptions)
@@ -83,10 +83,10 @@ const getAllProducts = async (req, res) => {
       .lean();
 
     // Get total count for pagination
-    const total = await Product.countDocuments(query);
+    const total = await Menu.countDocuments(query);
 
     // Get available filters for frontend
-    const filters = await Product.aggregate([
+    const filters = await Menu.aggregate([
       { $match: { isActive: true } },
       {
         $group: {
@@ -119,9 +119,9 @@ const getAllProducts = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Products retrieved successfully',
+      message: 'Menu items retrieved successfully',
       data: {
-        products,
+        menuItems,
         pagination: {
           currentPage: parseInt(page),
           totalPages: Math.ceil(total / limit),
@@ -137,47 +137,51 @@ const getAllProducts = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get products error:', error);
+    console.error('Get menu items error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to retrieve products',
+      message: 'Failed to retrieve menu items',
       error: error.message
     });
   }
 };
 
 /**
- * Get single product by ID (public)
- * GET /api/shop/products/:id
+ * Get single menu item by ID (public)
+ * GET /api/shop/menu/:id
  */
-const getProductById = async (req, res) => {
+const getMenuItemById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const product = await Product.findOne({ _id: id, isActive: true })
+    const menuItem = await Menu.findOne({ _id: id, isActive: true })
       .populate('category', 'name slug description')
-      .populate({
-        path: 'reviews',
-        populate: {
-          path: 'user',
-          select: 'name profileImage'
-        },
-        match: { isApproved: true },
-        options: { sort: { createdAt: -1 }, limit: 10 }
-      })
       .lean();
 
-    if (!product) {
+    if (!menuItem) {
       return res.status(404).json({
         success: false,
-        message: 'Product not found'
+        message: 'Menu item not found'
       });
     }
 
-    // Get related products from same category
-    const relatedProducts = await Product.find({
-      category: product.category._id,
-      _id: { $ne: product._id },
+    // Get reviews for this menu item
+    const Review = require('../../models/Review');
+    const reviews = await Review.find({
+      menu: menuItem._id,
+      isApproved: true
+    })
+    .populate('user', 'name profileImage')
+    .sort({ createdAt: -1 })
+    .limit(10)
+    .lean();
+
+    menuItem.reviews = reviews;
+
+    // Get related menu items from same category
+    const relatedMenuItems = await Menu.find({
+      category: menuItem.category._id,
+      _id: { $ne: menuItem._id },
       isActive: true
     })
       .select('name images discountedPrice mrp averageRating')
@@ -186,17 +190,17 @@ const getProductById = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Product retrieved successfully',
+      message: 'Menu item retrieved successfully',
       data: {
-        product,
-        relatedProducts
+        menuItem,
+        relatedMenuItems
       }
     });
   } catch (error) {
-    console.error('Get product error:', error);
+    console.error('Get menu item error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to retrieve product',
+      message: 'Failed to retrieve menu item',
       error: error.message
     });
   }
@@ -223,16 +227,16 @@ const getAllCategories = async (req, res) => {
       .sort({ sortOrder: 1, name: 1 })
       .lean();
 
-    // Get product count for each category
+    // Get menu item count for each category
     const categoriesWithCount = await Promise.all(
       categories.map(async (category) => {
-        const productCount = await Product.countDocuments({
+        const menuItemCount = await Menu.countDocuments({
           category: category._id,
           isActive: true
         });
         return {
           ...category,
-          productCount
+          menuItemCount
         };
       })
     );
@@ -253,15 +257,15 @@ const getAllCategories = async (req, res) => {
 };
 
 /**
- * Get featured products
- * GET /api/shop/products/featured
+ * Get featured menu items
+ * GET /api/shop/menu/featured
  */
-const getFeaturedProducts = async (req, res) => {
+const getFeaturedMenuItems = async (req, res) => {
   try {
     const { limit = 8 } = req.query;
 
-    // Get products with high ratings or recent additions
-    const featuredProducts = await Product.find({
+    // Get menu items with high ratings or recent additions
+    const featuredMenuItems = await Menu.find({
       isActive: true,
       $or: [
         { averageRating: { $gte: 4.0 } },
@@ -276,24 +280,24 @@ const getFeaturedProducts = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Featured products retrieved successfully',
-      data: { products: featuredProducts }
+      message: 'Featured menu items retrieved successfully',
+      data: { menuItems: featuredMenuItems }
     });
   } catch (error) {
-    console.error('Get featured products error:', error);
+    console.error('Get featured menu items error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to retrieve featured products',
+      message: 'Failed to retrieve featured menu items',
       error: error.message
     });
   }
 };
 
 /**
- * Search products with suggestions
- * GET /api/shop/products/search
+ * Search menu items with suggestions
+ * GET /api/shop/menu/search
  */
-const searchProducts = async (req, res) => {
+const searchMenuItems = async (req, res) => {
   try {
     const { q = '', limit = 10 } = req.query;
 
@@ -304,8 +308,8 @@ const searchProducts = async (req, res) => {
       });
     }
 
-    // Search in products
-    const products = await Product.find({
+    // Search in menu items
+    const menuItems = await Menu.find({
       isActive: true,
       $or: [
         { name: { $regex: q, $options: 'i' } },
@@ -319,7 +323,7 @@ const searchProducts = async (req, res) => {
       .lean();
 
     // Get search suggestions
-    const suggestions = await Product.aggregate([
+    const suggestions = await Menu.aggregate([
       {
         $match: {
           isActive: true,
@@ -339,25 +343,25 @@ const searchProducts = async (req, res) => {
       success: true,
       message: 'Search results retrieved successfully',
       data: {
-        products,
+        menuItems,
         suggestions: suggestions.map(s => s.name),
         query: q
       }
     });
   } catch (error) {
-    console.error('Search products error:', error);
+    console.error('Search menu items error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to search products',
+      message: 'Failed to search menu items',
       error: error.message
     });
   }
 };
 
 module.exports = {
-  getAllProducts,
-  getProductById,
+  getAllMenuItems,
+  getMenuItemById,
   getAllCategories,
-  getFeaturedProducts,
-  searchProducts
+  getFeaturedMenuItems,
+  searchMenuItems
 };

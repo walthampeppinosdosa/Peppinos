@@ -49,12 +49,12 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/peppinos'
 // Routes
 app.use('/api/auth', authLimiter);
 app.use('/api/auth', require('./routes/auth/auth-routes'));
-app.use('/api/admin', require('./routes/admin/product-routes'));
+app.use('/api/admin/menu', require('./routes/admin/menu-routes')); // New menu routes
 app.use('/api/admin', require('./routes/admin/category-routes'));
 app.use('/api/admin', require('./routes/admin/order-routes'));
 app.use('/api/admin', require('./routes/admin/user-routes'));
 app.use('/api/admin', require('./routes/admin/dashboard-routes'));
-app.use('/api/shop', require('./routes/shop/product-routes'));
+app.use('/api/shop', require('./routes/shop/menu-routes'));
 app.use('/api/shop', require('./routes/shop/cart-routes'));
 app.use('/api/shop', require('./routes/shop/order-routes'));
 app.use('/api/shop', require('./routes/shop/address-routes'));

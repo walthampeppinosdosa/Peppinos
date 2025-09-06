@@ -92,10 +92,6 @@ export const Categories: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Category Management</h1>
-          <p className="text-muted-foreground">Organize your menu items into categories</p>
-        </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm">
             <Download className="h-4 w-4 mr-2" />
@@ -197,8 +193,8 @@ export const Categories: React.FC = () => {
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Products</span>
-                <span className="text-sm font-medium">{category.productCount || 0}</span>
+                <span className="text-sm text-muted-foreground">Menu Items</span>
+                <span className="text-sm font-medium">{category.menuItemCount || 0}</span>
               </div>
               
               <div className="text-xs text-muted-foreground">

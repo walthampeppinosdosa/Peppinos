@@ -4,6 +4,8 @@ const router = express.Router();
 // Import controllers
 const {
   getAllCategories,
+  getParentCategories,
+  getMenuCategories,
   getCategoryById,
   createCategory,
   updateCategory,
@@ -33,6 +35,12 @@ router.use(requireAdmin);
 
 // GET /api/admin/categories - Get all categories with filtering
 router.get('/categories', addRoleBasedFilter, getAllCategories);
+
+// GET /api/admin/categories/parents - Get parent categories
+router.get('/categories/parents', addRoleBasedFilter, getParentCategories);
+
+// GET /api/admin/categories/menu - Get menu categories
+router.get('/categories/menu', addRoleBasedFilter, getMenuCategories);
 
 // GET /api/admin/categories/stats - Get category statistics
 router.get('/categories/stats', addRoleBasedFilter, getCategoryStats);

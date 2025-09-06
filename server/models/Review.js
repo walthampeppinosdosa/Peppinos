@@ -6,10 +6,10 @@ const reviewSchema = new mongoose.Schema({
     ref: 'User',
     required: [true, 'User is required']
   },
-  product: {
+  menu: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product',
-    required: [true, 'Product is required']
+    ref: 'Menu',
+    required: [true, 'Menu item is required']
   },
   order: {
     type: mongoose.Schema.Types.ObjectId,
@@ -88,43 +88,43 @@ const reviewSchema = new mongoose.Schema({
 });
 
 // Indexes
-reviewSchema.index({ product: 1 });
-reviewSchema.index({ user: 1 });
+reviewSchema.index({ menu: 1 });
 reviewSchema.index({ order: 1 });
 reviewSchema.index({ rating: 1 });
 reviewSchema.index({ isApproved: 1 });
 reviewSchema.index({ createdAt: -1 });
-reviewSchema.index({ product: 1, isApproved: 1 });
+reviewSchema.index({ menu: 1, isApproved: 1 });
 
-// Compound index to ensure one review per user per product per order
-reviewSchema.index({ user: 1, product: 1, order: 1 }, { unique: true });
+// Compound index to ensure one review per user per menu per order
+// This also covers queries on user field, so no separate user index needed
+reviewSchema.index({ user: 1, menu: 1, order: 1 }, { unique: true });
 
-// Post-save middleware to update product rating
+// Post-save middleware to update menu rating
 reviewSchema.post('save', async function() {
   if (this.isApproved) {
-    await this.updateProductRating();
+    await this.updateMenuRating();
   }
 });
 
-// Post-remove middleware to update product rating
+// Post-remove middleware to update menu rating
 reviewSchema.post('remove', async function() {
-  await this.updateProductRating();
+  await this.updateMenuRating();
 });
 
-// Method to update product average rating
-reviewSchema.methods.updateProductRating = async function() {
-  const Product = mongoose.model('Product');
+// Method to update menu average rating
+reviewSchema.methods.updateMenuRating = async function() {
+  const Menu = mongoose.model('Menu');
 
   const stats = await this.constructor.aggregate([
     {
       $match: {
-        product: this.product,
+        menu: this.menu,
         isApproved: true
       }
     },
     {
       $group: {
-        _id: '$product',
+        _id: '$menu',
         averageRating: { $avg: '$rating' },
         totalReviews: { $sum: 1 }
       }
@@ -132,12 +132,12 @@ reviewSchema.methods.updateProductRating = async function() {
   ]);
 
   if (stats.length > 0) {
-    await Product.findByIdAndUpdate(this.product, {
+    await Menu.findByIdAndUpdate(this.menu, {
       averageRating: Math.round(stats[0].averageRating * 10) / 10,
       totalReviews: stats[0].totalReviews
     });
   } else {
-    await Product.findByIdAndUpdate(this.product, {
+    await Menu.findByIdAndUpdate(this.menu, {
       averageRating: 0,
       totalReviews: 0
     });
@@ -170,8 +170,8 @@ reviewSchema.methods.addResponse = async function(responseText, responderId) {
   return this;
 };
 
-// Static method to get product reviews
-reviewSchema.statics.getProductReviews = function(productId, options = {}) {
+// Static method to get menu reviews
+reviewSchema.statics.getMenuReviews = function(menuId, options = {}) {
   const {
     page = 1,
     limit = 10,
@@ -180,7 +180,7 @@ reviewSchema.statics.getProductReviews = function(productId, options = {}) {
     rating = null
   } = options;
 
-  const query = { product: productId, isApproved: true };
+  const query = { menu: menuId, isApproved: true };
   if (rating) {
     query.rating = rating;
   }
@@ -193,12 +193,12 @@ reviewSchema.statics.getProductReviews = function(productId, options = {}) {
     .skip((page - 1) * limit);
 };
 
-// Static method to get review statistics for a product
-reviewSchema.statics.getProductReviewStats = function(productId) {
+// Static method to get review statistics for a menu
+reviewSchema.statics.getMenuReviewStats = function(menuId) {
   return this.aggregate([
     {
       $match: {
-        product: mongoose.Types.ObjectId(productId),
+        menu: mongoose.Types.ObjectId(menuId),
         isApproved: true
       }
     },

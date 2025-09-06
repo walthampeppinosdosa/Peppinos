@@ -31,7 +31,7 @@ const newsletterSchema = new mongoose.Schema({
       type: Boolean,
       default: true
     },
-    newProducts: {
+    newMenus: {
       type: Boolean,
       default: true
     },

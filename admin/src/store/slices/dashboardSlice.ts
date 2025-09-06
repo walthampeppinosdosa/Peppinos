@@ -7,7 +7,7 @@ export interface DashboardStats {
     totalOrders: number;
     totalRevenue: number;
     totalUsers: number;
-    totalProducts: number;
+    totalMenuItems: number;
     pendingOrders: number;
     completedOrders: number;
     activeUsers: number;
@@ -19,10 +19,10 @@ export interface DashboardStats {
     orderStatusDistribution: Array<{ _id: string; count: number }>;
     categoryPerformance: Array<{ _id: string; categoryName: string; totalQuantity: number; totalRevenue: number }>;
   };
-  topProducts: Array<{
+  topMenuItems: Array<{
     _id: string;
-    productName: string;
-    productImage: string;
+    menuItemName: string;
+    menuItemImage: string;
     totalQuantity: number;
     totalRevenue: number;
   }>;
@@ -37,10 +37,10 @@ export interface CartAnalytics {
     averageCartValue: number;
     conversionRate: number;
   };
-  mostAddedProducts: Array<{
+  mostAddedMenuItems: Array<{
     _id: string;
-    productName: string;
-    productImage: string;
+    menuItemName: string;
+    menuItemImage: string;
     addedCount: number;
     totalQuantity: number;
   }>;
@@ -103,7 +103,7 @@ export const fetchCartAnalytics = createAsyncThunk(
 export const exportReport = createAsyncThunk(
   'dashboard/exportReport',
   async (params: {
-    type: 'orders' | 'products' | 'users';
+    type: 'orders' | 'menu' | 'users';
     format?: 'csv' | 'json';
     startDate?: string;
     endDate?: string;

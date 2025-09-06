@@ -9,14 +9,14 @@ const ROLES = {
 };
 
 const PERMISSIONS = {
-  // Product permissions
-  VIEW_ALL_PRODUCTS: 'view_all_products',
-  CREATE_VEG_PRODUCTS: 'create_veg_products',
-  CREATE_NON_VEG_PRODUCTS: 'create_non_veg_products',
-  UPDATE_VEG_PRODUCTS: 'update_veg_products',
-  UPDATE_NON_VEG_PRODUCTS: 'update_non_veg_products',
-  DELETE_VEG_PRODUCTS: 'delete_veg_products',
-  DELETE_NON_VEG_PRODUCTS: 'delete_non_veg_products',
+  // Menu permissions
+  VIEW_ALL_MENU_ITEMS: 'view_all_menu_items',
+  CREATE_VEG_MENU_ITEMS: 'create_veg_menu_items',
+  CREATE_NON_VEG_MENU_ITEMS: 'create_non_veg_menu_items',
+  UPDATE_VEG_MENU_ITEMS: 'update_veg_menu_items',
+  UPDATE_NON_VEG_MENU_ITEMS: 'update_non_veg_menu_items',
+  DELETE_VEG_MENU_ITEMS: 'delete_veg_menu_items',
+  DELETE_NON_VEG_MENU_ITEMS: 'delete_non_veg_menu_items',
   
   // Category permissions
   VIEW_ALL_CATEGORIES: 'view_all_categories',
@@ -48,7 +48,7 @@ const PERMISSIONS = {
  */
 const ROLE_PERMISSIONS = {
   [ROLES.SUPER_ADMIN]: [
-    PERMISSIONS.VIEW_ALL_PRODUCTS,
+    PERMISSIONS.VIEW_ALL_MENU_ITEMS,
     PERMISSIONS.VIEW_ALL_CATEGORIES,
     PERMISSIONS.VIEW_ALL_ORDERS,
     PERMISSIONS.VIEW_ALL_USERS,
@@ -58,12 +58,12 @@ const ROLE_PERMISSIONS = {
     PERMISSIONS.EXPORT_REPORTS
     // Note: Super admin has read-only access, no create/update/delete permissions
   ],
-  
+
   [ROLES.VEG_ADMIN]: [
-    PERMISSIONS.VIEW_ALL_PRODUCTS,
-    PERMISSIONS.CREATE_VEG_PRODUCTS,
-    PERMISSIONS.UPDATE_VEG_PRODUCTS,
-    PERMISSIONS.DELETE_VEG_PRODUCTS,
+    PERMISSIONS.VIEW_ALL_MENU_ITEMS,
+    PERMISSIONS.CREATE_VEG_MENU_ITEMS,
+    PERMISSIONS.UPDATE_VEG_MENU_ITEMS,
+    PERMISSIONS.DELETE_VEG_MENU_ITEMS,
     PERMISSIONS.VIEW_ALL_CATEGORIES,
     PERMISSIONS.CREATE_VEG_CATEGORIES,
     PERMISSIONS.UPDATE_VEG_CATEGORIES,
@@ -75,10 +75,10 @@ const ROLE_PERMISSIONS = {
   ],
   
   [ROLES.NON_VEG_ADMIN]: [
-    PERMISSIONS.VIEW_ALL_PRODUCTS,
-    PERMISSIONS.CREATE_NON_VEG_PRODUCTS,
-    PERMISSIONS.UPDATE_NON_VEG_PRODUCTS,
-    PERMISSIONS.DELETE_NON_VEG_PRODUCTS,
+    PERMISSIONS.VIEW_ALL_MENU_ITEMS,
+    PERMISSIONS.CREATE_NON_VEG_MENU_ITEMS,
+    PERMISSIONS.UPDATE_NON_VEG_MENU_ITEMS,
+    PERMISSIONS.DELETE_NON_VEG_MENU_ITEMS,
     PERMISSIONS.VIEW_ALL_CATEGORIES,
     PERMISSIONS.CREATE_NON_VEG_CATEGORIES,
     PERMISSIONS.UPDATE_NON_VEG_CATEGORIES,
@@ -133,7 +133,7 @@ const canModifyResources = (role) => {
 };
 
 /**
- * Get filter for products/categories based on user role
+ * Get filter for menu items/categories based on user role
  * @param {string} role - User role
  * @returns {Object} - MongoDB filter object
  */

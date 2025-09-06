@@ -144,18 +144,18 @@ export const useAuth = () => {
     return hasRole('super-admin');
   };
 
-  // Check if user can manage vegetarian products
+  // Check if user can manage vegetarian menu items
   const canManageVeg = () => {
     return hasRole(['super-admin', 'veg-admin']);
   };
 
-  // Check if user can manage non-vegetarian products
+  // Check if user can manage non-vegetarian menu items
   const canManageNonVeg = () => {
     return hasRole(['super-admin', 'non-veg-admin']);
   };
 
-  // Check if user can manage specific product based on type
-  const canManageProduct = (isVegetarian: boolean) => {
+  // Check if user can manage specific menu item based on type
+  const canManageMenuItem = (isVegetarian: boolean) => {
     if (isSuperAdmin()) return true;
     if (isVegetarian) return canManageVeg();
     return canManageNonVeg();
@@ -200,7 +200,7 @@ export const useAuth = () => {
     isSuperAdmin,
     canManageVeg,
     canManageNonVeg,
-    canManageProduct,
+    canManageMenuItem,
 
     // Utilities
     getDisplayName,

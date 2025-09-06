@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 
 // Cart item sub-schema
 const cartItemSchema = new mongoose.Schema({
-  product: {
+  menu: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product',
-    required: [true, 'Product is required']
+    ref: 'Menu',
+    required: [true, 'Menu item is required']
   },
   quantity: {
     type: Number,
@@ -54,8 +54,7 @@ const cartSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: [true, 'User is required'],
-    unique: true
+    required: [true, 'User is required']
   },
   items: {
     type: [cartItemSchema],
@@ -96,8 +95,8 @@ const cartSchema = new mongoose.Schema({
 });
 
 // Indexes
-cartSchema.index({ user: 1 });
-cartSchema.index({ 'items.product': 1 });
+cartSchema.index({ user: 1 }, { unique: true });
+cartSchema.index({ 'items.menu': 1 });
 cartSchema.index({ updatedAt: -1 });
 
 // Pre-save middleware to calculate totals
@@ -108,7 +107,7 @@ cartSchema.pre('save', function(next) {
 
     // Calculate estimated delivery time (max preparation time + delivery buffer)
     this.estimatedDeliveryTime = Math.max(
-      ...this.items.map(item => item.product?.preparationTime || 20)
+      ...this.items.map(item => item.menu?.preparationTime || 20)
     ) + 15; // 15 minutes delivery buffer
   } else {
     this.subtotal = 0;
@@ -119,9 +118,9 @@ cartSchema.pre('save', function(next) {
 });
 
 // Method to add item to cart
-cartSchema.methods.addItem = function(productId, quantity, size, addons, specialInstructions, price) {
+cartSchema.methods.addItem = function(menuId, quantity, size, addons, specialInstructions, price) {
   const existingItemIndex = this.items.findIndex(item =>
-    item.product.toString() === productId.toString() &&
+    item.menu.toString() === menuId.toString() &&
     item.size === size &&
     JSON.stringify(item.addons) === JSON.stringify(addons)
   );
@@ -137,7 +136,7 @@ cartSchema.methods.addItem = function(productId, quantity, size, addons, special
   } else {
     // Add new item
     this.items.push({
-      product: productId,
+      menu: menuId,
       quantity,
       size,
       addons,
@@ -203,7 +202,7 @@ cartSchema.virtual('finalTotal').get(function() {
 
 // Static method to get or create cart for user
 cartSchema.statics.getOrCreateCart = async function(userId) {
-  let cart = await this.findOne({ user: userId }).populate('items.product');
+  let cart = await this.findOne({ user: userId }).populate('items.menu');
   if (!cart) {
     cart = new this({ user: userId });
     await cart.save();

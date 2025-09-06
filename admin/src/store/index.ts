@@ -3,7 +3,7 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 // Import all slice reducers
 import authSlice from './slices/authSlice';
-import productsSlice from './slices/productsSlice';
+import menuSlice from './slices/menuSlice';
 import categoriesSlice from './slices/categoriesSlice';
 import ordersSlice from './slices/ordersSlice';
 import usersSlice from './slices/usersSlice';
@@ -17,7 +17,7 @@ import uiSlice from './slices/uiSlice';
 export const store = configureStore({
   reducer: {
     auth: authSlice,
-    products: productsSlice,
+    menu: menuSlice,
     categories: categoriesSlice,
     orders: ordersSlice,
     users: usersSlice,

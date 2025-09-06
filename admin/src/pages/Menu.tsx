@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { fetchProducts } from '@/store/slices/productsSlice';
+import { fetchMenuItems } from '@/store/slices/menuSlice';
 import { 
   Search, 
   Plus, 
@@ -24,33 +25,53 @@ import {
 
 export const Menu: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { user: currentUser, canManageVeg, canManageNonVeg, canManageProduct } = useAuth();
-  const { products, isLoading, error } = useAppSelector((state) => state.products);
+  const { user: currentUser, canManageVeg, canManageNonVeg, canManageMenuItem } = useAuth();
+  const { menuItems, isLoading, error } = useAppSelector((state) => state.menu);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
 
   useEffect(() => {
-    dispatch(fetchProducts({}));
+    dispatch(fetchMenuItems({}));
   }, [dispatch]);
 
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+  const handleExport = () => {
+    // TODO: Implement export functionality
+    console.log('Export menu items');
+  };
+
+  const handleEdit = (menuItemId: string) => {
+    // TODO: Navigate to edit page
+    console.log('Edit menu item:', menuItemId);
+  };
+
+  const handleView = (menuItemId: string) => {
+    // TODO: Navigate to view page or open modal
+    console.log('View menu item:', menuItemId);
+  };
+
+  const handleDelete = (menuItemId: string) => {
+    // TODO: Implement delete functionality
+    console.log('Delete menu item:', menuItemId);
+  };
+
+  const filteredMenuItems = menuItems.filter(menuItem => {
+    const matchesSearch = menuItem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         menuItem.description?.toLowerCase().includes(searchTerm.toLowerCase());
+
     // Role-based filtering
     let matchesRole = true;
     if (currentUser?.role === 'veg-admin') {
-      matchesRole = product.isVegetarian === true;
+      matchesRole = menuItem.isVegetarian === true;
     } else if (currentUser?.role === 'non-veg-admin') {
-      matchesRole = product.isVegetarian === false;
+      matchesRole = menuItem.isVegetarian === false;
     }
-    
-    const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
-    const matchesType = selectedType === 'all' || 
-                       (selectedType === 'veg' && product.isVegetarian) ||
-                       (selectedType === 'non-veg' && !product.isVegetarian);
-    
+
+    const matchesCategory = selectedCategory === 'all' || menuItem.category === selectedCategory;
+    const matchesType = selectedType === 'all' ||
+                       (selectedType === 'veg' && menuItem.isVegetarian) ||
+                       (selectedType === 'non-veg' && !menuItem.isVegetarian);
+
     return matchesSearch && matchesRole && matchesCategory && matchesType;
   });
 
@@ -113,22 +134,22 @@ export const Menu: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Menu Management</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Menu Management</h1>
           <p className="text-muted-foreground">
-            Manage your restaurant menu items
-            {currentUser?.role === 'veg-admin' && ' (Vegetarian items only)'}
-            {currentUser?.role === 'non-veg-admin' && ' (Non-vegetarian items only)'}
+            Manage your restaurant menu items and categories
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="h-4 w-4 mr-2" />
             Export Menu
           </Button>
           {canAddMenuItem() && (
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Menu Item
+            <Button size="sm" asChild>
+              <Link to="/menu/new">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Menu Item
+              </Link>
             </Button>
           )}
         </div>
@@ -183,86 +204,104 @@ export const Menu: React.FC = () => {
 
       {/* Menu Items Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProducts.map((product) => (
-          <Card key={product._id} className="hover:shadow-lg transition-shadow">
+        {filteredMenuItems.map((menuItem) => (
+          <Card key={menuItem._id} className="hover:shadow-lg transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div>
                   <CardTitle className="text-lg flex items-center gap-2">
-                    {product.isVegetarian ? (
+                    {menuItem.isVegetarian ? (
                       <Leaf className="h-4 w-4 text-green-600" />
                     ) : (
                       <Utensils className="h-4 w-4 text-red-600" />
                     )}
-                    {product.name}
-                    {product.rating && product.rating > 4 && (
+                    {menuItem.name}
+                    {menuItem.averageRating && menuItem.averageRating > 4 && (
                       <Star className="h-4 w-4 text-yellow-500 fill-current" />
                     )}
                   </CardTitle>
-                  <CardDescription className="text-sm">{product.category}</CardDescription>
+                  <CardDescription className="text-sm">{menuItem.category.name}</CardDescription>
                 </div>
-                <Badge className={getTypeBadgeColor(product.isVegetarian)}>
-                  {product.isVegetarian ? 'Veg' : 'Non-Veg'}
+                <Badge className={getTypeBadgeColor(menuItem.isVegetarian)}>
+                  {menuItem.isVegetarian ? 'Veg' : 'Non-Veg'}
                 </Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {product.description && (
+              {menuItem.description && (
                 <p className="text-sm text-muted-foreground line-clamp-2">
-                  {product.description}
+                  {menuItem.description}
                 </p>
               )}
-              
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1">
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-semibold">${product.price}</span>
+                  <span className="font-semibold">${menuItem.discountedPrice}</span>
+                  {menuItem.mrp > menuItem.discountedPrice && (
+                    <span className="text-sm text-muted-foreground line-through">${menuItem.mrp}</span>
+                  )}
                 </div>
-                <Badge className={getStatusBadgeColor(product.isAvailable)}>
-                  {product.isAvailable ? 'Available' : 'Out of Stock'}
+                <Badge className={getStatusBadgeColor(menuItem.isActive)}>
+                  {menuItem.isActive ? 'Available' : 'Out of Stock'}
                 </Badge>
               </div>
               
-              {product.spiceLevel && (
+              {menuItem.spicyLevel && (
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Spice Level</span>
-                  <Badge className={getSpicyBadgeColor(product.spiceLevel)}>
-                    {product.spiceLevel}
+                  <Badge className={getSpicyBadgeColor(menuItem.spicyLevel)}>
+                    {menuItem.spicyLevel}
                   </Badge>
                 </div>
               )}
-              
-              {product.preparationTime && (
+
+              {menuItem.preparationTime && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Clock className="h-4 w-4" />
-                  {product.preparationTime} mins
+                  {menuItem.preparationTime} mins
                 </div>
               )}
-              
-              {product.rating && (
+
+              {menuItem.averageRating && (
                 <div className="flex items-center gap-2 text-sm">
                   <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                  <span>{product.rating.toFixed(1)}</span>
-                  <span className="text-muted-foreground">({product.reviewCount || 0} reviews)</span>
+                  <span>{menuItem.averageRating.toFixed(1)}</span>
+                  <span className="text-muted-foreground">({menuItem.totalReviews || 0} reviews)</span>
                 </div>
               )}
-              
+
               <div className="text-xs text-muted-foreground">
-                Added: {new Date(product.createdAt).toLocaleDateString()}
+                Added: {new Date(menuItem.createdAt).toLocaleDateString()}
               </div>
               
               <div className="flex gap-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => handleView(menuItem._id)}
+                >
                   <Eye className="h-4 w-4 mr-1" />
                   View
                 </Button>
-                {canManageProduct(product.isVegetarian) && (
+                {canManageMenuItem(menuItem.isVegetarian) && (
                   <>
-                    <Button variant="outline" size="sm" className="flex-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => handleEdit(menuItem._id)}
+                    >
                       <Edit className="h-4 w-4 mr-1" />
                       Edit
                     </Button>
-                    <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => handleDelete(menuItem._id)}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </>
@@ -273,7 +312,7 @@ export const Menu: React.FC = () => {
         ))}
       </div>
 
-      {filteredProducts.length === 0 && (
+      {filteredMenuItems.length === 0 && (
         <Card>
           <CardContent className="p-12 text-center">
             <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />

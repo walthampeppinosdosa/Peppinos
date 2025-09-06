@@ -35,12 +35,12 @@ export const Dashboard: React.FC = () => {
 
   const getRolePermissions = () => {
     switch (user?.role) {
-      case 'super_admin':
+      case 'super-admin':
         return 'View all data (read-only access)';
-      case 'veg_admin':
-        return 'Manage vegetarian products and categories';
-      case 'nonveg_admin':
-        return 'Manage non-vegetarian products and categories';
+      case 'veg-admin':
+        return 'Manage vegetarian menu items and categories';
+      case 'non-veg-admin':
+        return 'Manage non-vegetarian menu items and categories';
       default:
         return 'Limited access';
     }
@@ -79,9 +79,9 @@ export const Dashboard: React.FC = () => {
     ];
 
     if (user?.role !== 'super_admin') {
-      const productType = user?.role === 'veg_admin' ? 'Veg Products' : 'Non-Veg Products';
+      const menuType = user?.role === 'veg_admin' ? 'Veg Menu Items' : 'Non-Veg Menu Items';
       baseStats.unshift({
-        title: productType,
+        title: menuType,
         value: user?.role === 'veg_admin' ? '156' : '89',
         change: '+5',
         icon: Package,
@@ -94,18 +94,6 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back, {user?.name}!</p>
-        </div>
-        <Badge variant="secondary" className="bg-gradient-primary text-primary-foreground">
-          {user?.role === 'super_admin' && 'Super Admin'}
-          {user?.role === 'veg_admin' && 'Veg Admin'}
-          {user?.role === 'nonveg_admin' && 'Non-Veg Admin'}
-        </Badge>
-      </div>
 
       {/* Role Information */}
       <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
@@ -158,7 +146,7 @@ export const Dashboard: React.FC = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Product Categories</CardTitle>
+            <CardTitle>Menu Categories</CardTitle>
             <CardDescription>Distribution of veg vs non-veg orders</CardDescription>
           </CardHeader>
           <CardContent>
@@ -206,7 +194,7 @@ export const Dashboard: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
                 <Package className="h-6 w-6" />
-                <span>Add New Product</span>
+                <span>Add New Menu Item</span>
               </Button>
               <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
                 <TrendingUp className="h-6 w-6" />

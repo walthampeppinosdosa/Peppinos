@@ -1,30 +1,52 @@
 const express = require('express');
 const router = express.Router();
 
-// Placeholder routes - will be implemented in User Management System task
+// Import controllers
+const {
+  getAllUsers,
+  getUserById,
+  updateUserStatus,
+  updateUserRole,
+  getUserStats
+} = require('../../controllers/admin/user-controller');
 
-// GET /api/admin/users
-router.get('/users', (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'Get users endpoint not implemented yet'
-  });
-});
+// Import middleware
+const { authenticateToken, requireAdmin } = require('../../middleware/auth-middleware');
+const { validateObjectId, loadUser } = require('../../middleware/resource-middleware');
+const { createPermissionMiddleware } = require('../../middleware/rbac-middleware');
 
-// GET /api/admin/users/:id
-router.get('/users/:id', (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'Get user details endpoint not implemented yet'
-  });
-});
+// Apply authentication and admin check to all routes
+router.use(authenticateToken);
+router.use(requireAdmin);
 
-// PUT /api/admin/users/:id
-router.put('/users/:id', (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'Update user endpoint not implemented yet'
-  });
-});
+// GET /api/admin/users - Get all users with filtering
+router.get('/users', createPermissionMiddleware.viewUsers, getAllUsers);
+
+// GET /api/admin/users/stats - Get user statistics
+router.get('/users/stats', createPermissionMiddleware.viewUsers, getUserStats);
+
+// GET /api/admin/users/:id - Get single user
+router.get('/users/:id',
+  validateObjectId('id'),
+  loadUser,
+  createPermissionMiddleware.viewUsers,
+  getUserById
+);
+
+// PUT /api/admin/users/:id/status - Update user status
+router.put('/users/:id/status',
+  validateObjectId('id'),
+  loadUser,
+  createPermissionMiddleware.updateUserRoles,
+  updateUserStatus
+);
+
+// PUT /api/admin/users/:id/role - Update user role
+router.put('/users/:id/role',
+  validateObjectId('id'),
+  loadUser,
+  createPermissionMiddleware.updateUserRoles,
+  updateUserRole
+);
 
 module.exports = router;

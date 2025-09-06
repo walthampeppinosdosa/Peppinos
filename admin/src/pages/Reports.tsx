@@ -59,10 +59,10 @@ export const Reports: React.FC = () => {
       color: 'text-purple-600'
     },
     {
-      title: 'Product Report',
-      description: 'Product performance analytics',
+      title: 'Menu Report',
+      description: 'Menu item performance analytics',
       icon: Package,
-      value: stats?.totalProducts?.toString() || '0',
+      value: stats?.totalMenuItems?.toString() || '0',
       change: '+5.1%',
       trend: 'up',
       color: 'text-orange-600'
@@ -85,10 +85,10 @@ export const Reports: React.FC = () => {
       lastGenerated: '1 hour ago'
     },
     {
-      title: 'Product Performance',
+      title: 'Menu Performance',
       description: 'Best and worst performing menu items',
       icon: PieChart,
-      type: 'products',
+      type: 'menu',
       lastGenerated: '30 minutes ago'
     },
     {
@@ -123,10 +123,6 @@ export const Reports: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Reports & Analytics</h1>
-          <p className="text-muted-foreground">Comprehensive business insights and analytics</p>
-        </div>
         <div className="flex gap-2">
           <select
             value={selectedPeriod}
@@ -233,7 +229,7 @@ export const Reports: React.FC = () => {
             {[
               { name: 'Monthly Sales Report', type: 'PDF', size: '2.4 MB', time: '2 hours ago', user: 'Admin' },
               { name: 'Customer Analytics', type: 'Excel', size: '1.8 MB', time: '4 hours ago', user: 'Manager' },
-              { name: 'Product Performance', type: 'PDF', size: '3.1 MB', time: '1 day ago', user: 'Admin' },
+              { name: 'Menu Performance', type: 'PDF', size: '3.1 MB', time: '1 day ago', user: 'Admin' },
               { name: 'Order Trends Report', type: 'CSV', size: '856 KB', time: '2 days ago', user: 'Analyst' }
             ].map((activity, index) => (
               <div key={index} className="flex items-center justify-between p-3 border border-border rounded-lg">

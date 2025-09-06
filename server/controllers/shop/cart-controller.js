@@ -1,5 +1,5 @@
 const Cart = require('../../models/Cart');
-const Product = require('../../models/Product');
+const Menu = require('../../models/Menu');
 const { validationResult } = require('express-validator');
 
 /**
@@ -9,7 +9,7 @@ const { validationResult } = require('express-validator');
 const getCart = async (req, res) => {
   try {
     let cart = await Cart.findOne({ user: req.user._id })
-      .populate('items.product', 'name images discountedPrice mrp quantity isActive')
+      .populate('items.menu', 'name images discountedPrice mrp quantity isActive')
       .lean();
 
     if (!cart) {
@@ -19,14 +19,13 @@ const getCart = async (req, res) => {
       cart = cart.toObject();
     }
 
-    // Filter out inactive products and calculate totals
+    // Filter out inactive menu items and calculate totals
     const activeItems = cart.items.filter(item =>
-      item.product && item.product.isActive && item.product.quantity > 0
+      item.menu && item.menu.isActive && item.menu.quantity > 0
     );
 
     const cartTotals = activeItems.reduce((totals, item) => {
-      const itemTotal = item.quantity * item.product.discountedPrice;
-      totals.subtotal += itemTotal;
+      totals.subtotal += item.itemTotal || 0;
       totals.totalItems += item.quantity;
       return totals;
     }, { subtotal: 0, totalItems: 0 });
@@ -86,27 +85,27 @@ const addToCart = async (req, res) => {
       });
     }
 
-    const { productId, quantity = 1, size = 'Medium', addons = [] } = req.body;
+    const { menuItemId, quantity = 1, size = 'Medium', addons = [] } = req.body;
 
-    // Verify product exists and is active
-    const product = await Product.findById(productId);
-    if (!product || !product.isActive) {
+    // Verify menu item exists and is active
+    const menuItem = await Menu.findById(menuItemId);
+    if (!menuItem || !menuItem.isActive) {
       return res.status(404).json({
         success: false,
-        message: 'Product not found or inactive'
+        message: 'Menu item not found or inactive'
       });
     }
 
     // Check stock availability
-    if (product.quantity < quantity) {
+    if (menuItem.quantity < quantity) {
       return res.status(400).json({
         success: false,
-        message: `Only ${product.quantity} items available in stock`
+        message: `Only ${menuItem.quantity} items available in stock`
       });
     }
 
     // Validate size
-    if (!product.sizes.includes(size)) {
+    if (!menuItem.sizes.includes(size)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid size selected'
@@ -115,8 +114,8 @@ const addToCart = async (req, res) => {
 
     // Validate addons
     const validAddons = addons.filter(addon =>
-      product.addons.some(productAddon =>
-        productAddon._id.toString() === addon.id && addon.quantity > 0
+      menuItem.addons.some(menuItemAddon =>
+        menuItemAddon._id.toString() === addon.id && addon.quantity > 0
       )
     );
 
@@ -128,7 +127,7 @@ const addToCart = async (req, res) => {
 
     // Check if item already exists in cart
     const existingItemIndex = cart.items.findIndex(item =>
-      item.product.toString() === productId &&
+      item.menu.toString() === menuItemId &&
       item.size === size &&
       JSON.stringify(item.addons.sort()) === JSON.stringify(validAddons.sort())
     );
@@ -137,28 +136,44 @@ const addToCart = async (req, res) => {
       // Update existing item quantity
       const newQuantity = cart.items[existingItemIndex].quantity + quantity;
 
-      if (newQuantity > product.quantity) {
+      if (newQuantity > menuItem.quantity) {
         return res.status(400).json({
           success: false,
-          message: `Cannot add more items. Maximum available: ${product.quantity}`
+          message: `Cannot add more items. Maximum available: ${menuItem.quantity}`
         });
       }
 
+      // Recalculate pricing for updated quantity
+      const basePrice = menuItem.discountedPrice || menuItem.mrp;
+      const addonsTotal = validAddons.reduce((total, addon) => total + addon.price, 0);
+      const priceAtTime = basePrice;
+      const itemTotal = (basePrice + addonsTotal) * newQuantity;
+
       cart.items[existingItemIndex].quantity = newQuantity;
+      cart.items[existingItemIndex].priceAtTime = priceAtTime;
+      cart.items[existingItemIndex].itemTotal = itemTotal;
     } else {
+      // Calculate pricing
+      const basePrice = menuItem.discountedPrice || menuItem.mrp;
+      const addonsTotal = validAddons.reduce((total, addon) => total + addon.price, 0);
+      const priceAtTime = basePrice;
+      const itemTotal = (basePrice + addonsTotal) * quantity;
+
       // Add new item to cart
       cart.items.push({
-        product: productId,
+        menu: menuItemId,
         quantity,
         size,
-        addons: validAddons
+        addons: validAddons,
+        priceAtTime,
+        itemTotal
       });
     }
 
     await cart.save();
 
     // Populate and return updated cart
-    await cart.populate('items.product', 'name images discountedPrice mrp');
+    await cart.populate('items.menu', 'name images discountedPrice mrp');
 
     res.status(200).json({
       success: true,
@@ -207,19 +222,19 @@ const updateCartItem = async (req, res) => {
       });
     }
 
-    // Check product availability
-    const product = await Product.findById(cart.items[itemIndex].product);
-    if (!product || !product.isActive) {
+    // Check menu item availability
+    const menuItem = await Menu.findById(cart.items[itemIndex].product);
+    if (!menuItem || !menuItem.isActive) {
       return res.status(400).json({
         success: false,
-        message: 'Product is no longer available'
+        message: 'Menu item is no longer available'
       });
     }
 
-    if (quantity > product.quantity) {
+    if (quantity > menuItem.quantity) {
       return res.status(400).json({
         success: false,
-        message: `Only ${product.quantity} items available in stock`
+        message: `Only ${menuItem.quantity} items available in stock`
       });
     }
 
@@ -227,7 +242,7 @@ const updateCartItem = async (req, res) => {
     await cart.save();
 
     // Populate and return updated cart
-    await cart.populate('items.product', 'name images discountedPrice mrp');
+    await cart.populate('items.menu', 'name images discountedPrice mrp');
 
     res.status(200).json({
       success: true,
@@ -272,7 +287,7 @@ const removeFromCart = async (req, res) => {
     await cart.save();
 
     // Populate and return updated cart
-    await cart.populate('items.product', 'name images discountedPrice mrp');
+    await cart.populate('items.menu', 'name images discountedPrice mrp');
 
     res.status(200).json({
       success: true,
@@ -362,9 +377,9 @@ const applyCoupon = async (req, res) => {
     }
 
     // Calculate cart subtotal
-    await cart.populate('items.product', 'discountedPrice');
+    await cart.populate('items.menu', 'discountedPrice');
     const subtotal = cart.items.reduce((total, item) =>
-      total + (item.quantity * item.product.discountedPrice), 0
+      total + (item.quantity * item.menu.discountedPrice), 0
     );
 
     if (subtotal < coupon.minOrder) {
@@ -417,7 +432,7 @@ const removeCoupon = async (req, res) => {
     await cart.save();
 
     // Populate and return updated cart
-    await cart.populate('items.product', 'name images discountedPrice mrp');
+    await cart.populate('items.menu', 'name images discountedPrice mrp');
 
     res.status(200).json({
       success: true,

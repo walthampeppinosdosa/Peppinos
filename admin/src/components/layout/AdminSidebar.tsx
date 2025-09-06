@@ -1,11 +1,10 @@
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -13,15 +12,12 @@ import {
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
-  Package,
   FolderOpen,
   ShoppingCart,
   Users,
   MapPin,
   BarChart3,
-  Settings,
   Utensils,
-  Leaf,
   Menu as MenuIcon,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -76,15 +72,7 @@ const navItems: NavItem[] = [
 
 export const AdminSidebar: React.FC = () => {
   const { state } = useSidebar();
-  const location = useLocation();
   const { user } = useAuth();
-  const currentPath = location.pathname;
-
-  const isActive = (path: string) => currentPath === path;
-  const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive 
-      ? "bg-primary text-primary-foreground font-medium shadow-warm" 
-      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
 
   const canAccessRoute = (item: NavItem) => {
     if (!item.roles) return true;
@@ -112,15 +100,28 @@ export const AdminSidebar: React.FC = () => {
         </div>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground/70">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {filteredNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end className={getNavCls}>
-                      <item.icon className="mr-3 h-4 w-4" />
-                      {!isCollapsed && <span>{item.title}</span>}
+                    <NavLink
+                      to={item.url}
+                      end
+                      className={({ isActive }) =>
+                        `flex items-center px-3 py-2 rounded-md transition-colors ${
+                          isActive
+                            ? "bg-primary text-primary-foreground font-medium shadow-warm"
+                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground dark:text-white dark:hover:text-white"
+                        }`
+                      }
+                    >
+                      <item.icon className="mr-3 h-4 w-4 dark:text-white" />
+                      {!isCollapsed && (
+                        <span className="dark:text-white">
+                          {item.title}
+                        </span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -128,32 +129,6 @@ export const AdminSidebar: React.FC = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
-        {user?.role !== 'super_admin' && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-sidebar-foreground/70">Quick Access</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <NavLink to="/products/new" className="text-sidebar-foreground/60 hover:text-sidebar-foreground">
-                      <Package className="mr-3 h-4 w-4" />
-                      {!isCollapsed && <span>Add Product</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                {user?.role === 'veg_admin' && (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton className="text-success hover:text-success/80">
-                      <Leaf className="mr-3 h-4 w-4" />
-                      {!isCollapsed && <span>Veg Products</span>}
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
       </SidebarContent>
     </Sidebar>
   );

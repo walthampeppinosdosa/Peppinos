@@ -19,7 +19,6 @@ const categorySchema = new mongoose.Schema({
     type: String,
     required: [true, 'Category name is required'],
     trim: true,
-    unique: true,
     maxlength: [50, 'Category name cannot exceed 50 characters']
   },
   description: {
@@ -30,11 +29,28 @@ const categorySchema = new mongoose.Schema({
   },
   image: {
     type: categoryImageSchema,
-    required: [true, 'Category image is required']
+    required: function() {
+      return this.type === 'menu'; // Only menu categories require images
+    }
+  },
+  type: {
+    type: String,
+    enum: ['parent', 'menu'],
+    required: [true, 'Category type is required'],
+    default: 'menu'
+  },
+  parentCategory: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+    required: function() {
+      return this.type === 'menu'; // Menu categories must have a parent
+    }
   },
   isVegetarian: {
     type: Boolean,
-    required: [true, 'Vegetarian status is required']
+    required: function() {
+      return this.type === 'parent'; // Only parent categories need this field
+    }
   },
   isActive: {
     type: Boolean,
@@ -46,10 +62,9 @@ const categorySchema = new mongoose.Schema({
   },
   slug: {
     type: String,
-    unique: true,
     lowercase: true
   },
-  productCount: {
+  menuItemCount: {
     type: Number,
     default: 0,
     min: 0
@@ -58,10 +73,15 @@ const categorySchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Indexes (name and slug already have unique indexes from schema definition)
+// Indexes
+categorySchema.index({ slug: 1 }, { unique: true });
 categorySchema.index({ isVegetarian: 1 });
 categorySchema.index({ isActive: 1 });
 categorySchema.index({ sortOrder: 1 });
+categorySchema.index({ type: 1 });
+categorySchema.index({ parentCategory: 1 });
+// Compound unique index for name within parent category
+categorySchema.index({ name: 1, parentCategory: 1 }, { unique: true });
 
 // Pre-save middleware to generate slug
 categorySchema.pre('save', function(next) {
@@ -74,25 +94,25 @@ categorySchema.pre('save', function(next) {
   next();
 });
 
-// Static method to get categories with product counts
-categorySchema.statics.getWithProductCounts = function() {
+// Static method to get categories with menu item counts
+categorySchema.statics.getWithMenuItemCounts = function() {
   return this.aggregate([
     {
       $lookup: {
-        from: 'products',
+        from: 'menus',
         localField: '_id',
         foreignField: 'category',
-        as: 'products'
+        as: 'menuItems'
       }
     },
     {
       $addFields: {
-        productCount: { $size: '$products' }
+        menuItemCount: { $size: '$menuItems' }
       }
     },
     {
       $project: {
-        products: 0
+        menuItems: 0
       }
     },
     {
@@ -101,9 +121,77 @@ categorySchema.statics.getWithProductCounts = function() {
   ]);
 };
 
-// Virtual for active products count
-categorySchema.virtual('activeProductCount', {
-  ref: 'Product',
+// Static method to get hierarchical category structure
+categorySchema.statics.getHierarchical = function() {
+  return this.aggregate([
+    {
+      $match: { type: 'parent' }
+    },
+    {
+      $lookup: {
+        from: 'categories',
+        localField: '_id',
+        foreignField: 'parentCategory',
+        as: 'menuCategories'
+      }
+    },
+    {
+      $lookup: {
+        from: 'menus',
+        localField: 'menuCategories._id',
+        foreignField: 'category',
+        as: 'menuItems'
+      }
+    },
+    {
+      $addFields: {
+        menuItemCount: { $size: '$menuItems' },
+        'menuCategories.menuItemCount': {
+          $map: {
+            input: '$menuCategories',
+            as: 'menuCat',
+            in: {
+              $mergeObjects: [
+                '$$menuCat',
+                {
+                  menuItemCount: {
+                    $size: {
+                      $filter: {
+                        input: '$menuItems',
+                        cond: { $eq: ['$$this.category', '$$menuCat._id'] }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        menuItems: 0
+      }
+    },
+    {
+      $sort: { sortOrder: 1, name: 1 }
+    }
+  ]);
+};
+
+// Static method to get menu categories for a specific parent
+categorySchema.statics.getMenuCategoriesByParent = function(parentId) {
+  return this.find({
+    type: 'menu',
+    parentCategory: parentId,
+    isActive: true
+  }).sort({ sortOrder: 1, name: 1 });
+};
+
+// Virtual for active menu items count
+categorySchema.virtual('activeMenuItemCount', {
+  ref: 'Menu',
   localField: '_id',
   foreignField: 'category',
   count: true,

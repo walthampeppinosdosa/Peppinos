@@ -1,5 +1,5 @@
 const Category = require('../../models/Category');
-const Product = require('../../models/Product');
+const Menu = require('../../models/Menu');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../../helpers/cloudinary');
 const { validationResult } = require('express-validator');
 const { canPerformAction } = require('../../helpers/role-utils');
@@ -14,26 +14,84 @@ const getAllCategories = async (req, res) => {
       page = 1,
       limit = 10,
       search = '',
-      isVegetarian = '',
+      type = '',
+      parentCategory = '',
       isActive = '',
       sortBy = 'sortOrder',
-      sortOrder = 'asc'
+      sortOrder = 'asc',
+      hierarchical = 'false'
     } = req.query;
 
+    // If hierarchical view is requested
+    if (hierarchical === 'true') {
+      const hierarchicalCategories = await Category.getHierarchical();
+
+      // Apply role-based filtering
+      let filteredCategories = hierarchicalCategories;
+      if (req.roleFilter && Object.keys(req.roleFilter).length > 0) {
+        filteredCategories = hierarchicalCategories.filter(category => {
+          if (req.roleFilter.isVegetarian !== undefined) {
+            return category.isVegetarian === req.roleFilter.isVegetarian;
+          }
+          return true;
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'Hierarchical categories retrieved successfully',
+        data: {
+          categories: filteredCategories,
+          hierarchical: true
+        }
+      });
+    }
+
     // Build query
-    let query = { ...req.roleFilter }; // Apply role-based filter
+    let query = {};
+
+    // Apply role-based filter for menu categories
+    if (req.roleFilter && Object.keys(req.roleFilter).length > 0) {
+      // For role-based filtering, we need to filter by parent category
+      if (req.roleFilter.isVegetarian !== undefined) {
+        const parentCategories = await Category.find({
+          type: 'parent',
+          isVegetarian: req.roleFilter.isVegetarian
+        }).select('_id');
+
+        if (parentCategories.length > 0) {
+          query.$or = [
+            { type: 'parent', isVegetarian: req.roleFilter.isVegetarian },
+            { type: 'menu', parentCategory: { $in: parentCategories.map(p => p._id) } }
+          ];
+        }
+      }
+    }
 
     // Search filter
     if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
-      ];
+      const searchQuery = {
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } }
+        ]
+      };
+
+      if (query.$or) {
+        query = { $and: [{ $or: query.$or }, searchQuery] };
+      } else {
+        query = searchQuery;
+      }
     }
 
-    // Vegetarian filter
-    if (isVegetarian !== '') {
-      query.isVegetarian = isVegetarian === 'true';
+    // Type filter
+    if (type) {
+      query.type = type;
+    }
+
+    // Parent category filter
+    if (parentCategory) {
+      query.parentCategory = parentCategory;
     }
 
     // Active filter
@@ -45,23 +103,24 @@ const getAllCategories = async (req, res) => {
     const sortOptions = {};
     sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
 
-    // Execute query with pagination
+    // Execute query with pagination and population
     const categories = await Category.find(query)
+      .populate('parentCategory', 'name isVegetarian')
       .sort(sortOptions)
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .lean();
 
-    // Get product count for each category
+    // Get menu item count for each category
     const categoriesWithCount = await Promise.all(
       categories.map(async (category) => {
-        const productCount = await Product.countDocuments({
+        const menuItemCount = await Menu.countDocuments({
           category: category._id,
           isActive: true
         });
         return {
           ...category,
-          productCount
+          menuItemCount
         };
       })
     );
@@ -100,8 +159,8 @@ const getCategoryById = async (req, res) => {
   try {
     const category = req.category; // Loaded by middleware
 
-    // Get product count
-    const productCount = await Product.countDocuments({
+    // Get menu item count
+    const menuItemCount = await Menu.countDocuments({
       category: category._id
     });
 
@@ -111,7 +170,7 @@ const getCategoryById = async (req, res) => {
       data: {
         category: {
           ...category.toObject(),
-          productCount
+          menuItemCount
         }
       }
     });
@@ -144,19 +203,63 @@ const createCategory = async (req, res) => {
     const {
       name,
       description,
+      type = 'menu',
+      parentCategory,
       isVegetarian,
       sortOrder
     } = req.body;
 
-    // Check if user can create this type of category
-    if (!canPerformAction(req.user.role, 'create', isVegetarian)) {
-      return res.status(403).json({
+    // Validate category type
+    if (!['parent', 'menu'].includes(type)) {
+      return res.status(400).json({
         success: false,
-        message: `You cannot create ${isVegetarian ? 'vegetarian' : 'non-vegetarian'} categories`
+        message: 'Invalid category type. Must be either "parent" or "menu"'
       });
     }
 
-    // Handle image upload
+    // For menu categories, validate parent category
+    if (type === 'menu') {
+      if (!parentCategory) {
+        return res.status(400).json({
+          success: false,
+          message: 'Parent category is required for menu categories'
+        });
+      }
+
+      // Check if parent category exists and is a parent type
+      const parent = await Category.findById(parentCategory);
+      if (!parent || parent.type !== 'parent') {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid parent category'
+        });
+      }
+
+      // Check if user can create categories for this parent
+      if (!canPerformAction(req.user.role, 'create', parent.isVegetarian)) {
+        return res.status(403).json({
+          success: false,
+          message: `You cannot create categories for ${parent.isVegetarian ? 'vegetarian' : 'non-vegetarian'} parent category`
+        });
+      }
+    } else {
+      // For parent categories, check permission based on isVegetarian
+      if (isVegetarian === undefined) {
+        return res.status(400).json({
+          success: false,
+          message: 'isVegetarian is required for parent categories'
+        });
+      }
+
+      if (!canPerformAction(req.user.role, 'create', isVegetarian)) {
+        return res.status(403).json({
+          success: false,
+          message: `You cannot create ${isVegetarian ? 'vegetarian' : 'non-vegetarian'} parent categories`
+        });
+      }
+    }
+
+    // Handle image upload (only required for menu categories)
     let image;
     if (req.file) {
       try {
@@ -168,21 +271,29 @@ const createCategory = async (req, res) => {
           error: uploadError.message
         });
       }
-    } else {
+    } else if (type === 'menu') {
       return res.status(400).json({
         success: false,
-        message: 'Category image is required'
+        message: 'Category image is required for menu categories'
       });
     }
 
     // Create category
-    const category = new Category({
+    const categoryData = {
       name,
       description,
-      image,
-      isVegetarian,
+      type,
       sortOrder: sortOrder || 0
-    });
+    };
+
+    if (type === 'menu') {
+      categoryData.parentCategory = parentCategory;
+      if (image) categoryData.image = image;
+    } else {
+      categoryData.isVegetarian = isVegetarian;
+    }
+
+    const category = new Category(categoryData);
 
     await category.save();
 
@@ -298,15 +409,15 @@ const deleteCategory = async (req, res) => {
       });
     }
 
-    // Check if category has products
-    const productCount = await Product.countDocuments({
+    // Check if category has menu items
+    const menuItemCount = await Menu.countDocuments({
       category: category._id
     });
 
-    if (productCount > 0) {
+    if (menuItemCount > 0) {
       return res.status(400).json({
         success: false,
-        message: `Cannot delete category. It has ${productCount} products associated with it.`
+        message: `Cannot delete category. It has ${menuItemCount} menu items associated with it.`
       });
     }
 
@@ -387,6 +498,87 @@ const bulkUpdateStatus = async (req, res) => {
 };
 
 /**
+ * Get parent categories
+ * GET /api/admin/categories/parents
+ */
+const getParentCategories = async (req, res) => {
+  try {
+    // Apply role-based filtering
+    let filter = { type: 'parent', isActive: true };
+
+    if (req.roleFilter && req.roleFilter.isVegetarian !== undefined) {
+      filter.isVegetarian = req.roleFilter.isVegetarian;
+    }
+
+    const parentCategories = await Category.find(filter)
+      .sort({ sortOrder: 1, name: 1 })
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      message: 'Parent categories retrieved successfully',
+      data: { categories: parentCategories }
+    });
+  } catch (error) {
+    console.error('Get parent categories error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve parent categories',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Get menu categories based on parent category and user role
+ * GET /api/admin/categories/menu
+ */
+const getMenuCategories = async (req, res) => {
+  try {
+    const { parentId } = req.query;
+
+    // Build filter for menu categories
+    let filter = { type: 'menu', isActive: true };
+
+    // If parentId is provided, filter by parent
+    if (parentId) {
+      filter.parentCategory = parentId;
+    } else {
+      // If no parentId, apply role-based filtering
+      if (req.roleFilter && req.roleFilter.isVegetarian !== undefined) {
+        // Find parent categories that match the role filter
+        const parentCategories = await Category.find({
+          type: 'parent',
+          isVegetarian: req.roleFilter.isVegetarian,
+          isActive: true
+        }).select('_id');
+
+        filter.parentCategory = { $in: parentCategories.map(p => p._id) };
+      }
+    }
+
+    const menuCategories = await Category.find(filter)
+      .populate('parentCategory', 'name isVegetarian')
+      .select('name description parentCategory')
+      .sort({ sortOrder: 1, name: 1 })
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      message: 'Menu categories retrieved successfully',
+      data: { categories: menuCategories }
+    });
+  } catch (error) {
+    console.error('Get menu categories error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve menu categories',
+      error: error.message
+    });
+  }
+};
+
+/**
  * Get category statistics
  * GET /api/admin/categories/stats
  */
@@ -437,6 +629,8 @@ const getCategoryStats = async (req, res) => {
 
 module.exports = {
   getAllCategories,
+  getParentCategories,
+  getMenuCategories,
   getCategoryById,
   createCategory,
   updateCategory,

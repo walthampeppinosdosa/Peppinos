@@ -116,11 +116,11 @@ All colors MUST be HSL.
 
     /* Dark Gold Sidebar - Better contrast */
     --sidebar-background: 45 25% 12%;
-    --sidebar-foreground: 48 100% 95%;
+    --sidebar-foreground: 0 0% 98%; /* Much lighter for better contrast */
     --sidebar-primary: 43 96% 56%;
     --sidebar-primary-foreground: 45 15% 8%;
     --sidebar-accent: 45 30% 22%;
-    --sidebar-accent-foreground: 48 100% 95%;
+    --sidebar-accent-foreground: 0 0% 98%; /* Much lighter for better contrast */
     --sidebar-border: 45 30% 22%;
     --sidebar-ring: 43 96% 56%;
   }
@@ -133,5 +133,87 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Custom dark mode fixes for sidebar */
+@layer components {
+  .dark [data-sidebar] {
+    --sidebar-foreground: 0 0% 98% !important;
+    --sidebar-accent-foreground: 0 0% 98% !important;
+  }
+
+  /* Force sidebar text to be white in dark mode */
+  .dark [data-sidebar] a,
+  .dark [data-sidebar] span,
+  .dark [data-sidebar] svg {
+    color: white !important;
+  }
+
+  .dark [data-sidebar] a:hover {
+    color: white !important;
+    background-color: hsl(var(--sidebar-accent)) !important;
+  }
+
+  /* Specific targeting for sidebar menu items */
+  .dark [data-sidebar="sidebar"] [data-sidebar="menu"] a {
+    color: white !important;
+  }
+
+  .dark [data-sidebar="sidebar"] [data-sidebar="menu"] span {
+    color: white !important;
+  }
+
+  .dark [data-sidebar="sidebar"] [data-sidebar="menu"] svg {
+    color: white !important;
+  }
+
+  /* Additional targeting for NavLink components */
+  .dark nav a {
+    color: white !important;
+  }
+
+  .dark nav a span {
+    color: white !important;
+  }
+
+  .dark nav a svg {
+    color: white !important;
+  }
+
+  /* Target sidebar specifically */
+  .dark aside a {
+    color: white !important;
+  }
+
+  .dark aside span {
+    color: white !important;
+  }
+
+  .dark aside svg {
+    color: white !important;
+  }
+
+  /* Target sidebar menu button data attributes */
+  .dark [data-sidebar="menu-button"] {
+    color: white !important;
+  }
+
+  .dark [data-sidebar="menu-button"] span {
+    color: white !important;
+  }
+
+  .dark [data-sidebar="menu-button"] svg {
+    color: white !important;
+  }
+
+  /* Target sidebar menu items */
+  .dark [data-sidebar="menu"] [data-sidebar="menu-button"] {
+    color: white !important;
+  }
+
+  /* Override any text color classes in dark mode for sidebar */
+  .dark [data-sidebar] .text-sidebar-foreground {
+    color: white !important;
   }
 }

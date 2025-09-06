@@ -1,5 +1,5 @@
 const Order = require('../../models/Order');
-const Product = require('../../models/Product');
+const Menu = require('../../models/Menu');
 const Category = require('../../models/Category');
 const User = require('../../models/User');
 const Review = require('../../models/Review');
@@ -39,7 +39,7 @@ const getDashboardAnalytics = async (req, res) => {
       totalOrders,
       totalRevenue,
       totalUsers,
-      totalProducts,
+      totalMenuItems,
       pendingOrders,
       completedOrders,
       activeUsers,
@@ -51,7 +51,7 @@ const getDashboardAnalytics = async (req, res) => {
         { $group: { _id: null, total: { $sum: '$totalAmount' } } }
       ]),
       User.countDocuments({ createdAt: { $gte: startDate } }),
-      Product.countDocuments({ isActive: true }),
+      Menu.countDocuments({ isActive: true }),
       Order.countDocuments({ status: 'pending' }),
       Order.countDocuments({ status: 'completed', createdAt: { $gte: startDate } }),
       User.countDocuments({ isActive: true, lastLogin: { $gte: startDate } }),
@@ -81,30 +81,30 @@ const getDashboardAnalytics = async (req, res) => {
       { $sort: { _id: 1 } }
     ]);
 
-    // Get top selling products
-    const topProducts = await Order.aggregate([
+    // Get top selling menu items
+    const topMenuItems = await Order.aggregate([
       { $match: { createdAt: { $gte: startDate }, status: { $ne: 'cancelled' } } },
       { $unwind: '$items' },
       {
         $group: {
-          _id: '$items.product',
+          _id: '$items.menu',
           totalQuantity: { $sum: '$items.quantity' },
           totalRevenue: { $sum: { $multiply: ['$items.quantity', '$items.price'] } }
         }
       },
       {
         $lookup: {
-          from: 'products',
+          from: 'menus',
           localField: '_id',
           foreignField: '_id',
-          as: 'product'
+          as: 'menuItem'
         }
       },
-      { $unwind: '$product' },
+      { $unwind: '$menuItem' },
       {
         $project: {
-          productName: '$product.name',
-          productImage: { $arrayElemAt: ['$product.images.url', 0] },
+          menuItemName: '$menuItem.name',
+          menuItemImage: { $arrayElemAt: ['$menuItem.images.url', 0] },
           totalQuantity: 1,
           totalRevenue: 1
         }
@@ -119,17 +119,17 @@ const getDashboardAnalytics = async (req, res) => {
       { $unwind: '$items' },
       {
         $lookup: {
-          from: 'products',
-          localField: 'items.product',
+          from: 'menus',
+          localField: 'items.menu',
           foreignField: '_id',
-          as: 'product'
+          as: 'menuItem'
         }
       },
-      { $unwind: '$product' },
+      { $unwind: '$menuItem' },
       {
         $lookup: {
           from: 'categories',
-          localField: 'product.category',
+          localField: 'menuItem.category',
           foreignField: '_id',
           as: 'category'
         }
@@ -179,7 +179,7 @@ const getDashboardAnalytics = async (req, res) => {
           totalOrders,
           totalRevenue: totalRevenue[0]?.total || 0,
           totalUsers,
-          totalProducts,
+          totalMenuItems,
           pendingOrders,
           completedOrders,
           activeUsers,
@@ -191,7 +191,7 @@ const getDashboardAnalytics = async (req, res) => {
           orderStatusDistribution,
           categoryPerformance
         },
-        topProducts,
+        topMenuItems,
         period
       }
     });
@@ -254,18 +254,18 @@ const getCartAnalytics = async (req, res) => {
         { $unwind: '$items' },
         {
           $lookup: {
-            from: 'products',
-            localField: 'items.product',
+            from: 'menus',
+            localField: 'items.menu',
             foreignField: '_id',
-            as: 'product'
+            as: 'menuItem'
           }
         },
-        { $unwind: '$product' },
+        { $unwind: '$menuItem' },
         {
           $group: {
             _id: '$_id',
             cartValue: {
-              $sum: { $multiply: ['$items.quantity', '$product.discountedPrice'] }
+              $sum: { $multiply: ['$items.quantity', '$menuItem.discountedPrice'] }
             }
           }
         },
@@ -286,30 +286,30 @@ const getCartAnalytics = async (req, res) => {
       ]).then(([orders, carts]) => carts > 0 ? (orders / carts) * 100 : 0)
     ]);
 
-    // Get most added to cart products
-    const mostAddedProducts = await Cart.aggregate([
+    // Get most added to cart menu items
+    const mostAddedMenuItems = await Cart.aggregate([
       { $match: { updatedAt: { $gte: startDate } } },
       { $unwind: '$items' },
       {
         $group: {
-          _id: '$items.product',
+          _id: '$items.menu',
           addedCount: { $sum: 1 },
           totalQuantity: { $sum: '$items.quantity' }
         }
       },
       {
         $lookup: {
-          from: 'products',
+          from: 'menus',
           localField: '_id',
           foreignField: '_id',
-          as: 'product'
+          as: 'menuItem'
         }
       },
-      { $unwind: '$product' },
+      { $unwind: '$menuItem' },
       {
         $project: {
-          productName: '$product.name',
-          productImage: { $arrayElemAt: ['$product.images.url', 0] },
+          menuItemName: '$menuItem.name',
+          menuItemImage: { $arrayElemAt: ['$menuItem.images.url', 0] },
           addedCount: 1,
           totalQuantity: 1
         }
@@ -347,7 +347,7 @@ const getCartAnalytics = async (req, res) => {
           averageCartValue: averageCartValue[0]?.averageValue || 0,
           conversionRate: Math.round(conversionRate * 100) / 100
         },
-        mostAddedProducts,
+        mostAddedMenuItems,
         abandonmentByHour,
         period
       }
@@ -419,18 +419,18 @@ const exportReport = async (req, res) => {
         filename = `orders-report-${new Date().toISOString().split('T')[0]}`;
         break;
 
-      case 'products':
-        data = await Product.find({ isActive: true })
+      case 'menu':
+        data = await Menu.find({ isActive: true })
           .populate('category', 'name')
           .sort({ createdAt: -1 })
           .lean();
 
         headers = [
-          'Product Name', 'Category', 'MRP', 'Discounted Price',
+          'Menu Item Name', 'Category', 'MRP', 'Discounted Price',
           'Quantity', 'Is Vegetarian', 'Average Rating', 'Status'
         ];
 
-        filename = `products-report-${new Date().toISOString().split('T')[0]}`;
+        filename = `menu-report-${new Date().toISOString().split('T')[0]}`;
         break;
 
       case 'users':
@@ -450,7 +450,7 @@ const exportReport = async (req, res) => {
       default:
         return res.status(400).json({
           success: false,
-          message: 'Invalid report type. Must be orders, products, or users.'
+          message: 'Invalid report type. Must be orders, menu, or users.'
         });
     }
 
@@ -469,7 +469,7 @@ const exportReport = async (req, res) => {
               item.totalAmount,
               item.createdAt.toISOString().split('T')[0]
             ];
-          case 'products':
+          case 'menu':
             return [
               item.name,
               item.category?.name || 'N/A',

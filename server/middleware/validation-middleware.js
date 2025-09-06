@@ -118,20 +118,20 @@ const validatePasswordChange = [
 ];
 
 /**
- * Validation rules for product creation/update
+ * Validation rules for menu item creation/update
  */
-const validateProduct = [
+const validateMenuItem = [
   body('name')
     .trim()
     .notEmpty()
-    .withMessage('Product name is required')
+    .withMessage('Menu item name is required')
     .isLength({ min: 2, max: 100 })
-    .withMessage('Product name must be between 2 and 100 characters'),
+    .withMessage('Menu item name must be between 2 and 100 characters'),
 
   body('description')
     .trim()
     .notEmpty()
-    .withMessage('Product description is required')
+    .withMessage('Menu item description is required')
     .isLength({ min: 10, max: 1000 })
     .withMessage('Description must be between 10 and 1000 characters'),
 
@@ -213,16 +213,21 @@ const validateProduct = [
 ];
 
 /**
+ * Validation rules for menu item creation/update (alias for validateMenuItem)
+ */
+const validateProduct = validateMenuItem;
+
+/**
  * Validation rules for bulk operations
  */
 const validateBulkOperation = [
-  body('productIds')
+  body('menuItemIds')
     .isArray({ min: 1 })
-    .withMessage('Product IDs array is required and must not be empty'),
+    .withMessage('Menu item IDs array is required and must not be empty'),
 
-  body('productIds.*')
+  body('menuItemIds.*')
     .isMongoId()
-    .withMessage('Invalid product ID'),
+    .withMessage('Invalid menu item ID'),
 
   body('isActive')
     .isBoolean()
@@ -278,11 +283,11 @@ const validateCategoryBulkOperation = [
  * Validation rules for adding items to cart
  */
 const validateAddToCart = [
-  body('productId')
+  body('menuItemId')
     .notEmpty()
-    .withMessage('Product ID is required')
+    .withMessage('Menu item ID is required')
     .isMongoId()
-    .withMessage('Invalid product ID'),
+    .withMessage('Invalid menu item ID'),
 
   body('quantity')
     .optional()
@@ -397,6 +402,7 @@ module.exports = {
   validateUpdateProfile,
   validatePasswordChange,
   validateProduct,
+  validateMenuItem,
   validateBulkOperation,
   validateCategory,
   validateCategoryBulkOperation,

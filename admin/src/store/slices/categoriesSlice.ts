@@ -6,18 +6,28 @@ export interface Category {
   _id: string;
   name: string;
   description: string;
+  type: 'parent' | 'menu';
+  parentCategory?: {
+    _id: string;
+    name: string;
+    isVegetarian: boolean;
+  };
+  isVegetarian?: boolean;
   image?: {
     url: string;
-    publicId: string;
+    public_id: string;
   };
   isActive: boolean;
-  productCount: number;
+  sortOrder: number;
+  slug: string;
+  menuItemCount: number;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CategoriesState {
   categories: Category[];
+  parentCategories: Category[];
   currentCategory: Category | null;
   isLoading: boolean;
   error: string | null;
@@ -29,6 +39,8 @@ export interface CategoriesState {
   };
   filters: {
     search: string;
+    type: string;
+    parentCategory: string;
     isActive: boolean | null;
     sortBy: string;
     sortOrder: 'asc' | 'desc';
@@ -38,6 +50,7 @@ export interface CategoriesState {
 // Initial state
 const initialState: CategoriesState = {
   categories: [],
+  parentCategories: [],
   currentCategory: null,
   isLoading: false,
   error: null,
@@ -49,6 +62,8 @@ const initialState: CategoriesState = {
   },
   filters: {
     search: '',
+    type: '',
+    parentCategory: '',
     isActive: null,
     sortBy: 'createdAt',
     sortOrder: 'desc',
@@ -62,9 +77,12 @@ export const fetchCategories = createAsyncThunk(
     page?: number;
     limit?: number;
     search?: string;
+    type?: string;
+    parentCategory?: string;
     isActive?: boolean;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
+    hierarchical?: boolean;
   } = {}, { rejectWithValue }) => {
     try {
       const queryParams = new URLSearchParams();
@@ -84,6 +102,23 @@ export const fetchCategories = createAsyncThunk(
       }
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch categories');
+    }
+  }
+);
+
+export const fetchParentCategories = createAsyncThunk(
+  'categories/fetchParentCategories',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get('/api/admin/categories/parents');
+
+      if (response.success) {
+        return response.data.categories;
+      } else {
+        return rejectWithValue(response.message || 'Failed to fetch parent categories');
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch parent categories');
     }
   }
 );
@@ -216,6 +251,22 @@ const categoriesSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchCategories.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Fetch Parent Categories
+    builder
+      .addCase(fetchParentCategories.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchParentCategories.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.parentCategories = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchParentCategories.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });

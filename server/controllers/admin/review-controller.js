@@ -1,5 +1,5 @@
 const Review = require('../../models/Review');
-const Product = require('../../models/Product');
+const Menu = require('../../models/Menu');
 const User = require('../../models/User');
 const { validationResult } = require('express-validator');
 
@@ -15,7 +15,7 @@ const getAllReviews = async (req, res) => {
       search = '',
       status = '',
       rating = '',
-      productId = '',
+      menuItemId = '',
       startDate = '',
       endDate = '',
       sortBy = 'createdAt',
@@ -25,22 +25,22 @@ const getAllReviews = async (req, res) => {
     // Build query
     let query = {};
 
-    // Search filter (by user name, product name, or review content)
+    // Search filter (by user name, menu name, or review content)
     if (search) {
       const users = await User.find({
         name: { $regex: search, $options: 'i' }
       }).select('_id');
 
-      const products = await Product.find({
+      const menuItems = await Menu.find({
         name: { $regex: search, $options: 'i' }
       }).select('_id');
 
       const userIds = users.map(user => user._id);
-      const productIds = products.map(product => product._id);
+      const menuItemIds = menuItems.map(menu => menu._id);
 
       query.$or = [
         { user: { $in: userIds } },
-        { product: { $in: productIds } },
+        { menu: { $in: menuItemIds } },
         { comment: { $regex: search, $options: 'i' } }
       ];
     }
@@ -59,9 +59,9 @@ const getAllReviews = async (req, res) => {
       query.rating = parseInt(rating);
     }
 
-    // Product filter
-    if (productId) {
-      query.product = productId;
+    // Menu filter
+    if (menuItemId) {
+      query.menu = menuItemId;
     }
 
     // Date range filter
@@ -78,7 +78,7 @@ const getAllReviews = async (req, res) => {
     // Execute query with pagination
     const reviews = await Review.find(query)
       .populate('user', 'name email profileImage')
-      .populate('product', 'name images')
+      .populate('menu', 'name images')
       .sort(sortOptions)
       .limit(limit * 1)
       .skip((page - 1) * limit)
@@ -120,7 +120,7 @@ const getReviewById = async (req, res) => {
 
     const review = await Review.findById(id)
       .populate('user', 'name email profileImage phoneNumber')
-      .populate('product', 'name images category')
+      .populate('menu', 'name images category')
       .lean();
 
     if (!review) {
@@ -178,14 +178,14 @@ const moderateReview = async (req, res) => {
 
     await review.save();
 
-    // Update product rating if approved
+    // Update menu rating if approved
     if (action === 'approve') {
-      await review.updateProductRating();
+      await review.updateMenuRating();
     }
 
     // Populate for response
     await review.populate('user', 'name email');
-    await review.populate('product', 'name');
+    await review.populate('menu', 'name');
 
     res.status(200).json({
       success: true,
@@ -220,8 +220,8 @@ const deleteReview = async (req, res) => {
 
     await Review.findByIdAndDelete(id);
 
-    // Update product rating after deletion
-    await review.updateProductRating();
+    // Update menu rating after deletion
+    await review.updateMenuRating();
 
     res.status(200).json({
       success: true,
@@ -286,28 +286,28 @@ const getReviewStats = async (req, res) => {
       }
     ]);
 
-    // Get top reviewed products
-    const topProducts = await Review.aggregate([
+    // Get top reviewed menus
+    const topMenus = await Review.aggregate([
       { $match: { ...dateFilter, isApproved: true } },
       {
         $group: {
-          _id: '$product',
+          _id: '$menu',
           reviewCount: { $sum: 1 },
           averageRating: { $avg: '$rating' }
         }
       },
       {
         $lookup: {
-          from: 'products',
+          from: 'menus',
           localField: '_id',
           foreignField: '_id',
-          as: 'product'
+          as: 'menu'
         }
       },
-      { $unwind: '$product' },
+      { $unwind: '$menu' },
       {
         $project: {
-          productName: '$product.name',
+          menuItemName: '$menu.name',
           reviewCount: 1,
           averageRating: { $round: ['$averageRating', 1] }
         }
@@ -319,7 +319,7 @@ const getReviewStats = async (req, res) => {
     // Get recent reviews
     const recentReviews = await Review.find(dateFilter)
       .populate('user', 'name')
-      .populate('product', 'name')
+      .populate('menu', 'name')
       .sort({ createdAt: -1 })
       .limit(5)
       .lean();
@@ -339,7 +339,7 @@ const getReviewStats = async (req, res) => {
           twoStarReviews: 0,
           oneStarReviews: 0
         },
-        topProducts,
+        topMenus,
         recentReviews
       }
     });
@@ -390,11 +390,11 @@ const bulkModerateReviews = async (req, res) => {
       updateData
     );
 
-    // Update product ratings for approved reviews
+    // Update menu ratings for approved reviews
     if (action === 'approve') {
       const reviews = await Review.find({ _id: { $in: reviewIds } });
       for (const review of reviews) {
-        await review.updateProductRating();
+        await review.updateMenuRating();
       }
     }
 

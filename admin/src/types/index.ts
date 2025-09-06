@@ -3,12 +3,12 @@ export interface User {
   name: string;
   email: string;
   phone: string;
-  role: 'super_admin' | 'veg_admin' | 'nonveg_admin';
+  role: 'super-admin' | 'veg-admin' | 'non-veg-admin' | 'customer';
   avatar?: string;
   createdAt: string;
 }
 
-export interface Product {
+export interface MenuItem {
   id: string;
   name: string;
   description: string;
@@ -59,8 +59,8 @@ export interface Order {
 }
 
 export interface OrderItem {
-  productId: string;
-  product: Product;
+  menuItemId: string;
+  menuItem: MenuItem;
   quantity: number;
   selectedSize: string;
   selectedAddOns: AddOn[];
@@ -83,7 +83,7 @@ export interface Review {
   id: string;
   userId: string;
   user: User;
-  productId?: string;
+  menuItemId?: string;
   orderId?: string;
   rating: number;
   comment: string;
@@ -94,7 +94,7 @@ export interface Analytics {
   averageCartValue: number;
   totalOrders: number;
   totalRevenue: number;
-  topSellingProducts: Product[];
+  topSellingMenuItems: MenuItem[];
   ordersByStatus: Record<string, number>;
   salesByCategory: Record<string, number>;
   customerLifetimeValue: Record<string, number>;

@@ -128,10 +128,6 @@ export const Orders: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Orders</h1>
-          <p className="text-muted-foreground">Monitor and manage all orders</p>
-        </div>
         <Button variant="outline">
           <Download className="mr-2 h-4 w-4" />
           Export Report

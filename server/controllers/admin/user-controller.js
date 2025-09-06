@@ -131,7 +131,7 @@ const getUserById = async (req, res) => {
 
     // Get recent reviews
     const recentReviews = await Review.find({ user: user._id })
-      .populate('product', 'name')
+      .populate('menu', 'name')
       .sort({ createdAt: -1 })
       .limit(5)
       .lean();

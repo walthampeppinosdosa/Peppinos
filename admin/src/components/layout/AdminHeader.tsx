@@ -1,9 +1,16 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
-import { LogOut, Sun, Moon } from 'lucide-react';
+import { LogOut, Sun, Moon, Menu, Plus, List } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
 export const AdminHeader: React.FC = () => {
@@ -12,11 +19,11 @@ export const AdminHeader: React.FC = () => {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'super_admin':
+      case 'super-admin':
         return 'bg-gradient-primary text-primary-foreground';
-      case 'veg_admin':
+      case 'veg-admin':
         return 'bg-success text-success-foreground';
-      case 'nonveg_admin':
+      case 'non-veg-admin':
         return 'bg-destructive text-destructive-foreground';
       default:
         return 'bg-muted text-muted-foreground';
@@ -25,15 +32,19 @@ export const AdminHeader: React.FC = () => {
 
   const getRoleLabel = (role: string) => {
     switch (role) {
-      case 'super_admin':
+      case 'super-admin':
         return 'Super Admin';
-      case 'veg_admin':
+      case 'veg-admin':
         return 'Veg Admin';
-      case 'nonveg_admin':
+      case 'non-veg-admin':
         return 'Non-Veg Admin';
       default:
         return role;
     }
+  };
+
+  const canManageMenu = () => {
+    return user?.role && ['super-admin', 'veg-admin', 'non-veg-admin'].includes(user.role);
   };
 
   return (
@@ -46,6 +57,31 @@ export const AdminHeader: React.FC = () => {
       </div>
 
       <div className="flex items-center gap-4">
+        {canManageMenu() && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Menu className="h-4 w-4 mr-2" />
+                Menu
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem asChild>
+                <Link to="/menu" className="flex items-center w-full text-foreground hover:text-foreground">
+                  <List className="h-4 w-4 mr-2" />
+                  View Menu
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/menu/new" className="flex items-center w-full text-foreground hover:text-foreground">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Menu Item
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+
         <Button
           variant="ghost"
           size="icon"

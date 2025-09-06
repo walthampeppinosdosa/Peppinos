@@ -34,7 +34,7 @@ const requirePermission = (permission) => {
 /**
  * Middleware to check resource-specific permissions
  * @param {string} action - Action being performed (create, update, delete)
- * @param {string} resourceType - Type of resource (product, category)
+ * @param {string} resourceType - Type of resource (menuItem, menu, category)
  * @returns {Function} - Express middleware function
  */
 const requireResourcePermission = (action, resourceType) => {
@@ -75,8 +75,8 @@ const requireResourcePermission = (action, resourceType) => {
 
     // For update/delete operations, check the loaded resource
     if (['update', 'delete'].includes(action)) {
-      const resource = req.product || req.category;
-      
+      const resource = req.menuItem || req.menu || req.category;
+
       if (!resource) {
         return res.status(404).json({
           success: false,
@@ -182,8 +182,9 @@ const checkVegNonVegAccess = (req, res, next) => {
     return next();
   }
 
-  const isVegetarian = req.body.isVegetarian || 
-                      (req.product && req.product.isVegetarian) || 
+  const isVegetarian = req.body.isVegetarian ||
+                      (req.menuItem && req.menuItem.isVegetarian) ||
+                      (req.menu && req.menu.isVegetarian) ||
                       (req.category && req.category.isVegetarian);
 
   if (isVegetarian !== undefined) {
@@ -202,13 +203,13 @@ const checkVegNonVegAccess = (req, res, next) => {
  * Middleware factory for specific permission checks
  */
 const createPermissionMiddleware = {
-  viewProducts: requirePermission(PERMISSIONS.VIEW_ALL_PRODUCTS),
-  createVegProducts: requirePermission(PERMISSIONS.CREATE_VEG_PRODUCTS),
-  createNonVegProducts: requirePermission(PERMISSIONS.CREATE_NON_VEG_PRODUCTS),
-  updateVegProducts: requirePermission(PERMISSIONS.UPDATE_VEG_PRODUCTS),
-  updateNonVegProducts: requirePermission(PERMISSIONS.UPDATE_NON_VEG_PRODUCTS),
-  deleteVegProducts: requirePermission(PERMISSIONS.DELETE_VEG_PRODUCTS),
-  deleteNonVegProducts: requirePermission(PERMISSIONS.DELETE_NON_VEG_PRODUCTS),
+  viewMenuItems: requirePermission(PERMISSIONS.VIEW_ALL_MENU_ITEMS),
+  createVegMenuItems: requirePermission(PERMISSIONS.CREATE_VEG_MENU_ITEMS),
+  createNonVegMenuItems: requirePermission(PERMISSIONS.CREATE_NON_VEG_MENU_ITEMS),
+  updateVegMenuItems: requirePermission(PERMISSIONS.UPDATE_VEG_MENU_ITEMS),
+  updateNonVegMenuItems: requirePermission(PERMISSIONS.UPDATE_NON_VEG_MENU_ITEMS),
+  deleteVegMenuItems: requirePermission(PERMISSIONS.DELETE_VEG_MENU_ITEMS),
+  deleteNonVegMenuItems: requirePermission(PERMISSIONS.DELETE_NON_VEG_MENU_ITEMS),
   
   viewCategories: requirePermission(PERMISSIONS.VIEW_ALL_CATEGORIES),
   createVegCategories: requirePermission(PERMISSIONS.CREATE_VEG_CATEGORIES),

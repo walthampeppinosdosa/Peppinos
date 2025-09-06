@@ -3,7 +3,7 @@ import { api } from '../../services/api';
 
 // Types
 export interface OrderItem {
-  product: {
+  menuItem: {
     _id: string;
     name: string;
     images: { url: string }[];

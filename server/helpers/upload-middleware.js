@@ -37,15 +37,15 @@ const uploadMultiple = multer({
   fileFilter: fileFilter,
 }).array('images', 10);
 
-// Product images upload (multiple)
-const uploadProductImages = multer({
+// Menu item images upload (multiple)
+const uploadMenuItemImages = multer({
   storage: storage,
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit per file
-    files: 5, // Maximum 5 images per product
+    files: 5, // Maximum 5 images per menu item
   },
   fileFilter: fileFilter,
-}).array('productImages', 5);
+}).array('menuItemImages', 5);
 
 // Category image upload (single)
 const uploadCategoryImage = multer({
@@ -92,7 +92,7 @@ const handleMulterError = (err, req, res, next) => {
 module.exports = {
   uploadSingle,
   uploadMultiple,
-  uploadProductImages,
+  uploadMenuItemImages,
   uploadCategoryImage,
   handleMulterError
 };

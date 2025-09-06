@@ -1,38 +1,73 @@
-const Product = require('../models/Product');
+const Menu = require('../models/Menu');
 const Category = require('../models/Category');
 const Order = require('../models/Order');
 const User = require('../models/User');
 
 /**
- * Middleware to load product by ID and attach to req.product
+ * Middleware to load menu item by ID and attach to req.menu (for backward compatibility)
  */
-const loadProduct = async (req, res, next) => {
+const loadMenu = async (req, res, next) => {
   try {
-    const productId = req.params.id || req.params.productId;
-    
-    if (!productId) {
+    const menuItemId = req.params.id || req.params.menuItemId;
+
+    if (!menuItemId) {
       return res.status(400).json({
         success: false,
-        message: 'Product ID is required'
+        message: 'Menu item ID is required'
       });
     }
 
-    const product = await Product.findById(productId).populate('category');
-    
-    if (!product) {
+    const menuItem = await Menu.findById(menuItemId).populate('category');
+
+    if (!menuItem) {
       return res.status(404).json({
         success: false,
-        message: 'Product not found'
+        message: 'Menu item not found'
       });
     }
 
-    req.product = product;
+    req.menu = menuItem;
     next();
   } catch (error) {
-    console.error('Load product error:', error);
+    console.error('Load menu item error:', error);
     res.status(500).json({
       success: false,
-      message: 'Error loading product'
+      message: 'Error loading menu item'
+    });
+  }
+};
+
+/**
+ * Middleware to load menu item by ID and attach to req.menuItem
+ */
+const loadMenuItem = async (req, res, next) => {
+  try {
+    const menuItemId = req.params.id || req.params.menuItemId;
+
+    if (!menuItemId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Menu item ID is required'
+      });
+    }
+
+    const menuItem = await Menu.findById(menuItemId).populate('category');
+
+    if (!menuItem) {
+      return res.status(404).json({
+        success: false,
+        message: 'Menu item not found'
+      });
+    }
+
+    req.menuItem = menuItem;
+    req.menu = menuItem; // For backward compatibility
+    next();
+  } catch (error) {
+    console.error('Load menu item error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error loading menu item'
     });
   }
 };
@@ -87,7 +122,7 @@ const loadOrder = async (req, res, next) => {
 
     const order = await Order.findById(orderId)
       .populate('user', 'name email')
-      .populate('items.product', 'name images');
+      .populate('items.menu', 'name images');
     
     if (!order) {
       return res.status(404).json({
@@ -210,7 +245,8 @@ const validateObjectId = (paramName = 'id') => {
 };
 
 module.exports = {
-  loadProduct,
+  loadMenu,
+  loadMenuItem,
   loadCategory,
   loadOrder,
   loadUser,

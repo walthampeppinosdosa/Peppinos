@@ -11,11 +11,11 @@ router.post('/reviews', (req, res) => {
   });
 });
 
-// GET /api/shop/reviews/:productId
-router.get('/reviews/:productId', (req, res) => {
+// GET /api/shop/reviews/:menuId
+router.get('/reviews/:menuId', (req, res) => {
   res.status(501).json({
     success: false,
-    message: 'Get product reviews endpoint not implemented yet'
+    message: 'Get menu reviews endpoint not implemented yet'
   });
 });
 

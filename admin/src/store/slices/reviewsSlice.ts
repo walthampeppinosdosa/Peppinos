@@ -10,7 +10,7 @@ export interface Review {
     email: string;
     profileImage?: string;
   };
-  product: {
+  menuItem: {
     _id: string;
     name: string;
     images: { url: string }[];
@@ -40,7 +40,7 @@ export interface ReviewsState {
     search: string;
     status: string;
     rating: string;
-    productId: string;
+    menuItemId: string;
     sortBy: string;
     sortOrder: 'asc' | 'desc';
   };
@@ -62,7 +62,7 @@ const initialState: ReviewsState = {
     search: '',
     status: '',
     rating: '',
-    productId: '',
+    menuItemId: '',
     sortBy: 'createdAt',
     sortOrder: 'desc',
   },
