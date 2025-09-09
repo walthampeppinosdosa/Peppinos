@@ -36,7 +36,7 @@ type SidebarContext = {
 
 const SidebarContext = React.createContext<SidebarContext | null>(null)
 
-function useSidebar() {
+const useSidebar = () => {
   const context = React.useContext(SidebarContext)
   if (!context) {
     throw new Error("useSidebar must be used within a SidebarProvider.")
@@ -395,8 +395,9 @@ SidebarSeparator.displayName = "SidebarSeparator"
 
 const SidebarContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div">
->(({ className, ...props }, ref) => {
+  React.ComponentProps<"div"> & { logo?: React.ReactNode }
+>(({ className, logo, ...props }, ref) => {
+  const { state } = useSidebar();
   return (
     <div
       ref={ref}
@@ -406,7 +407,15 @@ const SidebarContent = React.forwardRef<
         className
       )}
       {...props}
-    />
+    >
+      {/* Show logo only when collapsed, if provided */}
+      {state === "collapsed" && logo && (
+        <div className="flex justify-center items-center py-4">
+          {logo}
+        </div>
+      )}
+      {props.children}
+    </div>
   )
 })
 SidebarContent.displayName = "SidebarContent"
@@ -531,14 +540,15 @@ const sidebarMenuButtonVariants = cva(
   }
 )
 
-const SidebarMenuButton = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<"button"> & {
-    asChild?: boolean
-    isActive?: boolean
-    tooltip?: string | React.ComponentProps<typeof TooltipContent>
-  } & VariantProps<typeof sidebarMenuButtonVariants>
->(
+const SidebarMenuButton: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<
+    React.ComponentProps<"button"> & {
+      asChild?: boolean;
+      isActive?: boolean;
+      tooltip?: string | React.ComponentProps<typeof TooltipContent>;
+    } & VariantProps<typeof sidebarMenuButtonVariants>
+  > & React.RefAttributes<HTMLButtonElement>
+> = React.forwardRef(
   (
     {
       asChild = false,
@@ -565,27 +575,17 @@ const SidebarMenuButton = React.forwardRef<
       />
     )
 
-    if (!tooltip) {
-      return button
+    // Always show tooltip when sidebar is collapsed (desktop only)
+    if (state === "collapsed" && !isMobile && tooltip) {
+      const tooltipProps = typeof tooltip === "string" ? { children: tooltip } : tooltip
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>{button}</TooltipTrigger>
+          <TooltipContent side="right" align="center" {...tooltipProps} />
+        </Tooltip>
+      )
     }
-
-    if (typeof tooltip === "string") {
-      tooltip = {
-        children: tooltip,
-      }
-    }
-
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>{button}</TooltipTrigger>
-        <TooltipContent
-          side="right"
-          align="center"
-          hidden={state !== "collapsed" || isMobile}
-          {...tooltip}
-        />
-      </Tooltip>
-    )
+    return button
   }
 )
 SidebarMenuButton.displayName = "SidebarMenuButton"

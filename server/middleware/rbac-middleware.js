@@ -81,10 +81,20 @@ const requireResourcePermission = (action, resourceType) => {
         });
       }
 
-      if (!canPerformAction(req.user.role, action, resource.isVegetarian)) {
+      // Determine if resource is vegetarian
+      let resourceIsVegetarian;
+      if (resourceType === 'category' && resource.type === 'menu') {
+        // For menu categories, use parent category's isVegetarian
+        resourceIsVegetarian = resource.parentCategory?.isVegetarian;
+      } else {
+        // For menu items, parent categories, and other resources
+        resourceIsVegetarian = resource.isVegetarian;
+      }
+
+      if (!canPerformAction(req.user.role, action, resourceIsVegetarian)) {
         return res.status(403).json({
           success: false,
-          message: `Access denied. You cannot ${action} ${resource.isVegetarian ? 'vegetarian' : 'non-vegetarian'} ${resourceType}s.`
+          message: `Access denied. You cannot ${action} ${resourceIsVegetarian ? 'vegetarian' : 'non-vegetarian'} ${resourceType}s.`
         });
       }
     }

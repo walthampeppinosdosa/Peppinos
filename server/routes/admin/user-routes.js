@@ -5,6 +5,7 @@ const router = express.Router();
 const {
   getAllUsers,
   getUserById,
+  updateUser,
   updateUserStatus,
   updateUserRole,
   getUserStats
@@ -31,6 +32,14 @@ router.get('/users/:id',
   loadUser,
   createPermissionMiddleware.viewUsers,
   getUserById
+);
+
+// PUT /api/admin/users/:id - Update user information
+router.put('/users/:id',
+  validateObjectId('id'),
+  loadUser,
+  createPermissionMiddleware.updateUserRoles,
+  updateUser
 );
 
 // PUT /api/admin/users/:id/status - Update user status

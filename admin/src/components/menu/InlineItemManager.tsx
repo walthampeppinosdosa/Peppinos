@@ -279,12 +279,26 @@ export const InlineItemManager: React.FC<InlineItemManagerProps> = ({
 
   const handleValueToggle = (itemId: string, checked: boolean) => {
     if (!isMultiSelect) return;
-    
+
     const currentSelected = Array.isArray(selectedValue) ? selectedValue : [];
-    if (checked) {
-      onValueChange([...currentSelected, itemId]);
+
+    if (itemId === 'not-applicable') {
+      if (checked) {
+        // If "Not Applicable" is selected, clear all other selections
+        onValueChange(['not-applicable']);
+      } else {
+        // If "Not Applicable" is deselected, just remove it
+        onValueChange(currentSelected.filter(id => id !== itemId));
+      }
     } else {
-      onValueChange(currentSelected.filter(id => id !== itemId));
+      if (checked) {
+        // If any other item is selected, remove "Not Applicable" and add the new item
+        const newSelected = currentSelected.filter(id => id !== 'not-applicable');
+        onValueChange([...newSelected, itemId]);
+      } else {
+        // If any other item is deselected, just remove it
+        onValueChange(currentSelected.filter(id => id !== itemId));
+      }
     }
   };
 
@@ -392,8 +406,44 @@ export const InlineItemManager: React.FC<InlineItemManagerProps> = ({
             Select parent category first
           </div>
         ) : allItems.length === 0 ? (
-          <div className="p-3 text-sm text-muted-foreground text-center">
-            No {type} items available. Click "Add" to create the first one.
+          <div className="max-h-48 overflow-y-auto">
+            {isMultiSelect ? (
+              // Show "Not Applicable" option even when no items exist
+              <div className="flex items-center justify-between p-3 border-b hover:bg-muted/50">
+                <div className="flex items-center space-x-3 flex-1">
+                  <input
+                    type="checkbox"
+                    id="not-applicable-multi-empty"
+                    checked={Array.isArray(selectedValue) && selectedValue.includes('not-applicable')}
+                    onChange={(e) => handleValueToggle('not-applicable', e.target.checked)}
+                    className="rounded border-input"
+                  />
+                  <Label htmlFor="not-applicable-multi-empty" className="text-sm font-medium cursor-pointer">
+                    Not Applicable
+                  </Label>
+                </div>
+              </div>
+            ) : (
+              // Single select mode
+              <div className="flex items-center justify-between p-3 border-b hover:bg-muted/50">
+                <div className="flex items-center space-x-3 flex-1">
+                  <input
+                    type="radio"
+                    id="not-applicable-empty"
+                    name={`${type}-selection`}
+                    checked={selectedValue === 'not-applicable'}
+                    onChange={() => onValueChange('not-applicable')}
+                    className="border-input"
+                  />
+                  <Label htmlFor="not-applicable-empty" className="text-sm font-medium cursor-pointer">
+                    Not Applicable
+                  </Label>
+                </div>
+              </div>
+            )}
+            <div className="p-3 text-sm text-muted-foreground text-center border-t">
+              No {type} items available. Click "Add" to create the first one.
+            </div>
           </div>
         ) : items.length === 0 && searchTerm ? (
           <div className="p-3 text-sm text-muted-foreground text-center">

@@ -5,24 +5,32 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { ExportDropdown } from '@/components/ui/export-dropdown';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { fetchMenuItems, deleteMenuItem } from '@/store/slices/menuSlice';
+import { fetchCategories } from '@/store/slices/categoriesSlice';
 import { useAlert } from '@/hooks/useAlert';
-import { 
-  Search, 
-  Plus, 
-  Edit, 
-  Trash2, 
+import { formatters } from '@/utils/exportUtils';
+import {
+  Search,
+  Plus,
+  Edit,
+  Trash2,
   Eye,
   Filter,
-  Download,
   Clock,
   Star,
   Leaf,
   Utensils,
   DollarSign,
-  Package
+  Package,
+  X,
+  Grid3X3,
+  Grid2X2,
+  LayoutGrid
 } from 'lucide-react';
 
 export const Menu: React.FC = () => {
@@ -31,9 +39,15 @@ export const Menu: React.FC = () => {
   const { showAlert } = useAlert();
   const { user: currentUser, canManageVeg, canManageNonVeg, canManageMenuItem } = useAuth();
   const { menuItems, isLoading, error } = useAppSelector((state) => state.menu);
+  const { categories } = useAppSelector((state) => state.categories);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedPriceRange, setSelectedPriceRange] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('name');
+  const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState<'2' | '3' | '4'>('3');
 
   // Delete confirmation dialog state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -41,42 +55,38 @@ export const Menu: React.FC = () => {
 
   useEffect(() => {
     dispatch(fetchMenuItems({}));
+    // Fetch only menu categories for the dropdown
+    dispatch(fetchCategories({ type: 'menu' }));
   }, [dispatch]);
 
-  const handleExport = () => {
-    try {
-      // Create CSV content
-      const headers = ['Name', 'Description', 'Category', 'Type', 'MRP', 'Discounted Price', 'Quantity', 'Status'];
-      const csvContent = [
-        headers.join(','),
-        ...menuItems.map(item => [
-          `"${item.name}"`,
-          `"${item.description}"`,
-          `"${item.category.name}"`,
-          item.isVegetarian ? 'Vegetarian' : 'Non-Vegetarian',
-          item.mrp,
-          item.discountedPrice,
-          item.quantity,
-          item.isActive ? 'Active' : 'Inactive'
-        ].join(','))
-      ].join('\n');
-
-      // Download CSV
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', `menu-items-${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      showAlert('Menu items exported successfully!', 'success', 'Export Complete');
-    } catch (error) {
-      showAlert('Failed to export menu items', 'error', 'Export Failed');
+  // Debug categories for super admin
+  useEffect(() => {
+    if (currentUser?.role === 'super-admin' && categories.length > 0) {
+     
+      const vegCategories = categories.filter(cat => cat.type === 'menu' && (cat.isVegetarian === true || cat.parentCategory?.isVegetarian === true));
+   
     }
-  };
+  }, [categories, currentUser]);
+
+  // Debug menu items to check for the "0" issue
+  useEffect(() => {
+    if (menuItems.length > 0) {
+      console.log('Menu items data:', menuItems.slice(0, 2)); // Log first 2 items
+    }
+  }, [menuItems]);
+
+  // Export configuration
+  const exportColumns = [
+    { key: 'name', label: 'Name', width: 30 },
+    { key: 'description', label: 'Description', width: 40, formatter: formatters.truncate(50) },
+    { key: 'category', label: 'Category', width: 25, formatter: (value: any) => value?.name || 'No Category' },
+    { key: 'isVegetarian', label: 'Type', width: 20, formatter: formatters.vegetarian },
+    { key: 'mrp', label: 'MRP', width: 15, formatter: formatters.currency },
+    { key: 'discountedPrice', label: 'Discounted Price', width: 20, formatter: formatters.currency },
+    { key: 'quantity', label: 'Quantity', width: 15 },
+    { key: 'isActive', label: 'Status', width: 15, formatter: formatters.status },
+    { key: 'createdAt', label: 'Created Date', width: 20, formatter: formatters.date }
+  ];
 
   const handleEdit = (menuItemId: string) => {
     navigate(`/menu/edit/${menuItemId}`);
@@ -114,6 +124,15 @@ export const Menu: React.FC = () => {
     setItemToDelete(null);
   };
 
+  const getGridCols = () => {
+    switch (viewMode) {
+      case '2': return 'grid-cols-1 md:grid-cols-2';
+      case '3': return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+      case '4': return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+      default: return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+    }
+  };
+
   const filteredMenuItems = menuItems.filter(menuItem => {
     // Check if menuItem and required properties exist
     if (!menuItem || !menuItem.name) {
@@ -121,7 +140,7 @@ export const Menu: React.FC = () => {
     }
 
     const matchesSearch = menuItem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         menuItem.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      menuItem.description?.toLowerCase().includes(searchTerm.toLowerCase());
 
     // Role-based filtering
     let matchesRole = true;
@@ -131,22 +150,51 @@ export const Menu: React.FC = () => {
       matchesRole = menuItem.isVegetarian === false;
     }
 
-    const matchesCategory = selectedCategory === 'all' || menuItem.category?.toString() === selectedCategory;
-    const matchesType = selectedType === 'all' ||
-                       (selectedType === 'veg' && menuItem.isVegetarian) ||
-                       (selectedType === 'non-veg' && !menuItem.isVegetarian);
+    // Category filtering - check both _id and name
+    const matchesCategory = selectedCategory === 'all' ||
+      menuItem.category?._id === selectedCategory ||
+      menuItem.category?.name?.toLowerCase() === selectedCategory.toLowerCase();
 
-    return matchesSearch && matchesRole && matchesCategory && matchesType;
+    const matchesType = selectedType === 'all' ||
+      (selectedType === 'veg' && menuItem.isVegetarian) ||
+      (selectedType === 'non-veg' && !menuItem.isVegetarian);
+
+    // Status filtering
+    const matchesStatus = selectedStatus === 'all' ||
+      (selectedStatus === 'active' && menuItem.isActive) ||
+      (selectedStatus === 'inactive' && !menuItem.isActive);
+
+    // Price range filtering
+    const matchesPriceRange = selectedPriceRange === 'all' ||
+      (selectedPriceRange === '0-10' && menuItem.discountedPrice <= 10) ||
+      (selectedPriceRange === '10-20' && menuItem.discountedPrice > 10 && menuItem.discountedPrice <= 20) ||
+      (selectedPriceRange === '20+' && menuItem.discountedPrice > 20);
+
+    return matchesSearch && matchesRole && matchesCategory && matchesType && matchesStatus && matchesPriceRange;
+  }).sort((a, b) => {
+    // Sorting logic
+    switch (sortBy) {
+      case 'name':
+        return a.name.localeCompare(b.name);
+      case 'price':
+        return a.discountedPrice - b.discountedPrice;
+      case 'created':
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      case 'rating':
+        return (b.averageRating || 0) - (a.averageRating || 0);
+      default:
+        return 0;
+    }
   });
 
   const getTypeBadgeColor = (isVegetarian: boolean) => {
-    return isVegetarian 
+    return isVegetarian
       ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
       : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
   };
 
   const getStatusBadgeColor = (isAvailable: boolean) => {
-    return isAvailable 
+    return isAvailable
       ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
       : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
   };
@@ -182,6 +230,7 @@ export const Menu: React.FC = () => {
     );
   }
 
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -192,11 +241,27 @@ export const Menu: React.FC = () => {
             Manage your restaurant menu items and categories
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" />
-            Export Menu
-          </Button>
+        <div className="flex items-center gap-2">
+          {/* Layout Toggle */}
+          <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as '2' | '3' | '4')}>
+            <ToggleGroupItem value="2" aria-label="2 columns">
+              <Grid2X2 className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="3" aria-label="3 columns">
+              <Grid3X3 className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="4" aria-label="4 columns">
+              <LayoutGrid className="h-4 w-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
+
+          <ExportDropdown
+            data={filteredMenuItems}
+            columns={exportColumns}
+            filename="menu-items"
+            title="Menu Items Export"
+            subtitle={`Total items: ${filteredMenuItems.length}`}
+          />
           {canAddMenuItem() && (
             <Button size="sm" asChild>
               <Link to="/menu/new">
@@ -223,55 +288,169 @@ export const Menu: React.FC = () => {
                 />
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               {currentUser?.role === 'super-admin' && (
-                <select
-                  value={selectedType}
-                  onChange={(e) => setSelectedType(e.target.value)}
-                  className="px-3 py-2 border border-input bg-background rounded-md text-sm"
-                >
-                  <option value="all">All Types</option>
-                  <option value="veg">Vegetarian</option>
-                  <option value="non-veg">Non-Vegetarian</option>
-                </select>
+                <Select value={selectedType} onValueChange={(value) => {
+                  setSelectedType(value);
+                  // Reset category selection when type changes
+                  setSelectedCategory('all');
+                }}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="All Types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="veg">Vegetarian</SelectItem>
+                    <SelectItem value="non-veg">Non-Vegetarian</SelectItem>
+                  </SelectContent>
+                </Select>
               )}
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-3 py-2 border border-input bg-background rounded-md text-sm"
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {currentUser?.role === 'super-admin' && selectedType === 'all' ? (
+                    <SelectItem value="select-type-first" disabled>
+                      Select type first to see categories
+                    </SelectItem>
+                  ) : (
+                    categories
+                      .filter(category => {
+                        // Only show menu categories (not parent categories)
+                        if (category.type !== 'menu') return false;
+
+                        // Filter categories based on user role
+                        if (currentUser?.role === 'veg-admin') {
+                          return category.isVegetarian === true || category.parentCategory?.isVegetarian === true;
+                        } else if (currentUser?.role === 'non-veg-admin') {
+                          return category.isVegetarian === false || category.parentCategory?.isVegetarian === false;
+                        }
+
+                        // For super-admin, filter by selected type
+                        if (currentUser?.role === 'super-admin') {
+                          if (selectedType === 'veg') {
+                            return category.isVegetarian === true || category.parentCategory?.isVegetarian === true;
+                          } else if (selectedType === 'non-veg') {
+                            return category.isVegetarian === false || category.parentCategory?.isVegetarian === false;
+                          }
+                        }
+
+                        return true;
+                      })
+                      .map(category => (
+                        <SelectItem key={category._id} value={category._id}>
+                          {category.name}
+                        </SelectItem>
+                      ))
+                  )}
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+                className="mt-2.5 h-10"
               >
-                <option value="all">All Categories</option>
-                <option value="appetizers">Appetizers</option>
-                <option value="mains">Main Course</option>
-                <option value="desserts">Desserts</option>
-                <option value="beverages">Beverages</option>
-              </select>
-              <Button variant="outline" size="sm">
                 <Filter className="h-4 w-4 mr-2" />
-                Filter
+                {showFilters ? 'Hide Filters' : 'More Filters'}
               </Button>
+              {(searchTerm || selectedCategory !== 'all' || selectedType !== 'all' || selectedStatus !== 'all' || selectedPriceRange !== 'all' || sortBy !== 'name') && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setSelectedCategory('all');
+                    setSelectedType('all');
+                    setSelectedStatus('all');
+                    setSelectedPriceRange('all');
+                    setSortBy('name');
+                  }}
+                  className="h-10"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Clear
+                </Button>
+              )}
             </div>
           </div>
+
+          {/* Additional Filters Panel */}
+          {showFilters && (
+            <div className="mt-4 pt-4 border-t">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Status</label>
+                  <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Price Range</label>
+                  <Select value={selectedPriceRange} onValueChange={setSelectedPriceRange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Prices" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Prices</SelectItem>
+                      <SelectItem value="0-10">$0 - $10</SelectItem>
+                      <SelectItem value="10-20">$10 - $20</SelectItem>
+                      <SelectItem value="20+">$20+</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Sort By</label>
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="name">Name</SelectItem>
+                      <SelectItem value="price">Price</SelectItem>
+                      <SelectItem value="created">Date Created</SelectItem>
+                      <SelectItem value="rating">Rating</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-end">
+                  <Button
+                    variant="secondary"
+                    className="w-full"
+                    onClick={() => setShowFilters(false)}
+                  >
+                    Apply Filters
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Menu Items Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className={`grid ${getGridCols()} gap-6`}>
         {filteredMenuItems.map((menuItem) => (
           <Card key={menuItem._id} className="hover:shadow-lg transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-lg flex items-center gap-2">
+                <div className="flex-1">
+                  <CardTitle className="text-lg flex items-center gap-2 mb-1">
                     {menuItem.isVegetarian ? (
                       <Leaf className="h-4 w-4 text-green-600" />
                     ) : (
                       <Utensils className="h-4 w-4 text-red-600" />
                     )}
-                    {menuItem.name}
-                    {menuItem.averageRating && menuItem.averageRating > 4 && (
-                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                    )}
+                    <span className="flex-1">{menuItem.name}</span>
                   </CardTitle>
                   <CardDescription className="text-sm">{menuItem.category?.name || 'No Category'}</CardDescription>
                 </div>
@@ -299,28 +478,41 @@ export const Menu: React.FC = () => {
                   {menuItem.isActive ? 'Available' : 'Out of Stock'}
                 </Badge>
               </div>
-              
 
+              {/* Rating and Preparation Time Row */}
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-4">
+                  {menuItem.preparationTime && (
+                    <div className="flex items-center gap-1 text-muted-foreground">
+                      <Clock className="h-4 w-4" />
+                      <span>{menuItem.preparationTime} mins</span>
+                    </div>
+                  )}
 
-              {menuItem.preparationTime && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Clock className="h-4 w-4" />
-                  {menuItem.preparationTime} mins
+                  {menuItem.averageRating && menuItem.averageRating > 0 && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs font-medium text-muted-foreground">Rating:</span>
+                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                      <span className="font-medium">{menuItem.averageRating.toFixed(1)}</span>
+                      <span className="text-muted-foreground text-xs">
+                        ({menuItem.totalReviews || 0} {menuItem.totalReviews === 1 ? 'review' : 'reviews'})
+                      </span>
+                    </div>
+                  )}
                 </div>
-              )}
 
-              {menuItem.averageRating && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                  <span>{menuItem.averageRating.toFixed(1)}</span>
-                  <span className="text-muted-foreground">({menuItem.totalReviews || 0} reviews)</span>
-                </div>
-              )}
+                {/* High Rating Badge */}
+                {menuItem.averageRating && menuItem.averageRating > 4 && (
+                  <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                    Top Rated
+                  </Badge>
+                )}
+              </div>
 
               <div className="text-xs text-muted-foreground">
                 Added: {menuItem.createdAt ? new Date(menuItem.createdAt).toLocaleDateString() : 'Unknown'}
               </div>
-              
+
               <div className="flex gap-2 pt-2">
                 <Button
                   variant="outline"
@@ -364,15 +556,17 @@ export const Menu: React.FC = () => {
             <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">No menu items found</h3>
             <p className="text-muted-foreground">
-              {searchTerm || selectedCategory !== 'all' || selectedType !== 'all'
+              {searchTerm || selectedCategory !== 'all' || selectedType !== 'all' || selectedStatus !== 'all' || selectedPriceRange !== 'all'
                 ? 'Try adjusting your search or filter criteria.'
                 : 'No menu items have been added yet.'}
             </p>
             {canAddMenuItem() && (
-              <Button className="mt-4">
-                <Plus className="h-4 w-4 mr-2" />
-                Add First Menu Item
-                {getDefaultCategory() && ` (${getDefaultCategory()})`}
+              <Button className="mt-4" asChild>
+                <Link to="/menu/new">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add First Menu Item
+                  {getDefaultCategory() && ` (${getDefaultCategory()})`}
+                </Link>
               </Button>
             )}
           </CardContent>

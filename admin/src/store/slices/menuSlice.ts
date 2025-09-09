@@ -163,6 +163,8 @@ export const updateMenuItem = createAsyncThunk(
           'Content-Type': 'multipart/form-data',
         },
       });
+      // The api.put already extracts res.data, so response is { success, message, data }
+      // We need to return response.data to get the actual menu item
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update menu item');
@@ -259,13 +261,18 @@ const menuSlice = createSlice({
       })
       .addCase(updateMenuItem.fulfilled, (state, action) => {
         state.isLoading = false;
-        const updatedItem = action.payload.data;
-        const index = state.menuItems.findIndex(item => item._id === updatedItem._id);
-        if (index !== -1) {
-          state.menuItems[index] = updatedItem;
-        }
-        if (state.currentMenuItem?._id === updatedItem._id) {
-          state.currentMenuItem = updatedItem;
+
+        // The thunk returns response.data which is the menu item
+        const updatedItem = action.payload;
+
+        if (updatedItem && updatedItem._id) {
+          const index = state.menuItems.findIndex(item => item._id === updatedItem._id);
+          if (index !== -1) {
+            state.menuItems[index] = updatedItem;
+          }
+          if (state.currentMenuItem?._id === updatedItem._id) {
+            state.currentMenuItem = updatedItem;
+          }
         }
       })
       .addCase(updateMenuItem.rejected, (state, action) => {

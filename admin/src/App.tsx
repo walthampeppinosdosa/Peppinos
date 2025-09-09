@@ -13,6 +13,8 @@ import { AddMenuItem } from "./pages/AddMenuItem";
 import { ViewMenuItem } from "./pages/ViewMenuItem";
 import { Menu } from "./pages/Menu";
 import { Categories } from "./pages/Categories";
+import { AddCategory } from "./pages/AddCategory";
+import { ViewCategory } from "./pages/ViewCategory";
 import { Orders } from "./pages/Orders";
 import { Users } from "./pages/Users";
 import { Reports } from "./pages/Reports";
@@ -73,6 +75,27 @@ const App = () => (
                 </AdminLayout>
               </ProtectedRoute>
             } />
+            <Route path="/categories/new" element={
+              <ProtectedRoute roles={['veg-admin', 'non-veg-admin', 'super-admin']}>
+                <AdminLayout>
+                  <AddCategory />
+                </AdminLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/categories/:id" element={
+              <ProtectedRoute roles={['veg-admin', 'non-veg-admin', 'super-admin']}>
+                <AdminLayout>
+                  <ViewCategory />
+                </AdminLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/categories/:id/edit" element={
+              <ProtectedRoute roles={['veg-admin', 'non-veg-admin', 'super-admin']}>
+                <AdminLayout>
+                  <AddCategory />
+                </AdminLayout>
+              </ProtectedRoute>
+            } />
             <Route path="/orders" element={
               <ProtectedRoute>
                 <AdminLayout>
@@ -81,6 +104,20 @@ const App = () => (
               </ProtectedRoute>
             } />
             <Route path="/users" element={
+              <ProtectedRoute roles={['veg-admin', 'non-veg-admin', 'super-admin']}>
+                <AdminLayout>
+                  <Users />
+                </AdminLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/users/view/:id" element={
+              <ProtectedRoute roles={['veg-admin', 'non-veg-admin', 'super-admin']}>
+                <AdminLayout>
+                  <Users />
+                </AdminLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/users/edit/:id" element={
               <ProtectedRoute roles={['veg-admin', 'non-veg-admin', 'super-admin']}>
                 <AdminLayout>
                   <Users />

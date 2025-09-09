@@ -240,6 +240,58 @@ const updateUserRole = async (req, res) => {
 };
 
 /**
+ * Update user information
+ * PUT /api/admin/users/:id
+ */
+const updateUser = async (req, res) => {
+  try {
+    const user = req.targetUser; // Loaded by middleware
+    const { name, email, phoneNumber, isActive } = req.body;
+
+    // Validate email format if provided
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid email format'
+      });
+    }
+
+    // Check if email is already taken by another user
+    if (email && email !== user.email) {
+      const User = require('../../models/User');
+      const existingUser = await User.findOne({ email, _id: { $ne: user._id } });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email is already taken'
+        });
+      }
+    }
+
+    // Update user fields
+    if (name !== undefined) user.name = name;
+    if (email !== undefined) user.email = email;
+    if (phoneNumber !== undefined) user.phoneNumber = phoneNumber;
+    if (isActive !== undefined) user.isActive = isActive;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'User updated successfully',
+      data: { user: user.toObject() }
+    });
+  } catch (error) {
+    console.error('Update user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update user',
+      error: error.message
+    });
+  }
+};
+
+/**
  * Get user statistics
  * GET /api/admin/users/stats
  */
@@ -385,6 +437,7 @@ const getUserStats = async (req, res) => {
 module.exports = {
   getAllUsers,
   getUserById,
+  updateUser,
   updateUserStatus,
   updateUserRole,
   getUserStats

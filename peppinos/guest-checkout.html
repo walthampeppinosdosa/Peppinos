@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Primary meta tags -->
+  <title>Guest Checkout - Peppino's Restaurant</title>
+  <meta name="title" content="Guest Checkout - Peppino's Restaurant">
+  <meta name="description" content="Complete your order as a guest at Peppino's Restaurant">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  <!-- Google font link -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap" rel="stylesheet">
+
+  <!-- Custom CSS link -->
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/components.css">
+
+  <!-- Preload images -->
+  <link rel="preload" as="image" href="./assets/images/hero-slider-1.png">
+  <link rel="preload" as="image" href="./assets/images/hero-slider-2.png">
+  <link rel="preload" as="image" href="./assets/images/hero-slider-3.png">
+
+  <style>
+    .checkout-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: var(--shadow-1);
+    }
+
+    .form-section {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      border: 1px solid var(--cultured);
+      border-radius: 8px;
+    }
+
+    .form-section h3 {
+      color: var(--gold-crayola);
+      margin-bottom: 1rem;
+      font-family: var(--ff-forum);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--eerie-black-1);
+      font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--cultured);
+      border-radius: 4px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--gold-crayola);
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .radio-option input[type="radio"] {
+      width: auto;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .btn-checkout {
+      width: 100%;
+      padding: 1rem;
+      background: var(--gold-crayola);
+      color: var(--white);
+      border: none;
+      border-radius: 4px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-checkout:hover {
+      background: var(--golden-poppy);
+    }
+
+    .btn-checkout:disabled {
+      background: var(--cultured);
+      cursor: not-allowed;
+    }
+
+    .error-message {
+      color: var(--red-orange-crayola);
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    .success-message {
+      color: var(--green);
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    .restaurant-status {
+      background: var(--red-orange-crayola);
+      color: var(--white);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .radio-group {
+        flex-direction: column;
+      }
+      
+      .checkout-container {
+        margin: 1rem;
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body id="top">
+
+  <!-- HEADER -->
+  <header class="header" data-header>
+    <div class="container">
+      <a href="./index.html" class="logo">
+        <img src="./assets/images/logo.svg" width="160" height="50" alt="Peppino's - Home">
+      </a>
+
+      <nav class="navbar" data-navbar>
+        <button class="close-btn" aria-label="close menu" data-nav-toggler>
+          <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+        </button>
+
+        <a href="./index.html" class="logo">
+          <img src="./assets/images/logo.svg" width="160" height="50" alt="Peppino's - Home">
+        </a>
+
+        <ul class="navbar-list">
+          <li class="navbar-item">
+            <a href="./index.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Home</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="./menu.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Menus</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="./about.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">About Us</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="./contact.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Contact</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="text-center">
+          <p class="headline-1 navbar-title">Visit Us</p>
+          <address class="body-4">
+            Restaurant St, Delicious City, <br>
+            London 9578, UK
+          </address>
+
+          <p class="body-4 navbar-text">Open: 9.30 am - 2.30pm</p>
+          <a href="mailto:booking@peppinos.com" class="body-4 sidebar-link">booking@peppinos.com</a>
+
+          <div class="separator"></div>
+
+          <p class="contact-label">Booking Request</p>
+          <a href="tel:+88123123456" class="body-1 contact-number hover-underline">
+            +88-123-123456
+          </a>
+        </div>
+      </nav>
+
+      <button class="nav-open-btn" aria-label="open menu" data-nav-toggler>
+        <span class="line line-1"></span>
+        <span class="line line-2"></span>
+        <span class="line line-3"></span>
+      </button>
+
+      <div class="overlay" data-nav-toggler data-overlay></div>
+    </div>
+  </header>
+
+  <main>
+    <article>
+      <!-- CHECKOUT SECTION -->
+      <section class="section checkout" aria-label="checkout">
+        <div class="container">
+          <div class="checkout-container">
+            <h2 class="headline-1 section-title text-center">Guest Checkout</h2>
+            
+            <div class="restaurant-status" id="restaurantStatus" style="display: none;">
+              <p>Closed ⋅ Opens 11:30AM</p>
+              <p>The restaurant is now closed, but you may schedule an order for later.</p>
+            </div>
+
+            <form id="guestCheckoutForm">
+              <!-- Customer Information -->
+              <div class="form-section">
+                <h3>Tell Us About Yourself</h3>
+                <p class="body-4" style="margin-bottom: 1rem;">All information below is required.</p>
+                
+                <div class="form-group">
+                  <label for="customerName">Name *</label>
+                  <input type="text" id="customerName" name="customerName" required>
+                  <div class="error-message" id="customerNameError"></div>
+                </div>
+
+                <div class="form-group">
+                  <label for="customerPhone">Phone Number *</label>
+                  <input type="tel" id="customerPhone" name="customerPhone" required>
+                  <div class="error-message" id="customerPhoneError"></div>
+                </div>
+
+                <div class="form-group">
+                  <label for="customerEmail">Email *</label>
+                  <input type="email" id="customerEmail" name="customerEmail" required>
+                  <div class="error-message" id="customerEmailError"></div>
+                </div>
+              </div>
+
+              <!-- Order Type -->
+              <div class="form-section">
+                <h3>Order Type</h3>
+                <div class="radio-group">
+                  <div class="radio-option">
+                    <input type="radio" id="pickup" name="orderType" value="pickup">
+                    <label for="pickup">Pickup</label>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" id="delivery" name="orderType" value="delivery" checked>
+                    <label for="delivery">Delivery</label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Delivery Address (shown only for delivery) -->
+              <div class="form-section" id="deliveryAddressSection">
+                <h3>Delivery Address</h3>
+                
+                <div class="form-group">
+                  <label for="street">Street Address *</label>
+                  <input type="text" id="street" name="street" required>
+                  <div class="error-message" id="streetError"></div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="city">City *</label>
+                    <input type="text" id="city" name="city" required>
+                    <div class="error-message" id="cityError"></div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="state">State *</label>
+                    <input type="text" id="state" name="state" required>
+                    <div class="error-message" id="stateError"></div>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="zipCode">ZIP Code *</label>
+                    <input type="text" id="zipCode" name="zipCode" required>
+                    <div class="error-message" id="zipCodeError"></div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="country">Country</label>
+                    <input type="text" id="country" name="country" value="United States">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Timing -->
+              <div class="form-section">
+                <h3>Timing</h3>
+                <div class="radio-group">
+                  <div class="radio-option">
+                    <input type="radio" id="asap" name="timing" value="asap" checked>
+                    <label for="asap">ASAP</label>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" id="scheduled" name="timing" value="scheduled">
+                    <label for="scheduled">Schedule</label>
+                  </div>
+                </div>
+
+                <!-- Scheduled Time Section -->
+                <div id="scheduledTimeSection" style="display: none; margin-top: 1rem;">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="scheduledDate">Pick Day *</label>
+                      <input type="date" id="scheduledDate" name="scheduledDate">
+                      <div class="error-message" id="scheduledDateError"></div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="scheduledTime">Pick Time *</label>
+                      <input type="time" id="scheduledTime" name="scheduledTime">
+                      <div class="error-message" id="scheduledTimeError"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Payment Information -->
+              <div class="form-section">
+                <h3>Payment Information</h3>
+                <div class="radio-group">
+                  <div class="radio-option">
+                    <input type="radio" id="payOnline" name="paymentMethod" value="pay_online" checked>
+                    <label for="payOnline">Pay Online</label>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" id="payInStore" name="paymentMethod" value="pay_in_store">
+                    <label for="payInStore">Pay in Store</label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Special Instructions -->
+              <div class="form-section">
+                <h3>Special Instructions</h3>
+                <div class="form-group">
+                  <textarea id="specialInstructions" name="specialInstructions" rows="4" 
+                    placeholder="Special instructions, allergies, etc..."></textarea>
+                  <div class="error-message" id="specialInstructionsError"></div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-checkout" id="submitBtn">
+                Place Order
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer section has-bg-image text-center"
+    style="background-image: url('./assets/images/footer-bg.jpg')">
+    <div class="container">
+      <div class="footer-top grid-list">
+        <div class="footer-brand">
+          <a href="./index.html" class="logo">
+            <img src="./assets/images/logo.svg" width="160" height="50" alt="Peppino's - Home">
+          </a>
+
+          <address class="body-4">
+            Restaurant St, Delicious City, <br>
+            London 9578, UK
+          </address>
+
+          <a href="mailto:booking@peppinos.com" class="body-4 contact-link">booking@peppinos.com</a>
+          <a href="tel:+88123123456" class="body-4 contact-link">Booking Request : +88-123-123456</a>
+
+          <p class="body-4">
+            Open : 09:00 am - 01:00 pm
+          </p>
+
+          <div class="wrapper">
+            <div class="separator"></div>
+            <div class="separator"></div>
+            <div class="separator"></div>
+          </div>
+
+          <p class="title-1">Get News & Offers</p>
+          <p class="label-1">
+            Subscribe us & Get <span class="span">25% Off.</span>
+          </p>
+
+          <form action="" class="input-wrapper">
+            <div class="icon-wrapper">
+              <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+              <input type="email" name="email_address" placeholder="Your email" autocomplete="off" class="input-field">
+            </div>
+            <button type="submit" class="btn btn-secondary">
+              <span class="text text-1">Subscribe</span>
+              <span class="text text-2" aria-hidden="true">Subscribe</span>
+            </button>
+          </form>
+        </div>
+
+        <ul class="footer-list">
+          <li>
+            <a href="./index.html" class="label-2 footer-link hover-underline">Home</a>
+          </li>
+          <li>
+            <a href="./menu.html" class="label-2 footer-link hover-underline">Menus</a>
+          </li>
+          <li>
+            <a href="./about.html" class="label-2 footer-link hover-underline">About Us</a>
+          </li>
+          <li>
+            <a href="./contact.html" class="label-2 footer-link hover-underline">Contact</a>
+          </li>
+        </ul>
+
+        <ul class="footer-list">
+          <li>
+            <a href="#" class="label-2 footer-link hover-underline">Facebook</a>
+          </li>
+          <li>
+            <a href="#" class="label-2 footer-link hover-underline">Instagram</a>
+          </li>
+          <li>
+            <a href="#" class="label-2 footer-link hover-underline">Twitter</a>
+          </li>
+          <li>
+            <a href="#" class="label-2 footer-link hover-underline">Youtube</a>
+          </li>
+          <li>
+            <a href="#" class="label-2 footer-link hover-underline">Google Map</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="copyright">
+          &copy; 2024 Peppino's. All Rights Reserved | Crafted by <a href="#" target="_blank"
+            class="link">codewithsadee</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to top button -->
+  <a href="#top" class="back-top-btn active" aria-label="back to top" data-back-top-btn>
+    <ion-icon name="chevron-up" aria-hidden="true"></ion-icon>
+  </a>
+
+  <!-- Custom JS link -->
+  <script src="./assets/js/script.js"></script>
+
+  <!-- Ionicon link -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+</body>
+
+</html>

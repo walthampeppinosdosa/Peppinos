@@ -537,10 +537,81 @@ const updateMenuItem = async (req, res) => {
     if (nutritionalInfo !== undefined) menuItem.nutritionalInfo = nutritionalInfo;
     if (isActive !== undefined) menuItem.isActive = isActive;
 
-    // Add new images to existing ones
-    if (newImages.length > 0) {
-      menuItem.images = [...menuItem.images, ...newImages];
+    // Handle image updates (deletions, reordering, and new uploads)
+    const { existingImages, imagesToDelete } = req.body;
+
+    // Delete images from Cloudinary if specified
+    if (imagesToDelete) {
+      try {
+        const imagesToDeleteArray = typeof imagesToDelete === 'string' ? JSON.parse(imagesToDelete) : imagesToDelete;
+        if (Array.isArray(imagesToDeleteArray) && imagesToDeleteArray.length > 0) {
+          const deletePromises = imagesToDeleteArray.map(imageUrl => {
+            try {
+              // Handle both string URLs and image objects
+              const url = typeof imageUrl === 'string' ? imageUrl : imageUrl.url;
+
+              // Extract public_id from Cloudinary URL
+              // URL format: https://res.cloudinary.com/cloud_name/image/upload/v123456/folder/public_id.ext
+              const urlParts = url.split('/');
+              const publicIdWithExtension = urlParts[urlParts.length - 1];
+              const publicId = publicIdWithExtension.split('.')[0];
+
+              // Check if the URL contains a folder structure
+              const folderIndex = urlParts.findIndex(part => part === 'upload');
+              if (folderIndex !== -1 && folderIndex + 2 < urlParts.length) {
+                // Skip version (v123456) and get folder + public_id
+                const pathAfterUpload = urlParts.slice(folderIndex + 2).join('/');
+                const finalPublicId = pathAfterUpload.replace(/\.[^/.]+$/, ''); // Remove extension
+                return deleteFromCloudinary(finalPublicId);
+              } else {
+                return deleteFromCloudinary(`menu-items/${publicId}`);
+              }
+            } catch (error) {
+              console.error('Error processing image URL for deletion:', imageUrl, error);
+              return Promise.resolve(); // Don't fail the entire operation
+            }
+          });
+          await Promise.all(deletePromises);
+        }
+      } catch (deleteError) {
+        console.error('Error deleting images from Cloudinary:', deleteError);
+        // Continue with update even if deletion fails
+      }
     }
+
+    // Update images array with existing images in new order + new uploads
+    let updatedImages = [];
+
+    // Add existing images in their new order
+    if (existingImages) {
+      try {
+        const existingImagesArray = typeof existingImages === 'string' ? JSON.parse(existingImages) : existingImages;
+        if (Array.isArray(existingImagesArray)) {
+          // Map URL strings back to full image objects from current menu item
+          updatedImages = existingImagesArray.map(imageUrl => {
+            // Find the corresponding image object in current menu item
+            const imageObj = menuItem.images.find(img =>
+              (typeof img === 'string' ? img : img.url) === imageUrl
+            );
+            return imageObj || imageUrl; // Fallback to URL if object not found
+          }).filter(img => img); // Remove any null/undefined entries
+        }
+      } catch (error) {
+        console.error('Error parsing existingImages:', error);
+        // Fallback to current images
+        updatedImages = [...menuItem.images];
+      }
+    } else {
+      // If no existingImages specified, keep current images
+      updatedImages = [...menuItem.images];
+    }
+
+    // Add new uploaded images
+    if (newImages.length > 0) {
+      updatedImages = [...updatedImages, ...newImages];
+    }
+
+    menuItem.images = updatedImages;
 
     await menuItem.save();
 

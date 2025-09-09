@@ -60,7 +60,7 @@ const apiLimiter = createRateLimit(
 // Admin API rate limit (more restrictive)
 const adminApiLimiter = createRateLimit(
   15 * 60 * 1000, // 15 minutes
-  500, // limit each IP to 500 requests per windowMs
+  process.env.NODE_ENV === 'development' ? 2000 : 500, // Higher limit for development
   'Admin API rate limit exceeded, please try again later.'
 );
 

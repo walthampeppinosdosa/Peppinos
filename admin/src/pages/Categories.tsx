@@ -1,54 +1,153 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { fetchCategories } from '@/store/slices/categoriesSlice';
-import { 
-  Search, 
-  Plus, 
-  Edit, 
-  Trash2, 
+import { fetchCategories, fetchParentCategories, deleteCategory } from '@/store/slices/categoriesSlice';
+import ExportDropdown from '@/components/ui/export-dropdown';
+import { useAlert } from '@/hooks/useAlert';
+import {
+  Search,
+  Plus,
+  Edit,
+  Trash2,
   Eye,
-  Filter,
-  Download,
   FolderOpen,
   Leaf,
   Utensils,
-  Image
+  Image,
+  Grid3X3,
+  Grid2X2,
+  LayoutGrid
 } from 'lucide-react';
+import type { Category } from '@/store/slices/categoriesSlice';
 
 export const Categories: React.FC = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { user: currentUser, canManageVeg, canManageNonVeg } = useAuth();
-  const { categories, isLoading, error } = useAppSelector((state) => state.categories);
+  const { categories, parentCategories, isLoading, error } = useAppSelector((state) => state.categories);
+  const { showAlert } = useAlert();
+
+  // Filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<'2' | '3' | '4'>('3');
+
+  // Delete confirmation dialog state
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<{ id: string; name: string } | null>(null);
 
   useEffect(() => {
     dispatch(fetchCategories({}));
-  }, [dispatch]);
+    // Only fetch parent categories if we don't have them already
+    if (parentCategories.length === 0) {
+      dispatch(fetchParentCategories());
+    }
+  }, [dispatch, parentCategories.length]);
+
+  // Handler functions
+  const handleView = (category: Category) => {
+    navigate(`/categories/${category._id}`);
+  };
+
+  const handleEdit = (category: Category) => {
+    navigate(`/categories/${category._id}/edit`);
+  };
+
+  const handleDelete = (category: Category) => {
+    setCategoryToDelete({ id: category._id, name: category.name });
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleAddNew = () => {
+    navigate('/categories/new');
+  };
+
+  const resetDeleteState = () => {
+    setDeleteConfirmOpen(false);
+    setCategoryToDelete(null);
+  };
+
+  const getGridCols = () => {
+    switch (viewMode) {
+      case '2': return 'grid-cols-1 md:grid-cols-2';
+      case '3': return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+      case '4': return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+      default: return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (categoryToDelete) {
+      try {
+        await dispatch(deleteCategory(categoryToDelete.id)).unwrap();
+        showAlert('Category deleted successfully!', 'success', 'Delete Complete');
+        // Refresh the categories list
+        dispatch(fetchCategories({}));
+        resetDeleteState();
+      } catch (error: any) {
+        console.error('Delete error:', error);
+        showAlert(
+          error?.message || error || 'Failed to delete category',
+          'error',
+          'Delete Failed'
+        );
+      }
+    }
+  };
 
   const filteredCategories = categories.filter(category => {
+    // Only show menu categories (not parent categories) - same as Menu.tsx dropdown
+    if (category.type !== 'menu') return false;
+
     const matchesSearch = category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          category.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Role-based filtering
+
+    // Role-based filtering - same logic as Menu.tsx
     let matchesRole = true;
     if (currentUser?.role === 'veg-admin') {
-      matchesRole = category.isVegetarian === true;
+      // For veg-admin, show vegetarian categories or categories under vegetarian parent
+      matchesRole = category.isVegetarian === true || category.parentCategory?.isVegetarian === true;
     } else if (currentUser?.role === 'non-veg-admin') {
-      matchesRole = category.isVegetarian === false;
+      // For non-veg-admin, show non-vegetarian categories or categories under non-vegetarian parent
+      matchesRole = category.isVegetarian === false || category.parentCategory?.isVegetarian === false;
     }
-    
-    const matchesType = selectedType === 'all' || 
-                       (selectedType === 'veg' && category.isVegetarian) ||
-                       (selectedType === 'non-veg' && !category.isVegetarian);
-    
+
+    const matchesType = selectedType === 'all' ||
+                       (selectedType === 'veg' && (category.isVegetarian || category.parentCategory?.isVegetarian)) ||
+                       (selectedType === 'non-veg' && (!category.isVegetarian && !category.parentCategory?.isVegetarian));
+
     return matchesSearch && matchesRole && matchesType;
   });
+
+  // Prepare export data (after filteredCategories is defined)
+  const exportData = filteredCategories.map(category => ({
+    name: category.name,
+    parentCategory: category.parentCategory?.name || 'N/A',
+    description: category.description,
+    status: category.isActive ? 'Active' : 'Inactive',
+    dietType: category.parentCategory?.isVegetarian ? 'Vegetarian' : 'Non-Vegetarian',
+    menuItems: category.menuItemCount || 0,
+    sortOrder: category.sortOrder,
+    created: new Date(category.createdAt).toLocaleDateString(),
+  }));
+
+  const exportColumns = [
+    { key: 'name', label: 'Category Name' },
+    { key: 'parentCategory', label: 'Parent Category' },
+    { key: 'description', label: 'Description' },
+    { key: 'status', label: 'Status' },
+    { key: 'dietType', label: 'Diet Type' },
+    { key: 'menuItems', label: 'Menu Items' },
+    { key: 'sortOrder', label: 'Sort Order' },
+    { key: 'created', label: 'Created' },
+  ];
 
   const getTypeBadgeColor = (isVegetarian: boolean) => {
     return isVegetarian 
@@ -64,8 +163,8 @@ export const Categories: React.FC = () => {
 
   const canManageCategory = (category: any) => {
     if (currentUser?.role === 'super-admin') return true;
-    if (currentUser?.role === 'veg-admin') return category.isVegetarian;
-    if (currentUser?.role === 'non-veg-admin') return !category.isVegetarian;
+    if (currentUser?.role === 'veg-admin') return category.parentCategory?.isVegetarian === true;
+    if (currentUser?.role === 'non-veg-admin') return category.parentCategory?.isVegetarian === false;
     return false;
   };
 
@@ -92,13 +191,33 @@ export const Categories: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
+        <div>
+          <h1 className="text-2xl font-bold">Menu Categories</h1>
+          <p className="text-muted-foreground">Manage categories for your menu items (starters, main course, beverages, etc.)</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {/* Layout Toggle */}
+          <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as '2' | '3' | '4')}>
+            <ToggleGroupItem value="2" aria-label="2 columns">
+              <Grid2X2 className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="3" aria-label="3 columns">
+              <Grid3X3 className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="4" aria-label="4 columns">
+              <LayoutGrid className="h-4 w-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
+
+          <ExportDropdown
+            data={exportData}
+            columns={exportColumns}
+            filename="categories"
+            title="Categories Report"
+            subtitle="Export categories data"
+          />
           {(canManageVeg() || canManageNonVeg()) && (
-            <Button size="sm">
+            <Button size="sm" onClick={handleAddNew}>
               <Plus className="h-4 w-4 mr-2" />
               Add Category
             </Button>
@@ -133,17 +252,14 @@ export const Categories: React.FC = () => {
                   <option value="non-veg">Non-Vegetarian</option>
                 </select>
               )}
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
-              </Button>
+             
             </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Categories Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className={`grid ${getGridCols()} gap-6`}>
         {filteredCategories.map((category) => (
           <Card key={category._id} className="hover:shadow-lg transition-shadow">
             <CardHeader className="pb-3">
@@ -163,16 +279,16 @@ export const Categories: React.FC = () => {
                     <CardDescription className="text-sm">{category.slug}</CardDescription>
                   </div>
                 </div>
-                <Badge className={getTypeBadgeColor(category.isVegetarian)}>
-                  {category.isVegetarian ? (
+                <Badge className={getTypeBadgeColor(category.parentCategory?.isVegetarian || false)}>
+                  {category.parentCategory?.isVegetarian ? (
                     <>
                       <Leaf className="h-3 w-3 mr-1" />
-                      Veg
+                      Vegetarian
                     </>
                   ) : (
                     <>
                       <Utensils className="h-3 w-3 mr-1" />
-                      Non-Veg
+                      Non-Vegetarian
                     </>
                   )}
                 </Badge>
@@ -202,17 +318,32 @@ export const Categories: React.FC = () => {
               </div>
               
               <div className="flex gap-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => handleView(category)}
+                >
                   <Eye className="h-4 w-4 mr-1" />
                   View
                 </Button>
                 {canManageCategory(category) && (
                   <>
-                    <Button variant="outline" size="sm" className="flex-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => handleEdit(category)}
+                    >
                       <Edit className="h-4 w-4 mr-1" />
                       Edit
                     </Button>
-                    <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => handleDelete(category)}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </>
@@ -234,7 +365,7 @@ export const Categories: React.FC = () => {
                 : 'No categories have been created yet.'}
             </p>
             {(canManageVeg() || canManageNonVeg()) && (
-              <Button className="mt-4">
+              <Button className="mt-4" onClick={handleAddNew}>
                 <Plus className="h-4 w-4 mr-2" />
                 Create First Category
               </Button>
@@ -242,6 +373,36 @@ export const Categories: React.FC = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to delete "{categoryToDelete?.name}"? This action cannot be undone.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetDeleteState}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDeleteConfirm}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -78,7 +78,7 @@ const loadMenuItem = async (req, res, next) => {
 const loadCategory = async (req, res, next) => {
   try {
     const categoryId = req.params.id || req.params.categoryId;
-    
+
     if (!categoryId) {
       return res.status(400).json({
         success: false,
@@ -86,8 +86,8 @@ const loadCategory = async (req, res, next) => {
       });
     }
 
-    const category = await Category.findById(categoryId);
-    
+    const category = await Category.findById(categoryId).populate('parentCategory');
+
     if (!category) {
       return res.status(404).json({
         success: false,
@@ -121,8 +121,8 @@ const loadOrder = async (req, res, next) => {
     }
 
     const order = await Order.findById(orderId)
-      .populate('user', 'name email')
-      .populate('items.menu', 'name images');
+      .populate('user', 'name email phoneNumber role sessionId')
+      .populate('items.menu', 'name images discountedPrice mrp category');
     
     if (!order) {
       return res.status(404).json({

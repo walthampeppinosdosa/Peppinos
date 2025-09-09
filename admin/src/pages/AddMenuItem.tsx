@@ -41,10 +41,13 @@ const menuItemSchema = z.object({
   discountedPrice: z.number().min(0, 'Discounted price must be positive'),
   quantity: z.number().min(1, 'Quantity must be at least 1').default(1),
   sizes: z.array(z.object({
-    name: z.string(),
-    price: z.number().min(0),
-    isDefault: z.boolean().optional()
-  })).min(1, 'At least one size is required'),
+    name: z.string().min(1, 'Size name is required'),
+    price: z.coerce.number().min(0, 'Size price must be 0 or greater'),
+    isDefault: z.boolean().optional().default(false)
+  })).min(1, 'At least one size must be selected').refine(
+    (sizes) => sizes.every(size => size.name && size.price >= 0),
+    { message: 'All sizes must have valid names and prices' }
+  ),
   spicyLevel: z.array(z.string()).optional(),
   preparation: z.array(z.string()).optional(),
   preparationTime: z.number().min(1, 'Preparation time must be at least 1 minute'),
@@ -82,6 +85,8 @@ export const AddMenuItem: React.FC = () => {
   const [customErrors, setCustomErrors] = useState<{[key: string]: string}>({});
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [imagesToDelete, setImagesToDelete] = useState<string[]>([]); // Track images to delete from Cloudinary
+  const [imageMetadata, setImageMetadata] = useState<Array<{url: string, isNew: boolean, file?: File}>>([]);
 
   const {
     register,
@@ -95,7 +100,7 @@ export const AddMenuItem: React.FC = () => {
     resolver: zodResolver(menuItemSchema),
     defaultValues: {
       quantity: 1,
-      sizes: [{ name: 'Medium', price: 0, isDefault: true }],
+      sizes: [],
       spicyLevel: [],
       preparation: [],
       preparationTime: 15,
@@ -133,16 +138,36 @@ export const AddMenuItem: React.FC = () => {
       }
 
       // Set spicy levels
-      if (currentMenuItem.spicyLevel && Array.isArray(currentMenuItem.spicyLevel)) {
-        const spicyLevelIds = currentMenuItem.spicyLevel.map((level: any) =>
-          typeof level === 'string' ? level : level._id || level.name
-        );
-        setValue('spicyLevel', spicyLevelIds);
+      if (currentMenuItem.spicyLevel) {
+        if (Array.isArray(currentMenuItem.spicyLevel)) {
+          const spicyLevelIds = currentMenuItem.spicyLevel.map((level: any) =>
+            typeof level === 'string' ? level : level._id || level.name
+          );
+          setValue('spicyLevel', spicyLevelIds);
+        } else {
+          // Handle single spicy level value
+          const singleLevel = typeof currentMenuItem.spicyLevel === 'string'
+            ? currentMenuItem.spicyLevel
+            : (currentMenuItem.spicyLevel as any)?._id || (currentMenuItem.spicyLevel as any)?.name;
+          setValue('spicyLevel', [singleLevel]);
+        }
       }
 
       // Set preparations
+
       if (currentMenuItem.preparations) {
-        setValue('preparation', currentMenuItem.preparations);
+        if (Array.isArray(currentMenuItem.preparations)) {
+          const preparationIds = currentMenuItem.preparations.map((prep: any) =>
+            typeof prep === 'string' ? prep : prep._id || prep.name
+          );
+          setValue('preparation', preparationIds);
+        } else {
+          // Handle single preparation value
+          const singlePrep = typeof currentMenuItem.preparations === 'string'
+            ? currentMenuItem.preparations
+            : (currentMenuItem.preparations as any)?._id || (currentMenuItem.preparations as any)?.name;
+          setValue('preparation', [singlePrep]);
+        }
       }
 
       // Set addons
@@ -155,9 +180,25 @@ export const AddMenuItem: React.FC = () => {
         setSelectedTags(currentMenuItem.tags);
       }
 
-      // Set sizes
+      // Set sizes - ensure proper structure
+
       if (currentMenuItem.sizes && currentMenuItem.sizes.length > 0) {
-        setValue('sizes', currentMenuItem.sizes);
+        const formattedSizes = currentMenuItem.sizes.map((size: any) => {
+          const formatted = {
+            name: String(size.name || ''),
+            price: Number(size.price) || 0,
+            isDefault: Boolean(size.isDefault)
+          };
+          return formatted;
+        }).filter(size => {
+          const isValid = size.name && size.price >= 0;
+          return isValid;
+        });
+
+        setValue('sizes', formattedSizes);
+      } else {
+        // Set a default size if none exist
+        setValue('sizes', []);
       }
 
       // Handle existing images - convert URLs to preview format
@@ -166,6 +207,12 @@ export const AddMenuItem: React.FC = () => {
           typeof img === 'string' ? img : img.url || img
         );
         setImagePreviews(imageUrls);
+        // Initialize image metadata for existing images
+        const metadata = imageUrls.map(url => ({
+          url,
+          isNew: false
+        }));
+        setImageMetadata(metadata);
         // Note: We can't set selectedImages for existing images since they're URLs, not File objects
       }
 
@@ -256,29 +303,41 @@ export const AddMenuItem: React.FC = () => {
     });
 
     setSelectedImages(prev => [...prev, ...files]);
-    
-    // Create previews
+
+    // Create previews and metadata
     files.forEach(file => {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setImagePreviews(prev => [...prev, e.target?.result as string]);
+        const url = e.target?.result as string;
+        setImagePreviews(prev => [...prev, url]);
+        // Add metadata for new image
+        setImageMetadata(prev => [...prev, {
+          url,
+          isNew: true,
+          file
+        }]);
       };
       reader.readAsDataURL(file);
     });
   };
 
   const removeImage = (index: number) => {
-    // Always remove from previews
-    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    // Get the image metadata to check if it's an existing image
+    const imageToRemove = imageMetadata[index];
 
-    // Only remove from selectedImages if it's within the range
-    // (handles case where we have existing images + new uploads)
-    setSelectedImages(prev => {
-      if (index < prev.length) {
-        return prev.filter((_, i) => i !== index);
-      }
-      return prev;
-    });
+    if (imageToRemove && !imageToRemove.isNew) {
+      // This is an existing image, add it to deletion list
+      setImagesToDelete(prev => [...prev, imageToRemove.url]);
+    }
+
+    // Remove from all arrays
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    setImageMetadata(prev => prev.filter((_, i) => i !== index));
+
+    // Only remove from selectedImages if it's a new image
+    if (imageToRemove && imageToRemove.isNew && imageToRemove.file) {
+      setSelectedImages(prev => prev.filter(file => file !== imageToRemove.file));
+    }
   };
 
   // Drag and drop handlers
@@ -307,29 +366,28 @@ export const AddMenuItem: React.FC = () => {
       return;
     }
 
-    // Reorder imagePreviews array (this is the source of truth for display)
+    // Calculate the correct insert index
+    const insertIndex = draggedIndex < dropIndex ? dropIndex - 1 : dropIndex;
+
+    // Reorder imagePreviews
     const newPreviews = [...imagePreviews];
     const draggedPreview = newPreviews[draggedIndex];
-
     newPreviews.splice(draggedIndex, 1);
-
-    // Insert at new position
-    const insertIndex = draggedIndex < dropIndex ? dropIndex - 1 : dropIndex;
     newPreviews.splice(insertIndex, 0, draggedPreview);
-
     setImagePreviews(newPreviews);
 
-    // Only reorder selectedImages if we have the same number of items
-    // (this handles the case where we have existing images mixed with new uploads)
-    if (selectedImages.length === imagePreviews.length) {
-      const newImages = [...selectedImages];
-      const draggedImage = newImages[draggedIndex];
+    // Reorder imageMetadata
+    const newMetadata = [...imageMetadata];
+    const draggedMetadata = newMetadata[draggedIndex];
+    newMetadata.splice(draggedIndex, 1);
+    newMetadata.splice(insertIndex, 0, draggedMetadata);
+    setImageMetadata(newMetadata);
 
-      newImages.splice(draggedIndex, 1);
-      newImages.splice(insertIndex, 0, draggedImage);
-
-      setSelectedImages(newImages);
-    }
+    // Update selectedImages array to match the new order
+    const newSelectedImages = newMetadata
+      .filter(meta => meta.isNew && meta.file)
+      .map(meta => meta.file!);
+    setSelectedImages(newSelectedImages);
 
     setDraggedIndex(null);
     setDragOverIndex(null);
@@ -372,6 +430,8 @@ export const AddMenuItem: React.FC = () => {
     // Clear previous custom errors
     setCustomErrors({});
 
+   
+
     // Validate images - only require new images for create mode
     if (!isEditMode && selectedImages.length === 0) {
       setCustomErrors(prev => ({ ...prev, images: 'At least one image is required' }));
@@ -393,6 +453,36 @@ export const AddMenuItem: React.FC = () => {
       return;
     }
 
+    // Validate sizes data
+
+    if (!data.sizes || data.sizes.length === 0) {
+      setError('sizes', {
+        type: 'manual',
+        message: 'At least one size must be selected'
+      });
+      showAlert('Please select at least one size for the menu item', 'error', 'Validation Error');
+      return;
+    }
+
+    // Check if all sizes have valid data
+    const invalidSizes = data.sizes.filter(size =>
+      !size.name ||
+      size.name.trim() === '' ||
+      size.price === undefined ||
+      size.price === null ||
+      size.price < 0 ||
+      isNaN(Number(size.price))
+    );
+
+    if (invalidSizes.length > 0) {
+      setError('sizes', {
+        type: 'manual',
+        message: 'All selected sizes must have valid names and prices (0 or greater)'
+      });
+      showAlert('Please ensure all selected sizes have valid names and prices', 'error', 'Validation Error');
+      return;
+    }
+
     const formData = new FormData();
 
     // Add basic fields
@@ -403,12 +493,22 @@ export const AddMenuItem: React.FC = () => {
       if (key === 'tags') {
         formData.append(key, JSON.stringify(value || []));
       } else if (key === 'sizes') {
-        // Ensure sizes have proper structure
-        const sizesData = (value as any[])?.map(size => ({
-          name: size.name,
-          price: Number(size.price),
-          isDefault: size.isDefault || false
-        })) || [];
+        // Ensure sizes have proper structure and valid data
+
+        const sizesData = (value as any[])?.map(size => {
+          const processedSize = {
+            name: String(size.name || '').trim(),
+            price: Number(size.price) || 0,
+            isDefault: Boolean(size.isDefault)
+          };
+          return processedSize;
+        }).filter(size => size.name && size.price >= 0) || [];
+
+
+        if (sizesData.length === 0) {
+          throw new Error('At least one valid size is required');
+        }
+
         formData.append(key, JSON.stringify(sizesData));
       } else if (value !== undefined && value !== null && value !== '') {
         formData.append(key, value.toString());
@@ -419,13 +519,79 @@ export const AddMenuItem: React.FC = () => {
     formData.append('isVegetarian', getIsVegetarian().toString());
 
     // Add spicy levels for all items (if selected and not "not-applicable")
-    if (data.spicyLevel && data.spicyLevel.length > 0 && !data.spicyLevel.includes('not-applicable')) {
-      formData.append('spicyLevel', JSON.stringify(data.spicyLevel));
+
+    if (data.spicyLevel && data.spicyLevel.length > 0) {
+      // Handle both array and stringified array cases
+      let spicyLevelArray = data.spicyLevel;
+
+      // If it's a string, try to parse it
+      if (typeof data.spicyLevel === 'string') {
+        try {
+          spicyLevelArray = JSON.parse(data.spicyLevel);
+        } catch (e) {
+          console.error('Failed to parse spicyLevel string:', data.spicyLevel);
+          spicyLevelArray = [data.spicyLevel];
+        }
+      }
+
+      // Ensure it's an array
+      if (!Array.isArray(spicyLevelArray)) {
+        spicyLevelArray = [spicyLevelArray];
+      }
+
+
+      // Filter out "not-applicable" values (case insensitive)
+      const validSpicyLevels = spicyLevelArray.filter(level => {
+        if (!level) return false;
+        const levelStr = String(level).toLowerCase().trim();
+        const isNotApplicable = levelStr === 'not-applicable' ||
+                               levelStr === 'not applicable' ||
+                               levelStr === 'notapplicable';
+        return !isNotApplicable;
+      });
+
+
+      if (validSpicyLevels.length > 0) {
+        formData.append('spicyLevel', JSON.stringify(validSpicyLevels));
+      }
     }
 
     // Add preparations (for both veg and non-veg items)
+
     if (data.preparation && data.preparation.length > 0) {
-      formData.append('preparation', JSON.stringify(data.preparation));
+      // Handle both array and stringified array cases
+      let preparationArray = data.preparation;
+
+      // If it's a string, try to parse it
+      if (typeof data.preparation === 'string') {
+        try {
+          preparationArray = JSON.parse(data.preparation);
+        } catch (e) {
+          console.error('Failed to parse preparation string:', data.preparation);
+          preparationArray = [data.preparation];
+        }
+      }
+
+      // Ensure it's an array
+      if (!Array.isArray(preparationArray)) {
+        preparationArray = [preparationArray];
+      }
+
+
+      // Filter out "not-applicable" values (case insensitive)
+      const validPreparations = preparationArray.filter(prep => {
+        if (!prep) return false;
+        const prepStr = String(prep).toLowerCase().trim();
+        const isNotApplicable = prepStr === 'not-applicable' ||
+                               prepStr === 'not applicable' ||
+                               prepStr === 'notapplicable';
+        return !isNotApplicable;
+      });
+
+
+      if (validPreparations.length > 0) {
+        formData.append('preparation', JSON.stringify(validPreparations));
+      }
     }
 
     // Add addons
@@ -436,21 +602,20 @@ export const AddMenuItem: React.FC = () => {
       formData.append('menuItemImages', image);
     });
 
-    // For edit mode, preserve existing images
-    if (isEditMode && imagePreviews.length > 0) {
-      // Create object URLs for new files to compare
-      const newFileUrls = selectedImages.map(file => URL.createObjectURL(file));
-
-      // Filter out previews that match new file URLs (these are new uploads)
-      const existingImages = imagePreviews.filter(preview =>
-        !newFileUrls.includes(preview)
-      );
-
-      // Clean up object URLs
-      newFileUrls.forEach(url => URL.revokeObjectURL(url));
+    // For edit mode, handle existing images and deletions
+    if (isEditMode) {
+      // Get existing images (not new uploads) in their current order
+      const existingImages = imageMetadata
+        .filter(meta => !meta.isNew)
+        .map(meta => meta.url);
 
       if (existingImages.length > 0) {
         formData.append('existingImages', JSON.stringify(existingImages));
+      }
+
+      // Add images to delete from Cloudinary
+      if (imagesToDelete.length > 0) {
+        formData.append('imagesToDelete', JSON.stringify(imagesToDelete));
       }
     }
 
@@ -460,6 +625,8 @@ export const AddMenuItem: React.FC = () => {
         result = await dispatch(updateMenuItem({ id, menuItemData: formData }));
         if (updateMenuItem.fulfilled.match(result)) {
           showAlert('Menu item updated successfully!', 'success', 'Success');
+          // Clear images to delete after successful update
+          setImagesToDelete([]);
           navigate('/menu');
         } else {
           showAlert(result.payload as string || 'Failed to update menu item', 'error', 'Update Failed');
@@ -468,13 +635,24 @@ export const AddMenuItem: React.FC = () => {
         result = await dispatch(createMenuItem(formData));
         if (createMenuItem.fulfilled.match(result)) {
           showAlert('Menu item created successfully!', 'success', 'Success');
+          // Reset form state
+          setImagesToDelete([]);
+          setImageMetadata([]);
+          setImagePreviews([]);
+          setSelectedImages([]);
           navigate('/menu');
         } else {
           showAlert(result.payload as string || 'Failed to create menu item', 'error', 'Creation Failed');
         }
       }
     } catch (error) {
-      showAlert(isEditMode ? 'Failed to update menu item' : 'Failed to create menu item', 'error', isEditMode ? 'Update Failed' : 'Creation Failed');
+      console.error('Form submission error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      showAlert(
+        `${isEditMode ? 'Failed to update menu item' : 'Failed to create menu item'}: ${errorMessage}`,
+        'error',
+        isEditMode ? 'Update Failed' : 'Creation Failed'
+      );
     }
   };
 
@@ -505,7 +683,42 @@ export const AddMenuItem: React.FC = () => {
         </Button>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={handleSubmit(
+          onSubmit,
+          (errors) => {
+            // Show user-friendly validation errors
+            const errorMessages = Object.entries(errors).map(([field, error]) => {
+              const fieldName = field === 'sizes' ? 'Sizes' :
+                               field === 'mrp' ? 'MRP' :
+                               field === 'discountedPrice' ? 'Discounted Price' :
+                               field === 'preparationTime' ? 'Preparation Time' :
+                               field.charAt(0).toUpperCase() + field.slice(1);
+
+              if (Array.isArray(error)) {
+                // Handle array errors (like sizes validation)
+                const arrayErrors = error.map((e, index) => {
+                  if (typeof e === 'object' && e.message) {
+                    return `${fieldName}[${index}]: ${e.message}`;
+                  } else if (typeof e === 'object') {
+                    // Handle nested object errors (like size name/price validation)
+                    const nestedErrors = Object.entries(e).map(([key, value]) =>
+                      `${key}: ${(value as any).message || value}`
+                    );
+                    return `${fieldName}[${index}] - ${nestedErrors.join(', ')}`;
+                  }
+                  return `${fieldName}[${index}]: ${e}`;
+                });
+                return arrayErrors.join('; ');
+              }
+
+              return `${fieldName}: ${error.message || error}`;
+            });
+            showAlert(`Please fix the following errors:\n• ${errorMessages.join('\n• ')}`, 'error', 'Validation Error');
+          }
+        )}
+        className="space-y-6"
+      >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Basic Information */}
           <Card>
@@ -717,6 +930,7 @@ export const AddMenuItem: React.FC = () => {
             <CardContent className="space-y-4">
               <div>
                 <Label>Available Sizes</Label>
+                <p className="text-sm text-muted-foreground mt-1">Select at least one size and set its price</p>
                 <div className="space-y-3 mt-2">
                   {['Small', 'Medium', 'Large'].map((sizeName) => {
                     const currentSizes = watch('sizes') || [];
@@ -733,10 +947,12 @@ export const AddMenuItem: React.FC = () => {
                             if (checked) {
                               const newSize = {
                                 name: sizeName,
-                                price: watchedDiscountedPrice || 0,
-                                isDefault: sizeName === 'Medium'
+                                price: Number(watchedDiscountedPrice) || 0,
+                                isDefault: sizeName === 'Medium' && currentSizes.length === 0
                               };
                               setValue('sizes', [...currentSizes, newSize]);
+                              // Clear any previous size validation errors
+                              clearErrors('sizes');
                             } else {
                               setValue('sizes', currentSizes.filter(s => s.name !== sizeName));
                             }
@@ -755,12 +971,17 @@ export const AddMenuItem: React.FC = () => {
                               value={existingSize?.price || 0}
                               onChange={(e) => {
                                 const currentSizes = watch('sizes') || [];
+                                const newPrice = Number(e.target.value) || 0;
                                 const updatedSizes = currentSizes.map(s =>
                                   s.name === sizeName
-                                    ? { ...s, price: Number(e.target.value) }
+                                    ? { ...s, price: newPrice }
                                     : s
                                 );
                                 setValue('sizes', updatedSizes);
+                                // Clear validation errors when user updates price
+                                if (newPrice >= 0) {
+                                  clearErrors('sizes');
+                                }
                               }}
                               className="w-20"
                               placeholder="0"
@@ -774,13 +995,23 @@ export const AddMenuItem: React.FC = () => {
                 {errors.sizes && (
                   <p className="text-sm text-destructive mt-1">{errors.sizes.message}</p>
                 )}
+                {(!watch('sizes') || watch('sizes').length === 0) && (
+                  <p className="text-sm text-amber-600 mt-1">⚠️ Please select at least one size to continue</p>
+                )}
               </div>
 
               <InlineItemManager
                 type="spicy"
                 parentCategoryId={selectedParentCategory}
                 selectedValue={watch('spicyLevel') || []}
-                onValueChange={(value) => setValue('spicyLevel', value as string[])}
+                onValueChange={(value) => {
+                  // Handle both single values and arrays
+                  if (Array.isArray(value)) {
+                    setValue('spicyLevel', value);
+                  } else {
+                    setValue('spicyLevel', [value]);
+                  }
+                }}
                 label="Spicy Level"
                 placeholder="Select spicy level"
                 isMultiSelect={true}
@@ -790,7 +1021,14 @@ export const AddMenuItem: React.FC = () => {
                 type="preparation"
                 parentCategoryId={selectedParentCategory}
                 selectedValue={watch('preparation') || []}
-                onValueChange={(value) => setValue('preparation', value as string[])}
+                onValueChange={(value) => {
+                  // Handle both single values and arrays
+                  if (Array.isArray(value)) {
+                    setValue('preparation', value);
+                  } else {
+                    setValue('preparation', [value]);
+                  }
+                }}
                 label="Preparation Methods"
                 placeholder="Select preparation methods"
                 isMultiSelect={true}

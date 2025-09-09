@@ -21,6 +21,7 @@ import {
   Menu as MenuIcon,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import logo from '../../assets/logo.png';
 
 interface NavItem {
   title: string;
@@ -79,27 +80,32 @@ export const AdminSidebar: React.FC = () => {
 
   return (
     <Sidebar className={isCollapsed ? "w-14" : "w-64"} collapsible="icon">
-      <SidebarContent className="bg-sidebar border-r border-sidebar-border">
-        <div className="p-6 border-b border-sidebar-border">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Utensils className="h-5 w-5 text-primary-foreground" />
+      <SidebarContent
+        className="bg-sidebar border-r border-sidebar-border"
+        logo={<img src={logo} alt="Logo" width={36} height={36} />}
+      >
+        {/* Only render the header section when expanded */}
+        {!isCollapsed && (
+          <div className="p-6 border-b border-sidebar-border">
+            <div className="flex items-center gap-3">
+              <img src={logo} alt="Logo" width={50} height={50} />
+                <div>
+                  <h2 className="font-bold text-sidebar-foreground">Peppino's Dosa</h2>
+                  <p className="text-xs text-sidebar-foreground/60">Restaurant Management</p>
+                </div>
             </div>
-            {!isCollapsed && (
-              <div>
-                <h2 className="font-bold text-sidebar-foreground">FoodAdmin</h2>
-                <p className="text-xs text-sidebar-foreground/60">Restaurant Management</p>
-              </div>
-            )}
           </div>
-        </div>
+        )}
 
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
               {filteredNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.title}
+                  >
                     <NavLink
                       to={item.url}
                       end

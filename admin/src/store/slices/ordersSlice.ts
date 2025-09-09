@@ -3,59 +3,101 @@ import { api } from '../../services/api';
 
 // Types
 export interface OrderItem {
-  menuItem: {
+  _id: string;
+  menu: {
     _id: string;
     name: string;
-    images: { url: string }[];
+    images: Array<{
+      public_id: string;
+      url: string;
+      width: number;
+      height: number;
+      _id: string;
+    }>;
+    discountedPrice: number;
   };
+  menuName: string;
+  menuImage: string;
   quantity: number;
+  size: string;
   price: number;
-  size?: string;
-  addons?: string[];
+  addons: Array<{
+    name: string;
+    price: number;
+    _id: string;
+  }>;
+  specialInstructions: string;
+  itemTotal: number;
+}
+
+export interface OrderUser {
+  _id: string;
+  name: string;
+  email: string;
+  phoneNumber: string;
+  role: 'customer' | 'guest';
+  sessionId?: string;
+}
+
+export interface DeliveryAddress {
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+  phoneNumber: string;
 }
 
 export interface Order {
   _id: string;
   orderNumber: string;
-  user: {
-    _id: string;
-    name: string;
-    email: string;
-    phoneNumber?: string;
-  };
+  user: OrderUser;
   items: OrderItem[];
-  totalAmount: number;
-  discountAmount: number;
-  deliveryFee: number;
-  status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'out-for-delivery' | 'delivered' | 'cancelled';
+  deliveryAddress: DeliveryAddress;
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
-  paymentMethod: 'card' | 'cash' | 'upi';
-  deliveryAddress: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-  estimatedDeliveryTime?: string;
-  actualDeliveryTime?: string;
-  notes?: string;
-  statusHistory: {
-    status: string;
-    timestamp: string;
-    note?: string;
-  }[];
+  deliveryStatus: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'out_for_delivery' | 'delivered' | 'cancelled';
+  subtotal: number;
+  deliveryFee: number;
+  tax: number;
+  discount: number;
+  totalPrice: number;
+  orderType: 'delivery' | 'pickup';
+  timing: 'asap' | 'scheduled';
+  paymentMethod: string;
+  estimatedDeliveryTime: string;
+  specialInstructions: string;
+  refundAmount: number;
   createdAt: string;
   updatedAt: string;
+  customerType: 'guest' | 'registered';
+  isGuestOrder: boolean;
 }
 
 export interface OrderStats {
-  totalOrders: number;
-  pendingOrders: number;
-  completedOrders: number;
-  cancelledOrders: number;
-  totalRevenue: number;
-  averageOrderValue: number;
+  overview: {
+    totalOrders: number;
+    totalRevenue: number;
+    averageOrderValue: number | null;
+    pendingOrders: number;
+    confirmedOrders: number;
+    preparingOrders: number;
+    readyOrders: number;
+    completedOrders: number;
+    cancelledOrders: number;
+    paidOrders: number;
+    pendingPayments: number;
+  };
+  dailyRevenue: Array<{
+    date: string;
+    revenue: number;
+    orderCount: number;
+  }>;
+  topMenus: Array<{
+    _id: string;
+    totalQuantity: number;
+    totalRevenue: number;
+    menuName: string;
+  }>;
 }
 
 export interface OrdersState {
@@ -74,6 +116,7 @@ export interface OrdersState {
     search: string;
     status: string;
     paymentStatus: string;
+    deliveryStatus: string;
     startDate: string;
     endDate: string;
     sortBy: string;
@@ -98,6 +141,7 @@ const initialState: OrdersState = {
     search: '',
     status: '',
     paymentStatus: '',
+    deliveryStatus: '',
     startDate: '',
     endDate: '',
     sortBy: 'createdAt',
@@ -114,6 +158,7 @@ export const fetchOrders = createAsyncThunk(
     search?: string;
     status?: string;
     paymentStatus?: string;
+    deliveryStatus?: string;
     startDate?: string;
     endDate?: string;
     sortBy?: string;
@@ -160,10 +205,15 @@ export const fetchOrderById = createAsyncThunk(
 
 export const updateOrderStatus = createAsyncThunk(
   'orders/updateOrderStatus',
-  async ({ orderId, status, note }: { orderId: string; status: string; note?: string }, { rejectWithValue }) => {
+  async (params: {
+    orderId: string;
+    paymentStatus?: string;
+    deliveryStatus?: string;
+  }, { rejectWithValue }) => {
     try {
-      const response = await api.put(`/api/admin/orders/${orderId}/status`, { status, note });
-      
+      const { orderId, ...updateData } = params;
+      const response = await api.put(`/api/admin/orders/${orderId}/status`, updateData);
+
       if (response.success) {
         return response.data.order;
       } else {
@@ -218,11 +268,11 @@ export const exportOrders = createAsyncThunk(
       });
 
       const response = await api.get(`/api/admin/orders/export?${queryParams.toString()}`);
-      
-      if (response.success) {
-        return response.data;
+
+      if (response.success || typeof response === 'string') {
+        return response;
       } else {
-        return rejectWithValue(response.message || 'Failed to export orders');
+        return rejectWithValue('Failed to export orders');
       }
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to export orders');

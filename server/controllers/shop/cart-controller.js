@@ -105,19 +105,37 @@ const addToCart = async (req, res) => {
     }
 
     // Validate size
-    if (!menuItem.sizes.includes(size)) {
+    let validSize = false;
+    if (Array.isArray(menuItem.sizes)) {
+      // Handle both string array and object array formats
+      validSize = menuItem.sizes.some(s =>
+        typeof s === 'string' ? s === size : s.name === size
+      );
+    }
+
+    if (!validSize) {
       return res.status(400).json({
         success: false,
         message: 'Invalid size selected'
       });
     }
 
-    // Validate addons
-    const validAddons = addons.filter(addon =>
-      menuItem.addons.some(menuItemAddon =>
-        menuItemAddon._id.toString() === addon.id && addon.quantity > 0
-      )
-    );
+    // Validate and process addons
+    const validAddons = addons ? addons.map(addon => {
+      const menuItemAddon = menuItem.addons.find(menuAddon =>
+        menuAddon._id.toString() === addon.id
+      );
+
+      if (!menuItemAddon || !addon.quantity || addon.quantity <= 0) {
+        return null;
+      }
+
+      return {
+        name: menuItemAddon.name,
+        price: menuItemAddon.price,
+        quantity: addon.quantity
+      };
+    }).filter(addon => addon !== null) : [];
 
     // Find or create cart
     let cart = await Cart.findOne({ user: req.user._id });
@@ -145,7 +163,7 @@ const addToCart = async (req, res) => {
 
       // Recalculate pricing for updated quantity
       const basePrice = menuItem.discountedPrice || menuItem.mrp;
-      const addonsTotal = validAddons.reduce((total, addon) => total + addon.price, 0);
+      const addonsTotal = validAddons.reduce((total, addon) => total + (addon.price * addon.quantity), 0);
       const priceAtTime = basePrice;
       const itemTotal = (basePrice + addonsTotal) * newQuantity;
 
@@ -155,7 +173,7 @@ const addToCart = async (req, res) => {
     } else {
       // Calculate pricing
       const basePrice = menuItem.discountedPrice || menuItem.mrp;
-      const addonsTotal = validAddons.reduce((total, addon) => total + addon.price, 0);
+      const addonsTotal = validAddons.reduce((total, addon) => total + (addon.price * addon.quantity), 0);
       const priceAtTime = basePrice;
       const itemTotal = (basePrice + addonsTotal) * quantity;
 

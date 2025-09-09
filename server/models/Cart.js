@@ -210,6 +210,28 @@ cartSchema.statics.getOrCreateCart = async function(userId) {
   return cart;
 };
 
+// Static method to cleanup old guest carts (older than 7 days)
+cartSchema.statics.cleanupOldGuestCarts = async function() {
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+  // Find guest users with old carts
+  const User = require('./User');
+  const oldGuestUsers = await User.find({
+    role: 'guest',
+    updatedAt: { $lt: sevenDaysAgo }
+  }).select('_id');
+
+  const oldGuestUserIds = oldGuestUsers.map(user => user._id);
+
+  // Delete old guest carts
+  const result = await this.deleteMany({ user: { $in: oldGuestUserIds } });
+
+  // Delete old guest users
+  await User.deleteMany({ _id: { $in: oldGuestUserIds } });
+
+  return result;
+};
+
 // Ensure virtuals are included in JSON output
 cartSchema.set('toJSON', { virtuals: true });
 cartSchema.set('toObject', { virtuals: true });

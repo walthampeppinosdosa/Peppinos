@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: function() {
-      return !this.googleId; // Password required only if not OAuth user
+      return !this.googleId && this.role !== 'guest'; // Password not required for OAuth users or guests
     },
     minlength: [6, 'Password must be at least 6 characters'],
     select: false // Don't include password in queries by default
@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['super-admin', 'veg-admin', 'non-veg-admin', 'customer'],
+    enum: ['super-admin', 'veg-admin', 'non-veg-admin', 'customer', 'guest'],
     default: 'customer'
   },
   googleId: {
@@ -58,6 +58,14 @@ const userSchema = new mongoose.Schema({
   },
   profileImage: {
     type: String // URL to profile image
+  },
+  // Session ID for guest users
+  sessionId: {
+    type: String,
+    required: function() {
+      return this.role === 'guest';
+    },
+    sparse: true // Allows multiple null values but unique non-null values
   }
 }, {
   timestamps: true
@@ -65,6 +73,7 @@ const userSchema = new mongoose.Schema({
 
 // Index for better query performance (email and googleId already have unique indexes)
 userSchema.index({ role: 1 });
+// sessionId index is automatically created by sparse: true option
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {

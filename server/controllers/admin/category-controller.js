@@ -334,15 +334,51 @@ const updateCategory = async (req, res) => {
       description,
       isVegetarian,
       sortOrder,
-      isActive
+      isActive,
+      imageToDelete
     } = req.body;
 
+    // Determine if this is a vegetarian category
+    // For parent categories, use isVegetarian directly
+    // For menu categories, use parent category's isVegetarian
+    const categoryIsVegetarian = category.type === 'parent'
+      ? category.isVegetarian
+      : category.parentCategory?.isVegetarian;
+
     // Check if user can update this type of category
-    if (!canPerformAction(req.user.role, 'update', category.isVegetarian)) {
+    if (!canPerformAction(req.user.role, 'update', categoryIsVegetarian)) {
       return res.status(403).json({
         success: false,
-        message: `You cannot update ${category.isVegetarian ? 'vegetarian' : 'non-vegetarian'} categories`
+        message: `Access denied. You cannot update ${categoryIsVegetarian ? 'vegetarian' : 'non-vegetarian'} categorys.`
       });
+    }
+
+    // Handle explicit image deletion (when user removes image without uploading new one)
+    if (imageToDelete && !req.file) {
+      try {
+        // Extract public_id from Cloudinary URL
+        const url = imageToDelete;
+        const urlParts = url.split('/');
+        const publicIdWithExtension = urlParts[urlParts.length - 1];
+        const publicId = publicIdWithExtension.split('.')[0];
+
+        // Check if the URL contains a folder structure
+        const folderIndex = urlParts.findIndex(part => part === 'upload');
+        if (folderIndex !== -1 && folderIndex + 2 < urlParts.length) {
+          // Skip version (v123456) and get folder + public_id
+          const pathAfterUpload = urlParts.slice(folderIndex + 2).join('/');
+          const finalPublicId = pathAfterUpload.replace(/\.[^/.]+$/, ''); // Remove extension
+          await deleteFromCloudinary(finalPublicId);
+        } else {
+          await deleteFromCloudinary(`categories/${publicId}`);
+        }
+
+        // Remove image from category
+        category.image = undefined;
+      } catch (deleteError) {
+        console.error('Failed to delete image from Cloudinary:', deleteError);
+        // Continue with update even if deletion fails
+      }
     }
 
     // Handle new image upload
@@ -401,11 +437,18 @@ const deleteCategory = async (req, res) => {
   try {
     const category = req.category; // Loaded by middleware
 
+    // Determine if this is a vegetarian category
+    // For parent categories, use isVegetarian directly
+    // For menu categories, use parent category's isVegetarian
+    const isVegetarian = category.type === 'parent'
+      ? category.isVegetarian
+      : category.parentCategory?.isVegetarian;
+
     // Check if user can delete this type of category
-    if (!canPerformAction(req.user.role, 'delete', category.isVegetarian)) {
+    if (!canPerformAction(req.user.role, 'delete', isVegetarian)) {
       return res.status(403).json({
         success: false,
-        message: `You cannot delete ${category.isVegetarian ? 'vegetarian' : 'non-vegetarian'} categories`
+        message: `Access denied. You cannot delete ${isVegetarian ? 'vegetarian' : 'non-vegetarian'} categorys.`
       });
     }
 

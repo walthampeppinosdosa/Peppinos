@@ -92,8 +92,10 @@ const orderSchema = new mongoose.Schema({
   orderNumber: {
     type: String,
     unique: true,
-    required: true
+    required: false, // Will be set in pre-save hook
+    default: null
   },
+  // User reference (works for both regular customers and guest users)
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -147,10 +149,45 @@ const orderSchema = new mongoose.Schema({
     required: [true, 'Total price is required'],
     min: [0, 'Total price cannot be negative']
   },
+  // Order type: pickup or delivery
+  orderType: {
+    type: String,
+    enum: ['pickup', 'delivery'],
+    required: [true, 'Order type is required'],
+    default: 'delivery'
+  },
+  // Timing: ASAP or scheduled
+  timing: {
+    type: String,
+    enum: ['asap', 'scheduled'],
+    required: [true, 'Timing is required'],
+    default: 'asap'
+  },
+  // Scheduled date and time (only for scheduled orders)
+  scheduledDate: {
+    type: Date,
+    required: function() {
+      return this.timing === 'scheduled';
+    }
+  },
+  scheduledTime: {
+    type: String, // Format: "HH:MM" (e.g., "14:30")
+    required: function() {
+      return this.timing === 'scheduled';
+    },
+    validate: {
+      validator: function(time) {
+        if (this.timing !== 'scheduled') return true;
+        return /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time);
+      },
+      message: 'Scheduled time must be in HH:MM format'
+    }
+  },
   paymentMethod: {
     type: String,
-    enum: ['card', 'cash', 'digital_wallet'],
-    default: 'card'
+    enum: ['pay_online', 'pay_in_store'],
+    required: [true, 'Payment method is required'],
+    default: 'pay_online'
   },
   stripePaymentIntentId: {
     type: String
@@ -160,6 +197,11 @@ const orderSchema = new mongoose.Schema({
   },
   actualDeliveryTime: {
     type: Date
+  },
+  specialInstructions: {
+    type: String,
+    trim: true,
+    maxlength: [500, 'Special instructions cannot exceed 500 characters']
   },
   notes: {
     type: String,
@@ -179,8 +221,17 @@ const orderSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Custom validation
+orderSchema.pre('validate', function(next) {
+  // For pickup orders, delivery address is not required
+  if (this.orderType === 'pickup') {
+    this.deliveryAddress = undefined;
+  }
+
+  next();
+});
+
 // Indexes (orderNumber already has unique index from schema definition)
-// Compound user index covers simple user queries, so no separate user index needed
 orderSchema.index({ paymentStatus: 1 });
 orderSchema.index({ deliveryStatus: 1 });
 orderSchema.index({ createdAt: -1 });
@@ -188,10 +239,24 @@ orderSchema.index({ 'user': 1, 'createdAt': -1 });
 
 // Pre-save middleware to generate order number
 orderSchema.pre('save', async function(next) {
-  if (this.isNew) {
-    const count = await this.constructor.countDocuments();
-    this.orderNumber = `ORD-${Date.now()}-${(count + 1).toString().padStart(4, '0')}`;
+  if (this.isNew && !this.orderNumber) {
+    try {
+      const count = await this.constructor.countDocuments();
+      // Check if user is a guest by populating the user field
+      await this.populate('user', 'role');
+      const prefix = this.user?.role === 'guest' ? 'GUEST' : 'ORD';
+      this.orderNumber = `${prefix}-${Date.now()}-${(count + 1).toString().padStart(4, '0')}`;
+    } catch (error) {
+      console.error('Error in order pre-save hook:', error);
+      return next(error);
+    }
   }
+
+  // Validate that orderNumber is set
+  if (!this.orderNumber) {
+    return next(new Error('Order number must be generated'));
+  }
+
   next();
 });
 
@@ -226,6 +291,33 @@ orderSchema.methods.calculatePreparationTime = function() {
   }, 0);
 };
 
+// Static method to find guest orders by email
+orderSchema.statics.findGuestOrdersByEmail = function(email) {
+  return this.find({ user: { $exists: true } })
+    .populate({
+      path: 'user',
+      match: { role: 'guest', email: email }
+    })
+    .then(orders => orders.filter(order => order.user)) // Filter out orders where user didn't match
+    .sort({ createdAt: -1 });
+};
+
+// Static method to find guest orders by session ID
+orderSchema.statics.findGuestOrdersBySession = function(sessionId) {
+  return this.find({ user: { $exists: true } })
+    .populate({
+      path: 'user',
+      match: { role: 'guest', sessionId: sessionId }
+    })
+    .then(orders => orders.filter(order => order.user)) // Filter out orders where user didn't match
+    .sort({ createdAt: -1 });
+};
+
+// Virtual to identify order type
+orderSchema.virtual('isGuestOrder').get(function() {
+  return this.user?.role === 'guest';
+});
+
 // Static method to get order statistics
 orderSchema.statics.getOrderStats = function(startDate, endDate) {
   const matchStage = {};
@@ -241,6 +333,12 @@ orderSchema.statics.getOrderStats = function(startDate, endDate) {
         totalOrders: { $sum: 1 },
         totalRevenue: { $sum: '$totalPrice' },
         averageOrderValue: { $avg: '$totalPrice' },
+        guestOrders: {
+          $sum: { $cond: [{ $eq: ['$user.role', 'guest'] }, 1, 0] }
+        },
+        userOrders: {
+          $sum: { $cond: [{ $ne: ['$user.role', 'guest'] }, 1, 0] }
+        },
         pendingOrders: {
           $sum: { $cond: [{ $eq: ['$deliveryStatus', 'pending'] }, 1, 0] }
         },

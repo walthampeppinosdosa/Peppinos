@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const { corsOptions, helmetConfig, mongoSanitize, generalLimiter, authLimiter } = require('./middleware/security-middleware');
+const { corsOptions, helmetConfig, mongoSanitize, generalLimiter, authLimiter, adminApiLimiter } = require('./middleware/security-middleware');
 require('dotenv').config();
 
 const app = express();
@@ -33,6 +33,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/peppinos'
 // Routes
 app.use('/api/auth', authLimiter);
 app.use('/api/auth', require('./routes/auth/auth-routes'));
+app.use('/api/admin', adminApiLimiter); // Apply admin rate limiting to all admin routes
 app.use('/api/admin/menu', require('./routes/admin/menu-routes')); // New menu routes
 app.use('/api/admin', require('./routes/admin/category-routes'));
 app.use('/api/admin', require('./routes/admin/order-routes'));
@@ -40,6 +41,8 @@ app.use('/api/admin', require('./routes/admin/user-routes'));
 app.use('/api/admin', require('./routes/admin/dashboard-routes'));
 app.use('/api/admin/preparations', require('./routes/admin/preparation-routes'));
 app.use('/api/admin/spicy-levels', require('./routes/admin/spicy-level-routes'));
+// Guest routes must come before other shop routes to avoid authentication conflicts
+app.use('/api/shop/guest', require('./routes/shop/guest-routes'));
 app.use('/api/shop', require('./routes/shop/menu-routes'));
 app.use('/api/shop', require('./routes/shop/cart-routes'));
 app.use('/api/shop', require('./routes/shop/order-routes'));

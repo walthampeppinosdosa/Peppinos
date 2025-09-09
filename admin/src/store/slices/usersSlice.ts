@@ -138,7 +138,7 @@ export const updateUserRole = createAsyncThunk(
   async ({ userId, role }: { userId: string; role: string }, { rejectWithValue }) => {
     try {
       const response = await api.put(`/api/admin/users/${userId}/role`, { role });
-      
+
       if (response.success) {
         return response.data.user;
       } else {
@@ -146,6 +146,23 @@ export const updateUserRole = createAsyncThunk(
       }
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update user role');
+    }
+  }
+);
+
+export const updateUser = createAsyncThunk(
+  'users/updateUser',
+  async ({ userId, userData }: { userId: string; userData: any }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(`/api/admin/users/${userId}`, userData);
+
+      if (response.success) {
+        return response.data.user;
+      } else {
+        return rejectWithValue(response.message || 'Failed to update user');
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update user');
     }
   }
 );
@@ -270,6 +287,28 @@ const usersSlice = createSlice({
         state.error = null;
       })
       .addCase(updateUserRole.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Update User
+    builder
+      .addCase(updateUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const index = state.users.findIndex(u => u._id === action.payload._id);
+        if (index !== -1) {
+          state.users[index] = action.payload;
+        }
+        if (state.currentUser?._id === action.payload._id) {
+          state.currentUser = action.payload;
+        }
+        state.error = null;
+      })
+      .addCase(updateUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });

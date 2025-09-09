@@ -479,6 +479,108 @@ const validateAddress = [
 ];
 
 /**
+ * Validation rules for guest cart operations
+ */
+const validateGuestAddToCart = [
+  body('menuItemId')
+    .isMongoId()
+    .withMessage('Valid menu item ID is required'),
+  body('quantity')
+    .optional()
+    .isInt({ min: 1, max: 10 })
+    .withMessage('Quantity must be between 1 and 10'),
+  body('size')
+    .optional()
+    .isIn(['Small', 'Medium', 'Large'])
+    .withMessage('Size must be Small, Medium, or Large'),
+  body('addons')
+    .optional()
+    .isArray()
+    .withMessage('Addons must be an array'),
+  body('addons.*.id')
+    .optional()
+    .isMongoId()
+    .withMessage('Valid addon ID is required'),
+  body('addons.*.quantity')
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage('Addon quantity must be at least 1'),
+  body('specialInstructions')
+    .optional()
+    .isLength({ max: 200 })
+    .withMessage('Special instructions cannot exceed 200 characters')
+];
+
+const validateGuestUpdateCartItem = [
+  body('quantity')
+    .isInt({ min: 0, max: 10 })
+    .withMessage('Quantity must be between 0 and 10')
+];
+
+const validateGuestCheckout = [
+  body('sessionId')
+    .notEmpty()
+    .withMessage('Session ID is required'),
+  body('customer.name')
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Customer name must be between 2 and 50 characters'),
+  body('customer.email')
+    .isEmail()
+    .normalizeEmail()
+    .withMessage('Valid email is required'),
+  body('customer.phoneNumber')
+    .matches(/^\+?[\d\s-()]+$/)
+    .withMessage('Valid phone number is required'),
+  body('orderType')
+    .isIn(['pickup', 'delivery'])
+    .withMessage('Order type must be pickup or delivery'),
+  body('timing')
+    .isIn(['asap', 'scheduled'])
+    .withMessage('Timing must be asap or scheduled'),
+  body('scheduledDate')
+    .if(body('timing').equals('scheduled'))
+    .isISO8601()
+    .withMessage('Valid scheduled date is required for scheduled orders'),
+  body('scheduledTime')
+    .if(body('timing').equals('scheduled'))
+    .matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
+    .withMessage('Scheduled time must be in HH:MM format'),
+  body('deliveryAddress.street')
+    .if(body('orderType').equals('delivery'))
+    .trim()
+    .notEmpty()
+    .withMessage('Street address is required for delivery orders'),
+  body('deliveryAddress.city')
+    .if(body('orderType').equals('delivery'))
+    .trim()
+    .notEmpty()
+    .withMessage('City is required for delivery orders'),
+  body('deliveryAddress.state')
+    .if(body('orderType').equals('delivery'))
+    .trim()
+    .notEmpty()
+    .withMessage('State is required for delivery orders'),
+  body('deliveryAddress.zipCode')
+    .if(body('orderType').equals('delivery'))
+    .trim()
+    .notEmpty()
+    .withMessage('ZIP code is required for delivery orders'),
+  body('deliveryAddress.country')
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage('Country cannot be empty if provided'),
+  body('paymentMethod')
+    .isIn(['pay_online', 'pay_in_store'])
+    .withMessage('Payment method must be pay_online or pay_in_store'),
+  body('specialInstructions')
+    .optional()
+    .isLength({ max: 500 })
+    .withMessage('Special instructions cannot exceed 500 characters')
+];
+
+/**
  * Middleware to handle validation errors
  */
 const handleValidationErrors = (req, res, next) => {
@@ -507,5 +609,8 @@ module.exports = {
   validateAddToCart,
   validateUpdateCartItem,
   validateAddress,
+  validateGuestAddToCart,
+  validateGuestUpdateCartItem,
+  validateGuestCheckout,
   handleValidationErrors
 };

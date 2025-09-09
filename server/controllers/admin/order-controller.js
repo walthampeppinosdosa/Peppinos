@@ -3,7 +3,7 @@ const User = require('../../models/User');
 const { validationResult } = require('express-validator');
 
 /**
- * Get all orders with filtering and pagination
+ * Get all orders (both regular and guest) with filtering and pagination
  * GET /api/admin/orders
  */
 const getAllOrders = async (req, res) => {
@@ -65,7 +65,7 @@ const getAllOrders = async (req, res) => {
 
     // Execute query with pagination
     const orders = await Order.find(query)
-      .populate('user', 'name email phoneNumber')
+      .populate('user', 'name email phoneNumber role sessionId')
       .populate('items.menu', 'name images discountedPrice')
       .sort(sortOptions)
       .limit(limit * 1)
@@ -75,11 +75,18 @@ const getAllOrders = async (req, res) => {
     // Get total count for pagination
     const total = await Order.countDocuments(query);
 
+    // Add customer type information to orders
+    const ordersWithCustomerType = orders.map(order => ({
+      ...order,
+      customerType: order.user?.role === 'guest' ? 'guest' : 'registered',
+      isGuestOrder: order.user?.role === 'guest'
+    }));
+
     res.status(200).json({
       success: true,
       message: 'Orders retrieved successfully',
       data: {
-        orders,
+        orders: ordersWithCustomerType,
         pagination: {
           currentPage: parseInt(page),
           totalPages: Math.ceil(total / limit),
@@ -106,10 +113,17 @@ const getOrderById = async (req, res) => {
   try {
     const order = req.order; // Loaded by middleware
 
+    // Add customer type information
+    const orderWithCustomerType = {
+      ...order.toObject(),
+      customerType: order.user?.role === 'guest' ? 'guest' : 'registered',
+      isGuestOrder: order.user?.role === 'guest'
+    };
+
     res.status(200).json({
       success: true,
       message: 'Order retrieved successfully',
-      data: { order }
+      data: { order: orderWithCustomerType }
     });
   } catch (error) {
     console.error('Get order error:', error);
