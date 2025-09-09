@@ -46,12 +46,9 @@ const requireResourcePermission = (action, resourceType) => {
       });
     }
 
-    // Super admin has read-only access
-    if (req.user.role === 'super-admin' && action !== 'view') {
-      return res.status(403).json({
-        success: false,
-        message: 'Super admin has read-only access'
-      });
+    // Super admin has full access to all resources
+    if (req.user.role === 'super-admin') {
+      return next();
     }
 
     // For create operations, check the request body
@@ -110,17 +107,11 @@ const addRoleBasedFilter = (req, res, next) => {
 
 /**
  * Middleware to prevent write operations for read-only roles
+ * Note: Super admin now has full access, so this middleware is mainly for future read-only roles
  */
 const preventWriteForReadOnly = (req, res, next) => {
-  if (req.user && req.user.role === 'super-admin') {
-    const writeOperations = ['POST', 'PUT', 'PATCH', 'DELETE'];
-    if (writeOperations.includes(req.method)) {
-      return res.status(403).json({
-        success: false,
-        message: 'Super admin has read-only access. Write operations are not allowed.'
-      });
-    }
-  }
+  // Currently no read-only roles defined
+  // This middleware is kept for future use
   next();
 };
 

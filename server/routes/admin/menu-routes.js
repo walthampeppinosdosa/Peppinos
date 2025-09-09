@@ -24,6 +24,7 @@ const {
   handleValidationErrors
 } = require('../../middleware/validation-middleware');
 const { uploadMenuItemImages, handleMulterError } = require('../../helpers/upload-middleware');
+const { parseFormDataJSON } = require('../../middleware/form-data-parser');
 
 // Apply authentication and admin check to all routes
 router.use(authenticateToken);
@@ -46,6 +47,7 @@ router.get('/',
 router.post('/',
   uploadMenuItemImages,
   handleMulterError,
+  parseFormDataJSON,
   validateMenuItem,
   handleValidationErrors,
   requireResourcePermission('create', 'menu'),
@@ -54,7 +56,7 @@ router.post('/',
 
 // GET /api/admin/menu/:id - Get single menu item
 router.get('/:id',
-  validateObjectId,
+  validateObjectId(),
   loadMenuItem,
   checkVegNonVegAccess,
   getMenuItemById
@@ -62,10 +64,11 @@ router.get('/:id',
 
 // PUT /api/admin/menu/:id - Update menu item
 router.put('/:id',
-  validateObjectId,
+  validateObjectId(),
   loadMenuItem,
   uploadMenuItemImages,
   handleMulterError,
+  parseFormDataJSON,
   validateMenuItem,
   handleValidationErrors,
   requireResourcePermission('update', 'menu'),
@@ -75,7 +78,7 @@ router.put('/:id',
 
 // DELETE /api/admin/menu/:id - Delete menu item
 router.delete('/:id',
-  validateObjectId,
+  validateObjectId(),
   loadMenuItem,
   requireResourcePermission('delete', 'menu'),
   checkVegNonVegAccess,

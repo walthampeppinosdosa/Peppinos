@@ -5,6 +5,8 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import authSlice from './slices/authSlice';
 import menuSlice from './slices/menuSlice';
 import categoriesSlice from './slices/categoriesSlice';
+import preparationSlice from './slices/preparationSlice';
+import spicyLevelSlice from './slices/spicyLevelSlice';
 import ordersSlice from './slices/ordersSlice';
 import usersSlice from './slices/usersSlice';
 import reviewsSlice from './slices/reviewsSlice';
@@ -19,6 +21,8 @@ export const store = configureStore({
     auth: authSlice,
     menu: menuSlice,
     categories: categoriesSlice,
+    preparations: preparationSlice,
+    spicyLevels: spicyLevelSlice,
     orders: ordersSlice,
     users: usersSlice,
     reviews: reviewsSlice,

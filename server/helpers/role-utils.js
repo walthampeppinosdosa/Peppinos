@@ -48,15 +48,30 @@ const PERMISSIONS = {
  */
 const ROLE_PERMISSIONS = {
   [ROLES.SUPER_ADMIN]: [
+    // View permissions
     PERMISSIONS.VIEW_ALL_MENU_ITEMS,
     PERMISSIONS.VIEW_ALL_CATEGORIES,
     PERMISSIONS.VIEW_ALL_ORDERS,
     PERMISSIONS.VIEW_ALL_USERS,
+    // Write permissions for menu items
+    PERMISSIONS.CREATE_VEG_MENU_ITEMS,
+    PERMISSIONS.CREATE_NON_VEG_MENU_ITEMS,
+    PERMISSIONS.UPDATE_VEG_MENU_ITEMS,
+    PERMISSIONS.UPDATE_NON_VEG_MENU_ITEMS,
+    PERMISSIONS.DELETE_VEG_MENU_ITEMS,
+    PERMISSIONS.DELETE_NON_VEG_MENU_ITEMS,
+    // Write permissions for categories
+    PERMISSIONS.CREATE_VEG_CATEGORIES,
+    PERMISSIONS.CREATE_NON_VEG_CATEGORIES,
+    PERMISSIONS.UPDATE_VEG_CATEGORIES,
+    PERMISSIONS.UPDATE_NON_VEG_CATEGORIES,
+    PERMISSIONS.DELETE_VEG_CATEGORIES,
+    PERMISSIONS.DELETE_NON_VEG_CATEGORIES,
+    // Other permissions
     PERMISSIONS.UPDATE_USER_ROLES,
     PERMISSIONS.MODERATE_REVIEWS,
     PERMISSIONS.VIEW_ANALYTICS,
     PERMISSIONS.EXPORT_REPORTS
-    // Note: Super admin has read-only access, no create/update/delete permissions
   ],
 
   [ROLES.VEG_ADMIN]: [
@@ -158,9 +173,9 @@ const getRoleBasedFilter = (role) => {
  * @returns {boolean} - Whether action is allowed
  */
 const canPerformAction = (role, action, isVegetarian) => {
-  // Super admin is read-only
+  // Super admin has full access to all resources
   if (role === ROLES.SUPER_ADMIN) {
-    return action === 'view';
+    return true;
   }
   
   // Customers can't perform admin actions

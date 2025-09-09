@@ -28,6 +28,24 @@ const imageSchema = new mongoose.Schema({
   height: Number
 }, { _id: true });
 
+// Size sub-schema
+const sizeSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, 'Size name is required'],
+    trim: true
+  },
+  price: {
+    type: Number,
+    required: [true, 'Size price is required'],
+    min: [0, 'Size price cannot be negative']
+  },
+  isDefault: {
+    type: Boolean,
+    default: false
+  }
+}, { _id: true });
+
 const menuSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -76,22 +94,35 @@ const menuSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Quantity is required'],
     min: [0, 'Quantity cannot be negative'],
-    default: 0
+    default: 1
   },
   sizes: {
-    type: [String],
-    enum: ['Small', 'Medium', 'Large'],
-    default: ['Medium']
+    type: [sizeSchema],
+    required: [true, 'At least one size is required'],
+    validate: {
+      validator: function(sizes) {
+        return sizes && sizes.length > 0;
+      },
+      message: 'At least one size is required'
+    }
   },
   isVegetarian: {
     type: Boolean,
     required: [true, 'Vegetarian status is required'],
     default: true
   },
-  spicyLevel: {
+  spicyLevel: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'SpicyLevel'
+  }],
+  preparations: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Preparation'
+  }],
+  specialInstructions: {
     type: String,
-    enum: ['Not Applicable', 'Mild', 'Medium', 'Hot', 'Extra Hot'],
-    default: 'Not Applicable'
+    trim: true,
+    maxlength: [500, 'Special instructions cannot exceed 500 characters']
   },
   preparationTime: {
     type: Number,

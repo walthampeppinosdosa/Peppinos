@@ -59,11 +59,6 @@ const navItems: NavItem[] = [
     roles: ['veg-admin', 'non-veg-admin', 'super-admin'],
   },
   {
-    title: 'Addresses',
-    url: '/addresses',
-    icon: MapPin,
-  },
-  {
     title: 'Reports',
     url: '/reports',
     icon: BarChart3,

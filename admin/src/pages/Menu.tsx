@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { fetchMenuItems } from '@/store/slices/menuSlice';
+import { fetchMenuItems, deleteMenuItem } from '@/store/slices/menuSlice';
+import { useAlert } from '@/hooks/useAlert';
 import { 
   Search, 
   Plus, 
@@ -25,37 +27,99 @@ import {
 
 export const Menu: React.FC = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { showAlert } = useAlert();
   const { user: currentUser, canManageVeg, canManageNonVeg, canManageMenuItem } = useAuth();
   const { menuItems, isLoading, error } = useAppSelector((state) => state.menu);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
 
+  // Delete confirmation dialog state
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{ id: string; name: string } | null>(null);
+
   useEffect(() => {
     dispatch(fetchMenuItems({}));
   }, [dispatch]);
 
   const handleExport = () => {
-    // TODO: Implement export functionality
-    console.log('Export menu items');
+    try {
+      // Create CSV content
+      const headers = ['Name', 'Description', 'Category', 'Type', 'MRP', 'Discounted Price', 'Quantity', 'Status'];
+      const csvContent = [
+        headers.join(','),
+        ...menuItems.map(item => [
+          `"${item.name}"`,
+          `"${item.description}"`,
+          `"${item.category.name}"`,
+          item.isVegetarian ? 'Vegetarian' : 'Non-Vegetarian',
+          item.mrp,
+          item.discountedPrice,
+          item.quantity,
+          item.isActive ? 'Active' : 'Inactive'
+        ].join(','))
+      ].join('\n');
+
+      // Download CSV
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `menu-items-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showAlert('Menu items exported successfully!', 'success', 'Export Complete');
+    } catch (error) {
+      showAlert('Failed to export menu items', 'error', 'Export Failed');
+    }
   };
 
   const handleEdit = (menuItemId: string) => {
-    // TODO: Navigate to edit page
-    console.log('Edit menu item:', menuItemId);
+    navigate(`/menu/edit/${menuItemId}`);
   };
 
   const handleView = (menuItemId: string) => {
-    // TODO: Navigate to view page or open modal
-    console.log('View menu item:', menuItemId);
+    navigate(`/menu/view/${menuItemId}`);
   };
 
   const handleDelete = (menuItemId: string) => {
-    // TODO: Implement delete functionality
-    console.log('Delete menu item:', menuItemId);
+    const menuItem = menuItems.find(item => item._id === menuItemId);
+    if (menuItem) {
+      setItemToDelete({ id: menuItemId, name: menuItem.name });
+      setDeleteConfirmOpen(true);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (itemToDelete) {
+      try {
+        await dispatch(deleteMenuItem(itemToDelete.id)).unwrap();
+        showAlert('Menu item deleted successfully!', 'success', 'Delete Complete');
+        // Refresh the menu items list
+        dispatch(fetchMenuItems({}));
+        resetDeleteState();
+      } catch (error: any) {
+        showAlert(error || 'Failed to delete menu item', 'error', 'Delete Failed');
+        resetDeleteState();
+      }
+    }
+  };
+
+  const resetDeleteState = () => {
+    setDeleteConfirmOpen(false);
+    setItemToDelete(null);
   };
 
   const filteredMenuItems = menuItems.filter(menuItem => {
+    // Check if menuItem and required properties exist
+    if (!menuItem || !menuItem.name) {
+      return false;
+    }
+
     const matchesSearch = menuItem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          menuItem.description?.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -67,7 +131,7 @@ export const Menu: React.FC = () => {
       matchesRole = menuItem.isVegetarian === false;
     }
 
-    const matchesCategory = selectedCategory === 'all' || menuItem.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || menuItem.category?.toString() === selectedCategory;
     const matchesType = selectedType === 'all' ||
                        (selectedType === 'veg' && menuItem.isVegetarian) ||
                        (selectedType === 'non-veg' && !menuItem.isVegetarian);
@@ -87,18 +151,7 @@ export const Menu: React.FC = () => {
       : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
   };
 
-  const getSpicyBadgeColor = (spiceLevel: string) => {
-    switch (spiceLevel) {
-      case 'mild':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'medium':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
-      case 'hot':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-    }
-  };
+
 
   const canAddMenuItem = () => {
     return canManageVeg() || canManageNonVeg();
@@ -220,7 +273,7 @@ export const Menu: React.FC = () => {
                       <Star className="h-4 w-4 text-yellow-500 fill-current" />
                     )}
                   </CardTitle>
-                  <CardDescription className="text-sm">{menuItem.category.name}</CardDescription>
+                  <CardDescription className="text-sm">{menuItem.category?.name || 'No Category'}</CardDescription>
                 </div>
                 <Badge className={getTypeBadgeColor(menuItem.isVegetarian)}>
                   {menuItem.isVegetarian ? 'Veg' : 'Non-Veg'}
@@ -237,8 +290,8 @@ export const Menu: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1">
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-semibold">${menuItem.discountedPrice}</span>
-                  {menuItem.mrp > menuItem.discountedPrice && (
+                  <span className="font-semibold">${menuItem.discountedPrice || 0}</span>
+                  {menuItem.mrp && menuItem.discountedPrice && menuItem.mrp > menuItem.discountedPrice && (
                     <span className="text-sm text-muted-foreground line-through">${menuItem.mrp}</span>
                   )}
                 </div>
@@ -247,14 +300,7 @@ export const Menu: React.FC = () => {
                 </Badge>
               </div>
               
-              {menuItem.spicyLevel && (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Spice Level</span>
-                  <Badge className={getSpicyBadgeColor(menuItem.spicyLevel)}>
-                    {menuItem.spicyLevel}
-                  </Badge>
-                </div>
-              )}
+
 
               {menuItem.preparationTime && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -272,7 +318,7 @@ export const Menu: React.FC = () => {
               )}
 
               <div className="text-xs text-muted-foreground">
-                Added: {new Date(menuItem.createdAt).toLocaleDateString()}
+                Added: {menuItem.createdAt ? new Date(menuItem.createdAt).toLocaleDateString() : 'Unknown'}
               </div>
               
               <div className="flex gap-2 pt-2">
@@ -332,6 +378,36 @@ export const Menu: React.FC = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to delete "{itemToDelete?.name}"? This action cannot be undone.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetDeleteState}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDeleteConfirm}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

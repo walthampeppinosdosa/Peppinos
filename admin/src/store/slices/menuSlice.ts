@@ -14,19 +14,49 @@ export interface MenuItem {
   category: {
     _id: string;
     name: string;
+    slug?: string;
+    isVegetarian?: boolean;
+    parentCategory?: {
+      _id: string;
+      name: string;
+      isVegetarian: boolean;
+    };
   };
   images: MenuItemImage[];
   mrp: number;
   discountedPrice: number;
   quantity: number;
+  sizes?: Array<{
+    name: string;
+    price: number;
+    isDefault: boolean;
+  }>;
   isVegetarian: boolean;
-  spicyLevel: 'mild' | 'medium' | 'hot' | 'extra-hot';
+  spicyLevel?: Array<{
+    _id: string;
+    name: string;
+    level: number;
+  }> | string[];
+  preparations?: string[];
+  preparationTime?: number;
+  specialInstructions?: string;
+  addons?: Array<{
+    name: string;
+    price: number;
+  }>;
   tags: string[];
   isActive: boolean;
+  isAvailable?: boolean;
   averageRating: number;
   totalReviews: number;
+  totalSales?: number;
+  featured?: boolean;
+  sortOrder?: number;
+  discountPercentage?: number;
+  availabilityStatus?: string;
   createdAt: string;
   updatedAt: string;
+  id?: string;
 }
 
 export interface MenuState {
@@ -201,7 +231,7 @@ const menuSlice = createSlice({
       })
       .addCase(fetchMenuItemById.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.currentMenuItem = action.payload.data;
+        state.currentMenuItem = action.payload._id ? action.payload : action.payload.data;
       })
       .addCase(fetchMenuItemById.rejected, (state, action) => {
         state.isLoading = false;
@@ -229,12 +259,13 @@ const menuSlice = createSlice({
       })
       .addCase(updateMenuItem.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.menuItems.findIndex(item => item._id === action.payload.data.menuItem._id);
+        const updatedItem = action.payload.data;
+        const index = state.menuItems.findIndex(item => item._id === updatedItem._id);
         if (index !== -1) {
-          state.menuItems[index] = action.payload.data.menuItem;
+          state.menuItems[index] = updatedItem;
         }
-        if (state.currentMenuItem?._id === action.payload.data.menuItem._id) {
-          state.currentMenuItem = action.payload.data.menuItem;
+        if (state.currentMenuItem?._id === updatedItem._id) {
+          state.currentMenuItem = updatedItem;
         }
       })
       .addCase(updateMenuItem.rejected, (state, action) => {

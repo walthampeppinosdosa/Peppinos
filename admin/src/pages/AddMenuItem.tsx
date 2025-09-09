@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -11,20 +11,25 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { createMenuItem } from '@/store/slices/menuSlice';
+import { createMenuItem, updateMenuItem, fetchMenuItemById, clearCurrentMenuItem } from '@/store/slices/menuSlice';
 import { fetchCategories, fetchParentCategories } from '@/store/slices/categoriesSlice';
-import { 
-  ArrowLeft, 
-  Upload, 
-  X, 
+import { fetchSpicyLevelsByCategory } from '@/store/slices/spicyLevelSlice';
+import { fetchPreparationsByCategory } from '@/store/slices/preparationSlice';
+import { InlineItemManager } from '@/components/menu/InlineItemManager';
+import {
+  ArrowLeft,
+  Upload,
+  X,
   Plus,
   Minus,
   Save,
-  Loader2
+  Loader2,
+  GripVertical
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useAlert } from '@/hooks/useAlert';
 
 // Form validation schema
 const menuItemSchema = z.object({
@@ -34,9 +39,14 @@ const menuItemSchema = z.object({
   category: z.string().min(1, 'Category is required'),
   mrp: z.number().min(0, 'MRP must be positive'),
   discountedPrice: z.number().min(0, 'Discounted price must be positive'),
-  quantity: z.number().min(0, 'Quantity must be positive'),
-  sizes: z.array(z.string()).min(1, 'At least one size is required'),
-  spicyLevel: z.string(),
+  quantity: z.number().min(1, 'Quantity must be at least 1').default(1),
+  sizes: z.array(z.object({
+    name: z.string(),
+    price: z.number().min(0),
+    isDefault: z.boolean().optional()
+  })).min(1, 'At least one size is required'),
+  spicyLevel: z.array(z.string()).optional(),
+  preparation: z.array(z.string()).optional(),
   preparationTime: z.number().min(1, 'Preparation time must be at least 1 minute'),
   specialInstructions: z.string().optional(),
   tags: z.array(z.string()).optional(),
@@ -51,10 +61,16 @@ interface Addon {
 
 export const AddMenuItem: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
-  const { user, canManageVeg, canManageNonVeg } = useAuth();
-  const { categories, parentCategories, isLoading: categoriesLoading } = useAppSelector((state) => state.categories);
-  const { isLoading: menuLoading } = useAppSelector((state) => state.menu);
+  const { showAlert } = useAlert();
+  const { user, isSuperAdmin } = useAuth();
+  const { categories, parentCategories } = useAppSelector((state) => state.categories);
+  const { isLoading: menuLoading, currentMenuItem } = useAppSelector((state) => state.menu);
+  const { spicyLevels } = useAppSelector((state) => state.spicyLevels);
+
+  // Determine if this is edit mode
+  const isEditMode = !!id;
 
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -63,6 +79,9 @@ export const AddMenuItem: React.FC = () => {
   const [tagInput, setTagInput] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedParentCategory, setSelectedParentCategory] = useState<string>('');
+  const [customErrors, setCustomErrors] = useState<{[key: string]: string}>({});
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const {
     register,
@@ -70,12 +89,15 @@ export const AddMenuItem: React.FC = () => {
     formState: { errors },
     setValue,
     watch,
-    reset
+    setError,
+    clearErrors
   } = useForm<MenuItemFormData>({
     resolver: zodResolver(menuItemSchema),
     defaultValues: {
-      sizes: ['Medium'],
-      spicyLevel: 'Not Applicable',
+      quantity: 1,
+      sizes: [{ name: 'Medium', price: 0, isDefault: true }],
+      spicyLevel: [],
+      preparation: [],
       preparationTime: 15,
       tags: []
     }
@@ -84,17 +106,126 @@ export const AddMenuItem: React.FC = () => {
   const watchedMrp = watch('mrp');
   const watchedDiscountedPrice = watch('discountedPrice');
 
+  // Fetch menu item data when in edit mode
+  useEffect(() => {
+    if (isEditMode && id && (!currentMenuItem || currentMenuItem._id !== id)) {
+      dispatch(fetchMenuItemById(id));
+    }
+  }, [dispatch, id, isEditMode, currentMenuItem]);
+
+  // Populate form when currentMenuItem is loaded in edit mode
+  useEffect(() => {
+    if (isEditMode && currentMenuItem && currentMenuItem._id === id) {
+      // Populate basic form fields
+      setValue('name', currentMenuItem.name);
+      setValue('description', currentMenuItem.description);
+      setValue('mrp', currentMenuItem.mrp || 0);
+      setValue('discountedPrice', currentMenuItem.discountedPrice || 0);
+      setValue('quantity', currentMenuItem.quantity || 1);
+      setValue('preparationTime', currentMenuItem.preparationTime || 15);
+      setValue('category', currentMenuItem.category._id);
+
+      // Set parent category
+      if (currentMenuItem.category?.isVegetarian !== undefined) {
+        const parentCategoryValue = currentMenuItem.category.isVegetarian ? 'veg' : 'nonveg';
+        setSelectedParentCategory(parentCategoryValue);
+        setValue('parentCategory', parentCategoryValue);
+      }
+
+      // Set spicy levels
+      if (currentMenuItem.spicyLevel && Array.isArray(currentMenuItem.spicyLevel)) {
+        const spicyLevelIds = currentMenuItem.spicyLevel.map((level: any) =>
+          typeof level === 'string' ? level : level._id || level.name
+        );
+        setValue('spicyLevel', spicyLevelIds);
+      }
+
+      // Set preparations
+      if (currentMenuItem.preparations) {
+        setValue('preparation', currentMenuItem.preparations);
+      }
+
+      // Set addons
+      if (currentMenuItem.addons && currentMenuItem.addons.length > 0) {
+        setAddons(currentMenuItem.addons);
+      }
+
+      // Set tags
+      if (currentMenuItem.tags && currentMenuItem.tags.length > 0) {
+        setSelectedTags(currentMenuItem.tags);
+      }
+
+      // Set sizes
+      if (currentMenuItem.sizes && currentMenuItem.sizes.length > 0) {
+        setValue('sizes', currentMenuItem.sizes);
+      }
+
+      // Handle existing images - convert URLs to preview format
+      if (currentMenuItem.images && currentMenuItem.images.length > 0) {
+        const imageUrls = currentMenuItem.images.map((img: any) =>
+          typeof img === 'string' ? img : img.url || img
+        );
+        setImagePreviews(imageUrls);
+        // Note: We can't set selectedImages for existing images since they're URLs, not File objects
+      }
+
+      // Set special instructions
+      if (currentMenuItem.specialInstructions) {
+        setValue('specialInstructions', currentMenuItem.specialInstructions);
+      }
+    }
+  }, [currentMenuItem, isEditMode, id, setValue]);
+
+  // Real-time price validation
+  useEffect(() => {
+    if (watchedMrp && watchedDiscountedPrice && watchedDiscountedPrice > watchedMrp) {
+      setError('discountedPrice', {
+        type: 'manual',
+        message: 'Discounted price cannot be greater than MRP'
+      });
+    } else {
+      clearErrors('discountedPrice');
+    }
+  }, [watchedMrp, watchedDiscountedPrice, setError, clearErrors]);
+
   useEffect(() => {
     // Fetch categories based on user role
     const params: any = { type: 'menu' };
 
     dispatch(fetchCategories(params));
 
-    // Also fetch parent categories for super-admin
-    if (user?.role === 'super-admin') {
-      dispatch(fetchParentCategories());
-    }
+    // Fetch parent categories for all admin roles (needed for auto-selection)
+    dispatch(fetchParentCategories());
   }, [dispatch, user?.role]);
+
+  // Auto-set parent category for role-based admins
+  useEffect(() => {
+    if (parentCategories.length > 0 && user?.role !== 'super-admin') {
+      let autoParentCategory = '';
+
+      if (user?.role === 'veg-admin') {
+        // Find the vegetarian parent category
+        const vegParent = parentCategories.find(cat => cat.name.toLowerCase().includes('veg') && !cat.name.toLowerCase().includes('non'));
+        autoParentCategory = vegParent?._id || '';
+      } else if (user?.role === 'non-veg-admin') {
+        // Find the non-vegetarian parent category
+        const nonVegParent = parentCategories.find(cat => cat.name.toLowerCase().includes('non'));
+        autoParentCategory = nonVegParent?._id || '';
+      }
+
+      if (autoParentCategory && autoParentCategory !== selectedParentCategory) {
+        setSelectedParentCategory(autoParentCategory);
+      }
+    }
+  }, [parentCategories, user?.role, selectedParentCategory]);
+
+  // Fetch spicy levels and preparations when parent category changes
+  useEffect(() => {
+    if (selectedParentCategory) {
+      dispatch(fetchSpicyLevelsByCategory(selectedParentCategory));
+      dispatch(fetchPreparationsByCategory(selectedParentCategory));
+    }
+  }, [dispatch, selectedParentCategory]);
 
   // Determine if menu item should be vegetarian based on user role and parent category
   const getIsVegetarian = () => {
@@ -113,9 +244,16 @@ export const AddMenuItem: React.FC = () => {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     if (files.length + selectedImages.length > 5) {
-      toast.error('Maximum 5 images allowed');
+      setCustomErrors(prev => ({ ...prev, images: 'Maximum 5 images allowed' }));
       return;
     }
+
+    // Clear image errors when valid images are selected
+    setCustomErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors.images;
+      return newErrors;
+    });
 
     setSelectedImages(prev => [...prev, ...files]);
     
@@ -130,8 +268,76 @@ export const AddMenuItem: React.FC = () => {
   };
 
   const removeImage = (index: number) => {
-    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    // Always remove from previews
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
+
+    // Only remove from selectedImages if it's within the range
+    // (handles case where we have existing images + new uploads)
+    setSelectedImages(prev => {
+      if (index < prev.length) {
+        return prev.filter((_, i) => i !== index);
+      }
+      return prev;
+    });
+  };
+
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', '');
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    // Reorder imagePreviews array (this is the source of truth for display)
+    const newPreviews = [...imagePreviews];
+    const draggedPreview = newPreviews[draggedIndex];
+
+    newPreviews.splice(draggedIndex, 1);
+
+    // Insert at new position
+    const insertIndex = draggedIndex < dropIndex ? dropIndex - 1 : dropIndex;
+    newPreviews.splice(insertIndex, 0, draggedPreview);
+
+    setImagePreviews(newPreviews);
+
+    // Only reorder selectedImages if we have the same number of items
+    // (this handles the case where we have existing images mixed with new uploads)
+    if (selectedImages.length === imagePreviews.length) {
+      const newImages = [...selectedImages];
+      const draggedImage = newImages[draggedIndex];
+
+      newImages.splice(draggedIndex, 1);
+      newImages.splice(insertIndex, 0, draggedImage);
+
+      setSelectedImages(newImages);
+    }
+
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
 
   const addAddon = () => {
@@ -160,54 +366,117 @@ export const AddMenuItem: React.FC = () => {
     setValue('tags', newTags);
   };
 
+
+
   const onSubmit = async (data: MenuItemFormData) => {
-    if (selectedImages.length === 0) {
-      toast.error('At least one image is required');
+    // Clear previous custom errors
+    setCustomErrors({});
+
+    // Validate images - only require new images for create mode
+    if (!isEditMode && selectedImages.length === 0) {
+      setCustomErrors(prev => ({ ...prev, images: 'At least one image is required' }));
       return;
     }
 
+    // For edit mode, allow no new images if there are existing images
+    if (isEditMode && selectedImages.length === 0 && imagePreviews.length === 0) {
+      setCustomErrors(prev => ({ ...prev, images: 'At least one image is required' }));
+      return;
+    }
+
+    // Validate price relationship
     if (data.discountedPrice > data.mrp) {
-      toast.error('Discounted price cannot be greater than MRP');
+      setError('discountedPrice', {
+        type: 'manual',
+        message: 'Discounted price cannot be greater than MRP'
+      });
       return;
     }
 
     const formData = new FormData();
-    
+
     // Add basic fields
     Object.entries(data).forEach(([key, value]) => {
-      if (key === 'sizes' || key === 'tags') {
-        formData.append(key, JSON.stringify(value));
-      } else {
+      // Skip preparation and spicyLevel fields as they're handled separately
+      if (key === 'preparation' || key === 'spicyLevel') return;
+
+      if (key === 'tags') {
+        formData.append(key, JSON.stringify(value || []));
+      } else if (key === 'sizes') {
+        // Ensure sizes have proper structure
+        const sizesData = (value as any[])?.map(size => ({
+          name: size.name,
+          price: Number(size.price),
+          isDefault: size.isDefault || false
+        })) || [];
+        formData.append(key, JSON.stringify(sizesData));
+      } else if (value !== undefined && value !== null && value !== '') {
         formData.append(key, value.toString());
       }
     });
 
     // Add role-based vegetarian status
     formData.append('isVegetarian', getIsVegetarian().toString());
-    
+
+    // Add spicy levels for all items (if selected and not "not-applicable")
+    if (data.spicyLevel && data.spicyLevel.length > 0 && !data.spicyLevel.includes('not-applicable')) {
+      formData.append('spicyLevel', JSON.stringify(data.spicyLevel));
+    }
+
+    // Add preparations (for both veg and non-veg items)
+    if (data.preparation && data.preparation.length > 0) {
+      formData.append('preparation', JSON.stringify(data.preparation));
+    }
+
     // Add addons
     formData.append('addons', JSON.stringify(addons));
     
-    // Add images
-    selectedImages.forEach((image, index) => {
-      formData.append('images', image);
+    // Add images (only new images for edit mode)
+    selectedImages.forEach((image) => {
+      formData.append('menuItemImages', image);
     });
 
+    // For edit mode, preserve existing images
+    if (isEditMode && imagePreviews.length > 0) {
+      // Create object URLs for new files to compare
+      const newFileUrls = selectedImages.map(file => URL.createObjectURL(file));
+
+      // Filter out previews that match new file URLs (these are new uploads)
+      const existingImages = imagePreviews.filter(preview =>
+        !newFileUrls.includes(preview)
+      );
+
+      // Clean up object URLs
+      newFileUrls.forEach(url => URL.revokeObjectURL(url));
+
+      if (existingImages.length > 0) {
+        formData.append('existingImages', JSON.stringify(existingImages));
+      }
+    }
+
     try {
-      const result = await dispatch(createMenuItem(formData));
-      if (createMenuItem.fulfilled.match(result)) {
-        toast.success('Menu item created successfully!');
-        navigate('/menu');
+      let result;
+      if (isEditMode && id) {
+        result = await dispatch(updateMenuItem({ id, menuItemData: formData }));
+        if (updateMenuItem.fulfilled.match(result)) {
+          showAlert('Menu item updated successfully!', 'success', 'Success');
+          navigate('/menu');
+        } else {
+          showAlert(result.payload as string || 'Failed to update menu item', 'error', 'Update Failed');
+        }
       } else {
-        toast.error(result.payload as string || 'Failed to create menu item');
+        result = await dispatch(createMenuItem(formData));
+        if (createMenuItem.fulfilled.match(result)) {
+          showAlert('Menu item created successfully!', 'success', 'Success');
+          navigate('/menu');
+        } else {
+          showAlert(result.payload as string || 'Failed to create menu item', 'error', 'Creation Failed');
+        }
       }
     } catch (error) {
-      toast.error('Failed to create menu item');
+      showAlert(isEditMode ? 'Failed to update menu item' : 'Failed to create menu item', 'error', isEditMode ? 'Update Failed' : 'Creation Failed');
     }
   };
-
-  const availableSizes = ['Small', 'Medium', 'Large'];
-  const spicyLevels = ['Not Applicable', 'Mild', 'Medium', 'Hot', 'Extra Hot'];
 
   // Filter categories based on user role and selected parent category
   const filteredCategories = categories.filter(category => {
@@ -241,8 +510,8 @@ export const AddMenuItem: React.FC = () => {
           {/* Basic Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
-              <CardDescription>Enter the basic details of your menu item</CardDescription>
+              <CardTitle>{isEditMode ? 'Edit Menu Item' : 'Add New Menu Item'}</CardTitle>
+              <CardDescription>{isEditMode ? 'Update the details of your menu item' : 'Enter the basic details of your menu item'}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -278,8 +547,9 @@ export const AddMenuItem: React.FC = () => {
                     onValueChange={(value) => {
                       setSelectedParentCategory(value);
                       setValue('parentCategory', value);
-                      // Reset category selection when parent changes
+                      // Reset category and spicy level selection when parent changes
                       setValue('category', '');
+                      setValue('spicyLevel', []);
                     }}
                   >
                     <SelectTrigger>
@@ -365,6 +635,9 @@ export const AddMenuItem: React.FC = () => {
                   <Input
                     id="mrp"
                     type="number"
+                    min="0"
+                    step="0.01"
+                    onWheel={(e) => e.currentTarget.blur()}
                     {...register('mrp', { valueAsNumber: true })}
                     placeholder="0"
                   />
@@ -378,6 +651,9 @@ export const AddMenuItem: React.FC = () => {
                   <Input
                     id="discountedPrice"
                     type="number"
+                    min="0"
+                    step="0.01"
+                    onWheel={(e) => e.currentTarget.blur()}
                     {...register('discountedPrice', { valueAsNumber: true })}
                     placeholder="0"
                   />
@@ -399,6 +675,9 @@ export const AddMenuItem: React.FC = () => {
                   <Input
                     id="quantity"
                     type="number"
+                    min="0"
+                    step="1"
+                    onWheel={(e) => e.currentTarget.blur()}
                     {...register('quantity', { valueAsNumber: true })}
                     placeholder="0"
                   />
@@ -412,6 +691,9 @@ export const AddMenuItem: React.FC = () => {
                   <Input
                     id="preparationTime"
                     type="number"
+                    min="1"
+                    step="1"
+                    onWheel={(e) => e.currentTarget.blur()}
                     {...register('preparationTime', { valueAsNumber: true })}
                     placeholder="15"
                   />
@@ -434,46 +716,85 @@ export const AddMenuItem: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label>Available Sizes *</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {availableSizes.map((size) => (
-                    <div key={size} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={size}
-                        checked={watch('sizes')?.includes(size)}
-                        onCheckedChange={(checked) => {
-                          const currentSizes = watch('sizes') || [];
-                          if (checked) {
-                            setValue('sizes', [...currentSizes, size]);
-                          } else {
-                            setValue('sizes', currentSizes.filter(s => s !== size));
-                          }
-                        }}
-                      />
-                      <Label htmlFor={size}>{size}</Label>
-                    </div>
-                  ))}
+                <Label>Available Sizes</Label>
+                <div className="space-y-3 mt-2">
+                  {['Small', 'Medium', 'Large'].map((sizeName) => {
+                    const currentSizes = watch('sizes') || [];
+                    const existingSize = currentSizes.find(s => s.name === sizeName);
+                    const isChecked = !!existingSize;
+
+                    return (
+                      <div key={sizeName} className="flex items-center space-x-4 p-3 border rounded">
+                        <Checkbox
+                          id={sizeName}
+                          checked={isChecked}
+                          onCheckedChange={(checked) => {
+                            const currentSizes = watch('sizes') || [];
+                            if (checked) {
+                              const newSize = {
+                                name: sizeName,
+                                price: watchedDiscountedPrice || 0,
+                                isDefault: sizeName === 'Medium'
+                              };
+                              setValue('sizes', [...currentSizes, newSize]);
+                            } else {
+                              setValue('sizes', currentSizes.filter(s => s.name !== sizeName));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={sizeName} className="flex-1">{sizeName}</Label>
+                        {isChecked && (
+                          <div className="flex items-center space-x-2">
+                            <Label htmlFor={`${sizeName}-price`} className="text-sm">Price:</Label>
+                            <Input
+                              id={`${sizeName}-price`}
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              onWheel={(e) => e.currentTarget.blur()}
+                              value={existingSize?.price || 0}
+                              onChange={(e) => {
+                                const currentSizes = watch('sizes') || [];
+                                const updatedSizes = currentSizes.map(s =>
+                                  s.name === sizeName
+                                    ? { ...s, price: Number(e.target.value) }
+                                    : s
+                                );
+                                setValue('sizes', updatedSizes);
+                              }}
+                              className="w-20"
+                              placeholder="0"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
                 {errors.sizes && (
                   <p className="text-sm text-destructive mt-1">{errors.sizes.message}</p>
                 )}
               </div>
 
-              <div>
-                <Label htmlFor="spicyLevel">Spice Level</Label>
-                <Select onValueChange={(value) => setValue('spicyLevel', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select spice level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {spicyLevels.map((level) => (
-                      <SelectItem key={level} value={level}>
-                        {level}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <InlineItemManager
+                type="spicy"
+                parentCategoryId={selectedParentCategory}
+                selectedValue={watch('spicyLevel') || []}
+                onValueChange={(value) => setValue('spicyLevel', value as string[])}
+                label="Spicy Level"
+                placeholder="Select spicy level"
+                isMultiSelect={true}
+              />
+
+              <InlineItemManager
+                type="preparation"
+                parentCategoryId={selectedParentCategory}
+                selectedValue={watch('preparation') || []}
+                onValueChange={(value) => setValue('preparation', value as string[])}
+                label="Preparation Methods"
+                placeholder="Select preparation methods"
+                isMultiSelect={true}
+              />
 
               <div>
                 <Label htmlFor="specialInstructions">Special Instructions</Label>
@@ -515,31 +836,59 @@ export const AddMenuItem: React.FC = () => {
                     Choose Images ({selectedImages.length}/5)
                   </Button>
                 </div>
+                {customErrors.images && (
+                  <p className="text-sm text-destructive mt-1">{customErrors.images}</p>
+                )}
               </div>
 
               {imagePreviews.length > 0 && (
-                <div className="grid grid-cols-2 gap-2">
-                  {imagePreviews.map((preview, index) => (
-                    <div key={index} className="relative">
-                      <img
-                        src={preview}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-md"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-1 right-1 h-6 w-6 p-0"
-                        onClick={() => removeImage(index)}
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Drag and drop to reorder images. First image will be the main image.
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {imagePreviews.map((preview, index) => (
+                      <div
+                        key={index}
+                        className={`relative cursor-move transition-all duration-200 ${
+                          draggedIndex === index ? 'opacity-50 scale-95' : ''
+                        } ${
+                          dragOverIndex === index ? 'ring-2 ring-blue-500 ring-offset-2' : ''
+                        }`}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, index)}
+                        onDragOver={(e) => handleDragOver(e, index)}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, index)}
+                        onDragEnd={handleDragEnd}
                       >
-                        <X className="h-3 w-3" />
-                      </Button>
-                      {index === 0 && (
-                        <Badge className="absolute bottom-1 left-1 text-xs">Main</Badge>
-                      )}
-                    </div>
-                  ))}
+                        {/* Drag handle */}
+                        <div className="absolute top-1 left-1 z-10 bg-black/50 rounded p-1">
+                          <GripVertical className="h-3 w-3 text-white" />
+                        </div>
+
+                        <img
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-24 object-cover rounded-md"
+                        />
+
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-1 right-1 h-6 w-6 p-0 z-10"
+                          onClick={() => removeImage(index)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+
+                        {index === 0 && (
+                          <Badge className="absolute bottom-1 left-1 text-xs z-10">Main</Badge>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -563,13 +912,16 @@ export const AddMenuItem: React.FC = () => {
                 />
                 <Input
                   type="number"
+                  min="0"
+                  step="0.01"
+                  onWheel={(e) => e.currentTarget.blur()}
                   placeholder="Price"
                   value={newAddon.price || ''}
                   onChange={(e) => setNewAddon(prev => ({ ...prev, price: Number(e.target.value) }))}
                   className="w-24"
                 />
-                <Button type="button" onClick={addAddon} size="sm">
-                  <Plus className="h-4 w-4" />
+                <Button className='mt-2' type="button" onClick={addAddon} size="sm">
+                  <Plus className="h-5 w-5" />
                 </Button>
               </div>
 
@@ -608,9 +960,9 @@ export const AddMenuItem: React.FC = () => {
                   placeholder="Enter tag"
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
                 />
-                <Button type="button" onClick={addTag} size="sm">
+                <Button className='mt-2' type="button" onClick={addTag} size="sm">
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
@@ -644,7 +996,7 @@ export const AddMenuItem: React.FC = () => {
           <Button type="submit" disabled={menuLoading}>
             {menuLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             <Save className="h-4 w-4 mr-2" />
-            Create Menu Item
+            {isEditMode ? 'Update Menu Item' : 'Create Menu Item'}
           </Button>
         </div>
       </form>

@@ -149,7 +149,10 @@ const validateMenuItem = [
     .isFloat({ min: 0 })
     .withMessage('Discounted price must be a positive number')
     .custom((value, { req }) => {
-      if (value > req.body.mrp) {
+      const discountedPrice = parseFloat(value);
+      const mrp = parseFloat(req.body.mrp);
+
+      if (discountedPrice > mrp) {
         throw new Error('Discounted price cannot be greater than MRP');
       }
       return true;
@@ -163,6 +166,43 @@ const validateMenuItem = [
     .isInt({ min: 1, max: 120 })
     .withMessage('Preparation time must be between 1 and 120 minutes'),
 
+  body('preparation')
+    .optional()
+    .custom((value) => {
+      if (!value) return true;
+
+      // Handle case where value might be an array of values (from duplicate fields)
+      let preparations;
+      if (Array.isArray(value)) {
+        // If it's an array, take the last value (most recent)
+        const lastValue = value[value.length - 1];
+        try {
+          preparations = typeof lastValue === 'string' ? JSON.parse(lastValue) : lastValue;
+        } catch (error) {
+          throw new Error('Preparation must be valid JSON array');
+        }
+      } else {
+        try {
+          preparations = typeof value === 'string' ? JSON.parse(value) : value;
+        } catch (error) {
+          throw new Error('Preparation must be valid JSON array');
+        }
+      }
+
+      if (!Array.isArray(preparations)) {
+        throw new Error('Preparation must be an array');
+      }
+
+      // Validate each preparation ID
+      for (const prepId of preparations) {
+        if (!/^[0-9a-fA-F]{24}$/.test(prepId)) {
+          throw new Error('Each preparation must be a valid ObjectId');
+        }
+      }
+
+      return true;
+    }),
+
   body('isVegetarian')
     .isBoolean()
     .withMessage('Vegetarian status must be a boolean'),
@@ -172,17 +212,75 @@ const validateMenuItem = [
     .isArray()
     .withMessage('Sizes must be an array')
     .custom((sizes) => {
-      const validSizes = ['Small', 'Medium', 'Large'];
-      if (!sizes.every(size => validSizes.includes(size))) {
-        throw new Error('Invalid size option');
+      // Check if sizes is an array of objects with required properties
+      if (!Array.isArray(sizes)) {
+        throw new Error('Sizes must be an array');
       }
+
+      for (const size of sizes) {
+        if (typeof size !== 'object' || !size.name || typeof size.price !== 'number') {
+          throw new Error('Each size must have name and price properties');
+        }
+
+        const validSizeNames = ['Small', 'Medium', 'Large', 'Reg', 'Regular'];
+        if (!validSizeNames.includes(size.name)) {
+          throw new Error(`Invalid size name: ${size.name}`);
+        }
+
+        if (size.price < 0) {
+          throw new Error('Size price cannot be negative');
+        }
+      }
+
       return true;
     }),
 
   body('spicyLevel')
     .optional()
-    .isIn(['Mild', 'Medium', 'Hot', 'Extra Hot', 'Not Applicable'])
-    .withMessage('Invalid spicy level'),
+    .custom((value) => {
+      // Allow empty string or empty array
+      if (!value || value === '' || (Array.isArray(value) && value.length === 0)) return true;
+
+      // Handle JSON string (from FormData)
+      if (typeof value === 'string' && value.startsWith('[')) {
+        try {
+          const parsedArray = JSON.parse(value);
+          if (Array.isArray(parsedArray)) {
+            for (const level of parsedArray) {
+              // Allow 'not-applicable' string
+              if (level === 'not-applicable') continue;
+              // Check if it's a valid MongoDB ObjectId
+              if (!/^[0-9a-fA-F]{24}$/.test(level)) {
+                throw new Error('Spicy level must be a valid ObjectId');
+              }
+            }
+            return true;
+          }
+        } catch (error) {
+          throw new Error('Invalid spicy level format');
+        }
+      }
+
+      // Handle array of spicy levels
+      if (Array.isArray(value)) {
+        for (const level of value) {
+          // Allow 'not-applicable' string
+          if (level === 'not-applicable') continue;
+          // Check if it's a valid MongoDB ObjectId
+          if (!/^[0-9a-fA-F]{24}$/.test(level)) {
+            throw new Error('Spicy level must be a valid ObjectId');
+          }
+        }
+        return true;
+      }
+
+      // Handle single spicy level (backward compatibility)
+      if (value === 'not-applicable') return true;
+      if (!/^[0-9a-fA-F]{24}$/.test(value)) {
+        throw new Error('Spicy level must be a valid ObjectId');
+      }
+      return true;
+    }),
 
   body('addons')
     .optional()

@@ -18,7 +18,7 @@ const register = async (req, res) => {
       });
     }
 
-    const { name, email, password, phoneNumber } = req.body;
+    const { name, email, password, phoneNumber, role } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -35,7 +35,7 @@ const register = async (req, res) => {
       email,
       password,
       phoneNumber,
-      role: 'customer' // Default role
+      role: role || 'customer' // Default role is customer, but allow override
     });
 
     await user.save();

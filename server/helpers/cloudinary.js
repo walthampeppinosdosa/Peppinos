@@ -7,6 +7,8 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+
+
 /**
  * Upload image to Cloudinary
  * @param {string|Buffer} fileData - Path to the file, base64 string, or buffer
@@ -15,17 +17,9 @@ cloudinary.config({
  */
 const uploadToCloudinary = async (fileData, folder = 'peppinos') => {
   try {
-    let uploadData;
 
-    // Handle different input types
-    if (Buffer.isBuffer(fileData)) {
-      // Convert buffer to base64
-      uploadData = `data:image/jpeg;base64,${fileData.toString('base64')}`;
-    } else {
-      uploadData = fileData;
-    }
-
-    const result = await cloudinary.uploader.upload(uploadData, {
+    // Upload directly using buffer or file path
+    const uploadOptions = {
       folder: folder,
       resource_type: 'auto',
       transformation: [
@@ -33,8 +27,27 @@ const uploadToCloudinary = async (fileData, folder = 'peppinos') => {
         { quality: 'auto' },
         { fetch_format: 'auto' }
       ]
-    });
+    };
 
+    let result;
+    if (Buffer.isBuffer(fileData)) {
+      // Use upload_stream for buffers
+      result = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          uploadOptions,
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        ).end(fileData);
+      });
+    } else {
+      // Use regular upload for file paths or base64
+      result = await cloudinary.uploader.upload(fileData, uploadOptions);
+    }
     return {
       public_id: result.public_id,
       url: result.secure_url,
@@ -43,7 +56,7 @@ const uploadToCloudinary = async (fileData, folder = 'peppinos') => {
     };
   } catch (error) {
     console.error('Cloudinary upload error:', error);
-    throw new Error('Failed to upload image');
+    throw new Error(`Failed to upload image: ${error.message}`);
   }
 };
 
@@ -75,7 +88,7 @@ const uploadMultipleToCloudinary = async (files, folder = 'peppinos') => {
     return results;
   } catch (error) {
     console.error('Multiple upload error:', error);
-    throw new Error('Failed to upload multiple images');
+    throw new Error(`Failed to upload multiple images: ${error.message}`);
   }
 };
 

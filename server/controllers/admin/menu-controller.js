@@ -1,5 +1,6 @@
 const Menu = require('../../models/Menu'); // Will be renamed to Menu model later
 const Category = require('../../models/Category');
+const mongoose = require('mongoose');
 const { uploadToCloudinary, deleteFromCloudinary, uploadMultipleToCloudinary } = require('../../helpers/cloudinary');
 const { validationResult } = require('express-validator');
 const { canPerformAction } = require('../../helpers/role-utils');
@@ -57,6 +58,8 @@ const getAllMenuItems = async (req, res) => {
     // Execute query
     const menuItems = await Menu.find(query)
       .populate('category', 'name slug isVegetarian')
+      .populate('spicyLevel', 'name level')
+      .populate('preparations', 'name')
       .sort(sortOptions)
       .skip(skip)
       .limit(parseInt(limit));
@@ -96,7 +99,9 @@ const getMenuItemById = async (req, res) => {
     const { id } = req.params;
 
     const menuItem = await Menu.findById(id)
-      .populate('category', 'name slug isVegetarian');
+      .populate('category', 'name slug isVegetarian')
+      .populate('spicyLevel', 'name level')
+      .populate('preparations', 'name');
 
     if (!menuItem) {
       return res.status(404).json({
@@ -106,7 +111,7 @@ const getMenuItemById = async (req, res) => {
     }
 
     // Check if user can access this menu item based on role
-    if (req.roleFilter && !req.roleFilter.isVegetarian === undefined) {
+    if (req.roleFilter && req.roleFilter.isVegetarian !== undefined) {
       if (req.roleFilter.isVegetarian !== menuItem.isVegetarian) {
         return res.status(403).json({
           success: false,
@@ -155,10 +160,13 @@ const createMenuItem = async (req, res) => {
       quantity,
       sizes,
       spicyLevel,
+      preparation,
       preparationTime,
       specialInstructions,
       tags,
-      nutritionalInfo
+      addons,
+      nutritionalInfo,
+      images
     } = req.body;
 
     // Validate category and determine vegetarian status
@@ -198,12 +206,20 @@ const createMenuItem = async (req, res) => {
 
     // Category already validated above, no need to re-fetch
 
-    // Handle image uploads
-    let imageUrls = [];
+    // Handle image uploads or JSON image data
+    let imageData = [];
+
     if (req.files && req.files.length > 0) {
+      // Handle file uploads
       try {
-        const uploadResults = await uploadMultipleToCloudinary(req.files, 'menu-items');
-        imageUrls = uploadResults.map(result => result.secure_url);
+        const fileBuffers = req.files.map(file => file.buffer);
+        const uploadResults = await uploadMultipleToCloudinary(fileBuffers, 'menu-items');
+        imageData = uploadResults.map(result => ({
+          public_id: result.public_id,
+          url: result.url,
+          width: result.width,
+          height: result.height
+        }));
       } catch (uploadError) {
         console.error('Image upload error:', uploadError);
         return res.status(400).json({
@@ -212,32 +228,132 @@ const createMenuItem = async (req, res) => {
           error: uploadError.message
         });
       }
+    } else if (images) {
+      // Handle JSON image data (for testing or when images are already uploaded)
+      try {
+        imageData = Array.isArray(images) ? images : JSON.parse(images);
+      } catch (parseError) {
+        console.error('Image data parse error:', parseError);
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid image data format'
+        });
+      }
     }
 
-    // Create menu item
-    const menuItem = new Menu({
+    // Prepare menu item data
+    const menuItemData = {
       name,
       description,
       category,
       mrp: parseFloat(mrp),
       discountedPrice: parseFloat(discountedPrice),
       quantity: parseInt(quantity),
-      sizes: Array.isArray(sizes) ? sizes : [sizes],
-      spicyLevel,
+      sizes: (() => {
+        try {
+          if (typeof sizes === 'string') {
+            return JSON.parse(sizes);
+          }
+          return Array.isArray(sizes) ? sizes : (sizes ? [sizes] : []);
+        } catch (error) {
+          console.error('Error parsing sizes:', error);
+          return [];
+        }
+      })(),
       preparationTime: parseInt(preparationTime),
       specialInstructions,
-      tags: Array.isArray(tags) ? tags : (tags ? [tags] : []),
+      tags: (() => {
+        try {
+          if (typeof tags === 'string') {
+            return JSON.parse(tags);
+          }
+          return Array.isArray(tags) ? tags : (tags ? [tags] : []);
+        } catch (error) {
+          console.error('Error parsing tags:', error);
+          return [];
+        }
+      })(),
+      addons: (() => {
+        try {
+          if (typeof addons === 'string') {
+            return JSON.parse(addons);
+          }
+          return Array.isArray(addons) ? addons : (addons ? [addons] : []);
+        } catch (error) {
+          console.error('Error parsing addons:', error);
+          return [];
+        }
+      })(),
+      preparations: (() => {
+        try {
+          if (!preparation) return [];
+
+          // Handle case where preparation might be an array of values (from duplicate fields)
+          let prepValue = preparation;
+          if (Array.isArray(preparation)) {
+            // Take the last value (most recent)
+            prepValue = preparation[preparation.length - 1];
+          }
+
+          let parsedPreparations;
+          if (typeof prepValue === 'string') {
+            parsedPreparations = JSON.parse(prepValue);
+          } else {
+            parsedPreparations = Array.isArray(prepValue) ? prepValue : (prepValue ? [prepValue] : []);
+          }
+
+          // Convert to ObjectIds
+          return parsedPreparations.map(prep => new mongoose.Types.ObjectId(prep));
+        } catch (error) {
+          console.error('Error parsing preparations:', error);
+          return [];
+        }
+      })(),
       nutritionalInfo: nutritionalInfo ? JSON.parse(nutritionalInfo) : undefined,
-      images: imageUrls,
+      images: imageData,
       isVegetarian: menuItemIsVegetarian,
       isActive: true,
       createdBy: req.user.id
-    });
+    };
+
+    // Add spicyLevel for all items (if provided)
+    if (spicyLevel) {
+      try {
+        // Handle spicyLevel as JSON string (from FormData) or direct array
+        const spicyLevelArray = typeof spicyLevel === 'string' ? JSON.parse(spicyLevel) : spicyLevel;
+        if (Array.isArray(spicyLevelArray) && spicyLevelArray.length > 0) {
+          // Filter out 'not-applicable' values and only keep valid ObjectIds
+          const validSpicyLevels = spicyLevelArray.filter(level =>
+            level !== 'not-applicable' && level && level.trim() !== ''
+          ).map(level => new mongoose.Types.ObjectId(level)); // Convert to ObjectId
+          if (validSpicyLevels.length > 0) {
+            menuItemData.spicyLevel = validSpicyLevels;
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing spicyLevel:', error);
+        // Fallback to single spicyLevel for backward compatibility
+        if (spicyLevel !== 'not-applicable' && spicyLevel.trim() !== '') {
+          try {
+            menuItemData.spicyLevel = [new mongoose.Types.ObjectId(spicyLevel)];
+          } catch (objIdError) {
+            console.error('Error converting spicyLevel to ObjectId:', objIdError);
+          }
+        }
+      }
+    }
+
+    // Create menu item
+    const menuItem = new Menu(menuItemData);
 
     await menuItem.save();
 
-    // Populate category for response
-    await menuItem.populate('category', 'name slug isVegetarian');
+    // Populate category, spicy levels, and preparations for response
+    await menuItem.populate([
+      { path: 'category', select: 'name slug isVegetarian' },
+      { path: 'spicyLevel', select: 'name level' },
+      { path: 'preparations', select: 'name' }
+    ]);
 
     res.status(201).json({
       success: true,
@@ -281,6 +397,7 @@ const updateMenuItem = async (req, res) => {
       quantity,
       sizes,
       spicyLevel,
+      preparation,
       preparationTime,
       addons,
       specialInstructions,
@@ -290,16 +407,10 @@ const updateMenuItem = async (req, res) => {
       isActive
     } = req.body;
 
-    // Check if user can update this type of menu item
-    if (!canPerformAction(req.user.role, 'update', menuItem.isVegetarian)) {
-      return res.status(403).json({
-        success: false,
-        message: `You cannot update ${menuItem.isVegetarian ? 'vegetarian' : 'non-vegetarian'} menu items`
-      });
-    }
+    // Permission check is handled by middleware
 
     // If category is being changed, verify it exists and matches vegetarian status
-    if (category && category !== menuItem.category.toString()) {
+    if (category && category !== menuItem.category._id.toString()) {
       const categoryDoc = await Category.findById(category);
       if (!categoryDoc) {
         return res.status(400).json({
@@ -340,12 +451,89 @@ const updateMenuItem = async (req, res) => {
     if (mrp !== undefined) menuItem.mrp = mrp;
     if (discountedPrice !== undefined) menuItem.discountedPrice = discountedPrice;
     if (quantity !== undefined) menuItem.quantity = quantity;
-    if (sizes !== undefined) menuItem.sizes = sizes;
-    if (spicyLevel !== undefined) menuItem.spicyLevel = spicyLevel;
+    if (sizes !== undefined) {
+      try {
+        menuItem.sizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
+      } catch (error) {
+        console.error('Error parsing sizes:', error);
+        menuItem.sizes = [];
+      }
+    }
+    if (spicyLevel !== undefined) {
+      try {
+        // Handle spicyLevel as JSON string (from FormData) or direct array
+        const spicyLevelArray = typeof spicyLevel === 'string' ? JSON.parse(spicyLevel) : spicyLevel;
+        if (Array.isArray(spicyLevelArray)) {
+          // Filter out 'not-applicable' values and only keep valid ObjectIds
+          const validSpicyLevels = spicyLevelArray.filter(level =>
+            level !== 'not-applicable' && level && level.trim() !== ''
+          ).map(level => new mongoose.Types.ObjectId(level)); // Convert to ObjectId
+          menuItem.spicyLevel = validSpicyLevels;
+        } else {
+          // Fallback to single spicyLevel for backward compatibility
+          if (spicyLevel !== 'not-applicable' && spicyLevel.trim() !== '') {
+            try {
+              menuItem.spicyLevel = [new mongoose.Types.ObjectId(spicyLevel)];
+            } catch (objIdError) {
+              console.error('Error converting spicyLevel to ObjectId:', objIdError);
+              menuItem.spicyLevel = [];
+            }
+          } else {
+            menuItem.spicyLevel = [];
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing spicyLevel:', error);
+        // Fallback to single spicyLevel for backward compatibility
+        if (spicyLevel !== 'not-applicable' && spicyLevel.trim() !== '') {
+          try {
+            menuItem.spicyLevel = [new mongoose.Types.ObjectId(spicyLevel)];
+          } catch (objIdError) {
+            console.error('Error converting spicyLevel to ObjectId:', objIdError);
+            menuItem.spicyLevel = [];
+          }
+        } else {
+          menuItem.spicyLevel = [];
+        }
+      }
+    }
     if (preparationTime !== undefined) menuItem.preparationTime = preparationTime;
-    if (addons !== undefined) menuItem.addons = addons;
+    if (addons !== undefined) {
+      try {
+        menuItem.addons = typeof addons === 'string' ? JSON.parse(addons) : addons;
+      } catch (error) {
+        console.error('Error parsing addons:', error);
+        menuItem.addons = [];
+      }
+    }
     if (specialInstructions !== undefined) menuItem.specialInstructions = specialInstructions;
-    if (tags !== undefined) menuItem.tags = tags;
+    if (tags !== undefined) {
+      try {
+        menuItem.tags = typeof tags === 'string' ? JSON.parse(tags) : tags;
+      } catch (error) {
+        console.error('Error parsing tags:', error);
+        menuItem.tags = [];
+      }
+    }
+    if (preparation !== undefined) {
+      try {
+        // Handle case where preparation might be an array of values (from duplicate fields)
+        let prepValue = preparation;
+        if (Array.isArray(preparation)) {
+          // Take the last value (most recent)
+          prepValue = preparation[preparation.length - 1];
+        }
+
+        let parsedPreparations = typeof prepValue === 'string' ? JSON.parse(prepValue) : prepValue;
+        // Convert to ObjectIds
+        menuItem.preparations = Array.isArray(parsedPreparations)
+          ? parsedPreparations.map(prep => new mongoose.Types.ObjectId(prep))
+          : [];
+      } catch (error) {
+        console.error('Error parsing preparations:', error);
+        menuItem.preparations = [];
+      }
+    }
     if (nutritionalInfo !== undefined) menuItem.nutritionalInfo = nutritionalInfo;
     if (isActive !== undefined) menuItem.isActive = isActive;
 
@@ -356,13 +544,17 @@ const updateMenuItem = async (req, res) => {
 
     await menuItem.save();
 
-    // Populate category for response
-    await menuItem.populate('category', 'name isVegetarian');
+    // Populate category, spicy levels, and preparations for response
+    await menuItem.populate([
+      { path: 'category', select: 'name slug isVegetarian' },
+      { path: 'spicyLevel', select: 'name level' },
+      { path: 'preparations', select: 'name' }
+    ]);
 
     res.status(200).json({
       success: true,
       message: 'Menu item updated successfully',
-      data: { menuItem }
+      data: menuItem
     });
   } catch (error) {
     console.error('Update menu item error:', error);
@@ -382,19 +574,13 @@ const deleteMenuItem = async (req, res) => {
   try {
     const menuItem = req.menuItem; // Loaded by middleware
 
-    // Check if user can delete this type of menu item
-    if (!canPerformAction(req.user.role, 'delete', menuItem.isVegetarian)) {
-      return res.status(403).json({
-        success: false,
-        message: `You cannot delete ${menuItem.isVegetarian ? 'vegetarian' : 'non-vegetarian'} menu items`
-      });
-    }
+    // Permission check is handled by middleware
 
     // Delete images from cloudinary
     if (menuItem.images && menuItem.images.length > 0) {
       try {
         const deletePromises = menuItem.images.map(imageUrl => {
-          const publicId = imageUrl.split('/').pop().split('.')[0];
+          const publicId = imageUrl?.split('/').pop().split('.')[0];
           return deleteFromCloudinary(publicId);
         });
         await Promise.all(deletePromises);
