@@ -11,6 +11,7 @@ import ordersSlice from './slices/ordersSlice';
 import usersSlice from './slices/usersSlice';
 import reviewsSlice from './slices/reviewsSlice';
 import dashboardSlice from './slices/dashboardSlice';
+import reportsSlice from './slices/reportsSlice';
 import newsletterSlice from './slices/newsletterSlice';
 import contactsSlice from './slices/contactsSlice';
 import uiSlice from './slices/uiSlice';
@@ -27,6 +28,7 @@ export const store = configureStore({
     users: usersSlice,
     reviews: reviewsSlice,
     dashboard: dashboardSlice,
+    reports: reportsSlice,
     newsletter: newsletterSlice,
     contacts: contactsSlice,
     ui: uiSlice,

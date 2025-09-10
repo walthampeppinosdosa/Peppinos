@@ -19,6 +19,7 @@ import {
   updateUserStatus,
   updateUserRole,
   fetchUserStats,
+  deleteUser,
   clearError,
   resetFilters
 } from '@/store/slices/usersSlice';
@@ -40,7 +41,8 @@ import {
   Crown,
   Leaf,
   Utensils,
-  RefreshCw
+  RefreshCw,
+  Trash2
 } from 'lucide-react';
 
 export const Users: React.FC = () => {
@@ -89,6 +91,14 @@ export const Users: React.FC = () => {
   });
 
   const [editUserDialog, setEditUserDialog] = useState<{
+    open: boolean;
+    user: any;
+  }>({
+    open: false,
+    user: null
+  });
+
+  const [deleteUserDialog, setDeleteUserDialog] = useState<{
     open: boolean;
     user: any;
   }>({
@@ -268,6 +278,34 @@ export const Users: React.FC = () => {
     }
   };
 
+  const handleDeleteUser = (user: any) => {
+    setDeleteUserDialog({ open: true, user });
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!deleteUserDialog.user) return;
+
+    try {
+      await dispatch(deleteUser(deleteUserDialog.user._id)).unwrap();
+      setDeleteUserDialog({ open: false, user: null });
+      showAlert('User deleted successfully', 'success', 'Success');
+
+      // Refresh the users list
+      dispatch(fetchUsers({
+        page: 1,
+        limit: 20,
+        search: searchTerm,
+        role: selectedRole !== 'all' ? selectedRole : undefined,
+        isActive: selectedStatus !== 'all' ? selectedStatus === 'active' : undefined,
+        isEmailVerified: selectedVerification !== 'all' ? selectedVerification === 'verified' : undefined,
+        sortBy,
+        sortOrder
+      }));
+    } catch (error) {
+      showAlert('Failed to delete user', 'error', 'Error');
+    }
+  };
+
   const handleClearFilters = () => {
     setSearchTerm('');
     setSelectedRole('all');
@@ -300,7 +338,8 @@ export const Users: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen flex flex-col">
+      <div className="space-y-6 flex-1 flex flex-col">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -537,16 +576,34 @@ export const Users: React.FC = () => {
                         </Tooltip>
 
                         {isSuperAdmin() && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button variant="ghost" size="sm" onClick={() => handleRoleUpdate(user)}>
-                                <Crown className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Update user role</p>
-                            </TooltipContent>
-                          </Tooltip>
+                          <>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="sm" onClick={() => handleRoleUpdate(user)}>
+                                  <Crown className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Update user role</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteUser(user)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Delete user</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </>
                         )}
                       </div>
                     </TableCell>
@@ -639,16 +696,34 @@ export const Users: React.FC = () => {
                 </Tooltip>
 
                 {isSuperAdmin() && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="outline" size="sm" onClick={() => handleRoleUpdate(user)}>
-                        <Crown className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Update user role</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="outline" size="sm" onClick={() => handleRoleUpdate(user)}>
+                          <Crown className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Update user role</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteUser(user)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Delete user</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </>
                 )}
               </div>
             </CardContent>
@@ -834,6 +909,67 @@ export const Users: React.FC = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Delete User Confirmation Dialog */}
+      <Dialog open={deleteUserDialog.open} onOpenChange={(open) => setDeleteUserDialog(prev => ({ ...prev, open }))}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete User</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this user? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          {deleteUserDialog.user && (
+            <div className="space-y-4">
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                    <Trash2 className="h-5 w-5 text-red-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-red-900">
+                      {deleteUserDialog.user.name}
+                    </p>
+                    <p className="text-sm text-red-700">
+                      {deleteUserDialog.user.email}
+                    </p>
+                    <p className="text-xs text-red-600">
+                      Role: {deleteUserDialog.user.role}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-sm text-muted-foreground">
+                <p>⚠️ This will:</p>
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  <li>Mark the user as inactive</li>
+                  <li>Prevent them from logging in</li>
+                  <li>Preserve their order history</li>
+                  <li>Cannot be undone</li>
+                </ul>
+              </div>
+
+              <div className="flex gap-2 justify-end pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setDeleteUserDialog({ open: false, user: null })}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={confirmDeleteUser}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Deleting...' : 'Delete User'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
     </div>
   );
 };

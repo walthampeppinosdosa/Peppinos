@@ -550,7 +550,7 @@ export const Menu: React.FC = () => {
         ))}
       </div>
 
-      {filteredMenuItems.length === 0 && (
+      {filteredMenuItems.length == 0 && (
         <Card>
           <CardContent className="p-12 text-center">
             <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />

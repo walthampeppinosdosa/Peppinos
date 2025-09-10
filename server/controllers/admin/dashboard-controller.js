@@ -11,27 +11,58 @@ const Cart = require('../../models/Cart');
  */
 const getDashboardAnalytics = async (req, res) => {
   try {
-    const { period = '30d' } = req.query;
+    const { period = '30d', category, startDate: customStartDate, endDate: customEndDate } = req.query;
 
-    // Calculate date range based on period
+    // Calculate date range based on period or custom dates
     const now = new Date();
-    let startDate;
+    let startDate, endDate;
 
-    switch (period) {
-      case '7d':
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        break;
-      case '30d':
-        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-        break;
-      case '90d':
-        startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-        break;
-      case '1y':
-        startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
-        break;
-      default:
-        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    if (customStartDate && customEndDate) {
+      startDate = new Date(customStartDate);
+      endDate = new Date(customEndDate);
+    } else {
+      endDate = now;
+      switch (period) {
+        case '7d':
+          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case '30d':
+          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        case '90d':
+          startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+          break;
+        case '1y':
+          startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+          break;
+        default:
+          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      }
+    }
+
+    // Build category filter for menu items
+    let categoryFilter = {};
+    if (category === 'veg') {
+      categoryFilter = { parentCategory: 'veg' };
+    } else if (category === 'non-veg') {
+      categoryFilter = { parentCategory: 'non-veg' };
+    }
+
+    // Build date filter
+    const dateFilter = {
+      createdAt: {
+        $gte: startDate,
+        ...(endDate && { $lte: endDate })
+      }
+    };
+
+    // Build order filter with category if specified
+    let orderFilter = { ...dateFilter };
+    if (category) {
+      // For category filtering, we need to join with menu items
+      const menuItems = await Menu.find(categoryFilter).select('_id');
+      const menuItemIds = menuItems.map(item => item._id);
+      orderFilter['items.menu'] = { $in: menuItemIds };
     }
 
     // Get overview statistics
@@ -45,41 +76,104 @@ const getDashboardAnalytics = async (req, res) => {
       activeUsers,
       averageOrderValue
     ] = await Promise.all([
-      Order.countDocuments({ createdAt: { $gte: startDate } }),
-      Order.aggregate([
-        { $match: { createdAt: { $gte: startDate }, paymentStatus: 'paid' } },
-        { $group: { _id: null, total: { $sum: '$totalAmount' } } }
-      ]),
-      User.countDocuments({ createdAt: { $gte: startDate } }),
-      Menu.countDocuments({ isActive: true }),
+      category ?
+        Order.aggregate([
+          { $unwind: '$items' },
+          { $match: orderFilter },
+          { $group: { _id: null, count: { $sum: 1 } } }
+        ]).then(result => result[0]?.count || 0) :
+        Order.countDocuments(dateFilter),
+
+      category ?
+        Order.aggregate([
+          { $unwind: '$items' },
+          { $match: { ...orderFilter, paymentStatus: 'paid' } },
+          { $group: { _id: null, total: { $sum: '$totalAmount' } } }
+        ]).then(result => result[0]?.total || 0) :
+        Order.aggregate([
+          { $match: { ...dateFilter, paymentStatus: 'paid' } },
+          { $group: { _id: null, total: { $sum: '$totalAmount' } } }
+        ]).then(result => result[0]?.total || 0),
+
+      User.countDocuments(dateFilter),
+      Menu.countDocuments({ isActive: true, ...categoryFilter }),
       Order.countDocuments({ status: 'pending' }),
-      Order.countDocuments({ status: 'completed', createdAt: { $gte: startDate } }),
+      Order.countDocuments({ status: 'completed', ...dateFilter }),
       User.countDocuments({ isActive: true, lastLogin: { $gte: startDate } }),
-      Order.aggregate([
-        { $match: { createdAt: { $gte: startDate }, paymentStatus: 'paid' } },
-        { $group: { _id: null, avg: { $avg: '$totalAmount' } } }
-      ])
+
+      category ?
+        Order.aggregate([
+          { $unwind: '$items' },
+          { $match: { ...orderFilter, paymentStatus: 'paid' } },
+          { $group: { _id: null, avg: { $avg: '$totalAmount' } } }
+        ]).then(result => result[0]?.avg || 0) :
+        Order.aggregate([
+          { $match: { ...dateFilter, paymentStatus: 'paid' } },
+          { $group: { _id: null, avg: { $avg: '$totalAmount' } } }
+        ]).then(result => result[0]?.avg || 0)
     ]);
 
     // Get daily revenue trend
-    const dailyRevenue = await Order.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: startDate },
-          paymentStatus: 'paid'
-        }
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' }
-          },
-          revenue: { $sum: '$totalAmount' },
-          orderCount: { $sum: 1 }
-        }
-      },
-      { $sort: { _id: 1 } }
-    ]);
+    let dailyRevenuePipeline = [];
+
+    if (category) {
+      dailyRevenuePipeline = [
+        { $unwind: '$items' },
+        {
+          $lookup: {
+            from: 'menus',
+            localField: 'items.menu',
+            foreignField: '_id',
+            as: 'menuDetails'
+          }
+        },
+        { $unwind: '$menuDetails' },
+        {
+          $match: {
+            createdAt: {
+              $gte: startDate,
+              ...(endDate && { $lte: endDate })
+            },
+            paymentStatus: 'paid',
+            'menuDetails.parentCategory': category
+          }
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: '%Y-%m-%d', date: '$createdAt' }
+            },
+            revenue: { $sum: { $multiply: ['$items.quantity', '$items.price'] } },
+            orderCount: { $sum: 1 }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ];
+    } else {
+      dailyRevenuePipeline = [
+        {
+          $match: {
+            createdAt: {
+              $gte: startDate,
+              ...(endDate && { $lte: endDate })
+            },
+            paymentStatus: 'paid'
+          }
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: '%Y-%m-%d', date: '$createdAt' }
+            },
+            revenue: { $sum: '$totalAmount' },
+            orderCount: { $sum: 1 }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ];
+    }
+
+    const dailyRevenue = await Order.aggregate(dailyRevenuePipeline);
 
     // Get top selling menu items
     const topMenuItems = await Order.aggregate([
@@ -211,24 +305,38 @@ const getDashboardAnalytics = async (req, res) => {
  */
 const getCartAnalytics = async (req, res) => {
   try {
-    const { period = '30d' } = req.query;
+    const { period = '30d', category, startDate: customStartDate, endDate: customEndDate } = req.query;
 
-    // Calculate date range
+    // Calculate date range based on period or custom dates
     const now = new Date();
-    let startDate;
+    let startDate, endDate;
 
-    switch (period) {
-      case '7d':
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        break;
-      case '30d':
-        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-        break;
-      case '90d':
-        startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-        break;
-      default:
-        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    if (customStartDate && customEndDate) {
+      startDate = new Date(customStartDate);
+      endDate = new Date(customEndDate);
+    } else {
+      endDate = now;
+      switch (period) {
+        case '7d':
+          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case '30d':
+          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        case '90d':
+          startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+          break;
+        default:
+          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      }
+    }
+
+    // Build category filter for menu items
+    let categoryFilter = {};
+    if (category === 'veg') {
+      categoryFilter = { parentCategory: 'veg' };
+    } else if (category === 'non-veg') {
+      categoryFilter = { parentCategory: 'non-veg' };
     }
 
     // Get cart statistics

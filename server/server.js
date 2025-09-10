@@ -38,7 +38,8 @@ app.use('/api/admin/menu', require('./routes/admin/menu-routes')); // New menu r
 app.use('/api/admin', require('./routes/admin/category-routes'));
 app.use('/api/admin', require('./routes/admin/order-routes'));
 app.use('/api/admin', require('./routes/admin/user-routes'));
-app.use('/api/admin', require('./routes/admin/dashboard-routes'));
+app.use('/api/admin/dashboard', require('./routes/admin/dashboard-routes'));
+app.use('/api/admin/reports', require('./routes/admin/reports-routes'));
 app.use('/api/admin/preparations', require('./routes/admin/preparation-routes'));
 app.use('/api/admin/spicy-levels', require('./routes/admin/spicy-level-routes'));
 // Guest routes must come before other shop routes to avoid authentication conflicts

@@ -354,7 +354,7 @@ export const Categories: React.FC = () => {
         ))}
       </div>
 
-      {filteredCategories.length === 0 && (
+      {filteredCategories.length == 0 && (
         <Card>
           <CardContent className="p-12 text-center">
             <FolderOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />

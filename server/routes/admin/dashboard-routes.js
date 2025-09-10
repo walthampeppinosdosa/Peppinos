@@ -1,22 +1,23 @@
 const express = require('express');
 const router = express.Router();
+const {
+  getDashboardAnalytics,
+  getCartAnalytics,
+  exportReport
+} = require('../../controllers/admin/dashboard-controller');
+const { authenticateToken, requireAdmin, requireSuperAdmin } = require('../../middleware/auth-middleware');
 
-// Placeholder routes - will be implemented in Analytics & Reporting System task
+// Apply authentication middleware to all routes
+router.use(authenticateToken);
 
-// GET /api/admin/reports/cart-stats
-router.get('/reports/cart-stats', (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'Cart statistics endpoint not implemented yet'
-  });
-});
+// Dashboard Analytics Routes
+// GET /api/admin/dashboard/analytics
+router.get('/analytics', requireAdmin, getDashboardAnalytics);
 
-// GET /api/admin/reports/export
-router.get('/reports/export', (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'Export reports endpoint not implemented yet'
-  });
-});
+// GET /api/admin/dashboard/cart-analytics
+router.get('/cart-analytics', requireAdmin, getCartAnalytics);
+
+// GET /api/admin/dashboard/export
+router.get('/export', requireSuperAdmin, exportReport);
 
 module.exports = router;

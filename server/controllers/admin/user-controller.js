@@ -434,11 +434,81 @@ const getUserStats = async (req, res) => {
   }
 };
 
+/**
+ * Delete a user
+ * DELETE /api/admin/users/:id
+ */
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = req.user;
+
+    // Prevent self-deletion
+    if (user.id === id) {
+      return res.status(400).json({
+        success: false,
+        message: 'You cannot delete your own account'
+      });
+    }
+
+    // Find the user to be deleted
+    const userToDelete = await User.findById(id);
+    if (!userToDelete) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Prevent deletion of super-admin by non-super-admin
+    if (userToDelete.role === 'super-admin' && user.role !== 'super-admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only super-admin can delete super-admin accounts'
+      });
+    }
+
+    // Check if user has active orders
+    const activeOrders = await Order.countDocuments({
+      user: id,
+      status: { $in: ['pending', 'confirmed', 'preparing', 'ready'] }
+    });
+
+    if (activeOrders > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot delete user with active orders. Please complete or cancel all active orders first.'
+      });
+    }
+
+    // Soft delete: mark as inactive instead of hard delete
+    await User.findByIdAndUpdate(id, {
+      isActive: false,
+      email: `deleted_${Date.now()}_${userToDelete.email}`, // Prevent email conflicts
+      deletedAt: new Date(),
+      deletedBy: user.id
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'User deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete user',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
   updateUser,
   updateUserStatus,
   updateUserRole,
-  getUserStats
+  getUserStats,
+  deleteUser
 };

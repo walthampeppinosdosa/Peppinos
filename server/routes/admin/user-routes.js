@@ -8,7 +8,8 @@ const {
   updateUser,
   updateUserStatus,
   updateUserRole,
-  getUserStats
+  getUserStats,
+  deleteUser
 } = require('../../controllers/admin/user-controller');
 
 // Import middleware
@@ -56,6 +57,14 @@ router.put('/users/:id/role',
   loadUser,
   createPermissionMiddleware.updateUserRoles,
   updateUserRole
+);
+
+// DELETE /api/admin/users/:id - Delete user
+router.delete('/users/:id',
+  validateObjectId('id'),
+  loadUser,
+  createPermissionMiddleware.updateUserRoles,
+  deleteUser
 );
 
 module.exports = router;

@@ -68,10 +68,23 @@ const initialState: DashboardState = {
 // Async thunks
 export const fetchDashboardStats = createAsyncThunk(
   'dashboard/fetchStats',
-  async (period: string = '30d', { rejectWithValue }) => {
+  async (params: {
+    period?: string;
+    category?: 'veg' | 'non-veg';
+    startDate?: string;
+    endDate?: string;
+  } = {}, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/api/admin/dashboard/analytics?period=${period}`);
-      
+      const { period = '30d', category, startDate, endDate } = params;
+      const queryParams = new URLSearchParams();
+
+      queryParams.append('period', period);
+      if (category) queryParams.append('category', category);
+      if (startDate) queryParams.append('startDate', startDate);
+      if (endDate) queryParams.append('endDate', endDate);
+
+      const response = await api.get(`/api/admin/dashboard/analytics?${queryParams.toString()}`);
+
       if (response.success) {
         return response.data;
       } else {
@@ -85,10 +98,23 @@ export const fetchDashboardStats = createAsyncThunk(
 
 export const fetchCartAnalytics = createAsyncThunk(
   'dashboard/fetchCartAnalytics',
-  async (period: string = '30d', { rejectWithValue }) => {
+  async (params: {
+    period?: string;
+    category?: 'veg' | 'non-veg';
+    startDate?: string;
+    endDate?: string;
+  } = {}, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/api/admin/dashboard/cart-analytics?period=${period}`);
-      
+      const { period = '30d', category, startDate, endDate } = params;
+      const queryParams = new URLSearchParams();
+
+      queryParams.append('period', period);
+      if (category) queryParams.append('category', category);
+      if (startDate) queryParams.append('startDate', startDate);
+      if (endDate) queryParams.append('endDate', endDate);
+
+      const response = await api.get(`/api/admin/dashboard/cart-analytics?${queryParams.toString()}`);
+
       if (response.success) {
         return response.data;
       } else {
@@ -100,18 +126,19 @@ export const fetchCartAnalytics = createAsyncThunk(
   }
 );
 
-export const exportReport = createAsyncThunk(
+export const exportDashboardReport = createAsyncThunk(
   'dashboard/exportReport',
   async (params: {
     type: 'orders' | 'menu' | 'users';
-    format?: 'csv' | 'json';
+    format?: 'csv' | 'json' | 'pdf' | 'excel';
     startDate?: string;
     endDate?: string;
     period?: string;
+    category?: 'veg' | 'non-veg';
   }, { rejectWithValue }) => {
     try {
       const queryParams = new URLSearchParams();
-      
+
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
           queryParams.append(key, value.toString());
@@ -119,7 +146,7 @@ export const exportReport = createAsyncThunk(
       });
 
       const response = await api.get(`/api/admin/dashboard/export?${queryParams.toString()}`);
-      
+
       if (response.success) {
         return response.data;
       } else {
@@ -176,17 +203,17 @@ const dashboardSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Export Report
+    // Export Dashboard Report
     builder
-      .addCase(exportReport.pending, (state) => {
+      .addCase(exportDashboardReport.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(exportReport.fulfilled, (state) => {
+      .addCase(exportDashboardReport.fulfilled, (state) => {
         state.isLoading = false;
         state.error = null;
       })
-      .addCase(exportReport.rejected, (state, action) => {
+      .addCase(exportDashboardReport.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });

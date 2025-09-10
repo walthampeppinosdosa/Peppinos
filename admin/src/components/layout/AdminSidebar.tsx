@@ -88,7 +88,7 @@ export const AdminSidebar: React.FC = () => {
         {!isCollapsed && (
           <div className="p-6 border-b border-sidebar-border">
             <div className="flex items-center gap-3">
-              <img src={logo} alt="Logo" width={50} height={50} />
+              <img src={logo} alt="Logo" width={56} height={56} />
                 <div>
                   <h2 className="font-bold text-sidebar-foreground">Peppino's Dosa</h2>
                   <p className="text-xs text-sidebar-foreground/60">Restaurant Management</p>
