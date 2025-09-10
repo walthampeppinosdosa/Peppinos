@@ -346,7 +346,17 @@ export const Users: React.FC = () => {
           <h1 className="text-2xl font-bold">Users Management</h1>
           <p className="text-muted-foreground">Manage user accounts and permissions</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          {/* View Mode Toggle - moved here */}
+          <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as 'table' | 'grid')}>
+            <ToggleGroupItem value="table" aria-label="Table view">
+              <LayoutGrid className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="grid" aria-label="Grid view">
+              <Grid3X3 className="h-4 w-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
+
           <ExportDropdown
             data={exportData}
             columns={exportColumns}
@@ -450,17 +460,7 @@ export const Users: React.FC = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">View Mode</label>
-                    <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as 'table' | 'grid')}>
-                      <ToggleGroupItem value="table" aria-label="Table view">
-                        <LayoutGrid className="h-4 w-4" />
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="grid" aria-label="Grid view">
-                        <Grid3X3 className="h-4 w-4" />
-                      </ToggleGroupItem>
-                    </ToggleGroup>
-                  </div>
+                  {/* View Mode removed from filters */}
                 </div>
               </div>
             )}
@@ -594,7 +594,7 @@ export const Users: React.FC = () => {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleDeleteUser(user)}
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -714,7 +714,7 @@ export const Users: React.FC = () => {
                           variant="outline"
                           size="sm"
                           onClick={() => handleDeleteUser(user)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                         
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

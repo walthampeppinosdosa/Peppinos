@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authentication - Peppino's Dosa</title>
+  <link rel="stylesheet" href="./peppinos/assets/css/style.css">
+  <link rel="stylesheet" href="./peppinos/assets/css/auth.css">
+</head>
+<body>
+  <main class="auth-page">
+    <div class="auth-container">
+      <div class="auth-header">
+        <div class="logo-container">
+          <img src="./peppinos/assets/images/logo-1.png" width="160" height="50" alt="Peppino's Dosa">
+        </div>
+        <h1 class="auth-title">Completing Authentication</h1>
+        <p class="auth-subtitle">Please wait while we set up your account...</p>
+      </div>
+
+      <div id="authLoading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p id="loadingText" class="loading-text">Verifying your authentication...</p>
+      </div>
+
+      <div id="successMessage" class="success-container" style="display: none;">
+        <div class="success-icon">✅</div>
+        <h3>Authentication Successful!</h3>
+        <p id="welcomeText">Welcome! Redirecting you now...</p>
+      </div>
+
+      <div id="errorContainer" class="error-container" style="display: none;">
+        <div class="error-icon">⚠️</div>
+        <h3>Authentication Error</h3>
+        <p id="errorMessage">Something went wrong during authentication.</p>
+        <p id="errorText" class="error-details"></p>
+        <div class="error-actions">
+          <a href="./peppinos/login.html" class="auth-btn">Try Again</a>
+          <a href="./peppinos/" class="auth-btn secondary">Go Home</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { AuthCallback } from './peppinos/assets/js/auth/callback.js';
+    import { showSuccess, showError } from './peppinos/assets/js/ui.js';
+
+    // Initialize callback handler when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        new AuthCallback();
+      } catch (error) {
+        console.error('❌ Failed to initialize callback handler:', error);
+        showError('Failed to initialize authentication handler');
+      }
+    });
+  </script>
+
+  <style>
+    .loading-container {
+      text-align: center;
+      padding: 3rem 0;
+    }
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid var(--white-alpha-10);
+      border-top: 4px solid var(--gold-crayola);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 2rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: var(--quick-silver);
+      font-size: 1.1rem;
+      margin: 0;
+    }
+
+    .success-container {
+      text-align: center;
+      padding: 3rem 0;
+    }
+
+    .success-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .error-container {
+      text-align: center;
+      padding: 3rem 0;
+    }
+
+    .error-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .success-container h3,
+    .error-container h3 {
+      color: var(--gold-crayola);
+      margin-bottom: 1rem;
+      font-family: var(--fontFamily-forum);
+    }
+
+    .success-container p,
+    .error-container p {
+      color: var(--quick-silver);
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    .error-details {
+      font-size: 0.9rem;
+      color: var(--white-alpha-70);
+      margin-bottom: 2rem !important;
+    }
+
+    .error-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .error-actions .auth-btn {
+      min-width: 120px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .auth-btn.secondary {
+      background: transparent;
+      border: 1px solid var(--gold-crayola);
+      color: var(--gold-crayola);
+    }
+
+    .auth-btn.secondary:hover {
+      background: var(--gold-crayola);
+      color: var(--smoky-black-1);
+    }
+  </style>
+</body>
+</html>

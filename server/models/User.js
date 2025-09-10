@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: function() {
-      return !this.googleId && this.role !== 'guest'; // Password not required for OAuth users or guests
+      return !this.googleId && !this.kindeId && this.role !== 'guest'; // Password not required for OAuth users or guests
     },
     minlength: [6, 'Password must be at least 6 characters'],
     select: false // Don't include password in queries by default
@@ -40,6 +40,19 @@ const userSchema = new mongoose.Schema({
   googleId: {
     type: String,
     sparse: true // Allows multiple null values but unique non-null values
+  },
+  kindeId: {
+    type: String,
+    sparse: true // Allows multiple null values but unique non-null values
+  },
+  authProvider: {
+    type: String,
+    enum: ['local', 'google', 'kinde'],
+    default: 'local'
+  },
+  profileImage: {
+    type: String,
+    default: null
   },
   isActive: {
     type: Boolean,
@@ -66,6 +79,18 @@ const userSchema = new mongoose.Schema({
       return this.role === 'guest';
     },
     sparse: true // Allows multiple null values but unique non-null values
+  },
+  // Password reset fields
+  resetPasswordToken: {
+    type: String,
+    select: false
+  },
+  resetPasswordExpires: {
+    type: Date,
+    select: false
+  },
+  lastPasswordChange: {
+    type: Date
   }
 }, {
   timestamps: true

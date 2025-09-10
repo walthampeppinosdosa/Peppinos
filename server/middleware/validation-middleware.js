@@ -581,6 +581,32 @@ const validateGuestCheckout = [
 ];
 
 /**
+ * Validation rules for forgot password
+ */
+const validateForgotPassword = [
+  body('email')
+    .trim()
+    .isEmail()
+    .withMessage('Please provide a valid email')
+    .normalizeEmail()
+];
+
+/**
+ * Validation rules for reset password
+ */
+const validateResetPassword = [
+  body('token')
+    .notEmpty()
+    .withMessage('Reset token is required'),
+
+  body('newPassword')
+    .isLength({ min: 8 })
+    .withMessage('Password must be at least 8 characters long')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+    .withMessage('Password must contain at least one lowercase letter, one uppercase letter, and one number')
+];
+
+/**
  * Middleware to handle validation errors
  */
 const handleValidationErrors = (req, res, next) => {
@@ -601,6 +627,8 @@ module.exports = {
   validateGoogleAuth,
   validateUpdateProfile,
   validatePasswordChange,
+  validateForgotPassword,
+  validateResetPassword,
   validateProduct,
   validateMenuItem,
   validateBulkOperation,

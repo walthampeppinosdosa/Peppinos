@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!--
+    - primary meta tags
+  -->
+  <title>Authentication - Peppino's Dosa</title>
+  <meta name="title" content="Authentication - Peppino's Dosa">
+  <meta name="description" content="Completing authentication for Peppino's Dosa">
+
+  <!--
+    - favicon
+  -->
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  <!--
+    - google font link
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap" rel="stylesheet">
+
+  <!--
+    - custom css link
+  -->
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/auth.css">
+
+
+</head>
+
+<body>
+
+  <!--
+    - #PRELOADER
+  -->
+
+  <div class="preload" data-preaload>
+    <div class="circle"></div>
+    <p class="text">Peppino's Dosa</p>
+  </div>
+
+  <!--
+    - #AUTH CALLBACK PAGE
+  -->
+
+  <main class="auth-page">
+    <div class="auth-container">
+      
+      <!-- Auth Header -->
+      <div class="auth-header">
+        <a href="index.html" class="auth-logo">
+          <img src="./assets/images/logo-1.png" alt="Peppino's Dosa" width="60" height="60">
+        </a>
+        <h1 class="auth-title">Completing Authentication</h1>
+        <p class="auth-subtitle">Please wait while we set up your account...</p>
+      </div>
+
+      <!-- Loading State -->
+      <div class="auth-loading" id="authLoading">
+        <div style="text-align: center; padding: 2rem;">
+          <div class="loading-spinner large" style="margin: 0 auto 1rem;"></div>
+          <p style="color: var(--quick-silver); font-size: 1rem;" id="loadingText">
+            Setting up your account...
+          </p>
+        </div>
+      </div>
+
+      <!-- Success Message (Hidden by default) -->
+      <div class="success-message" id="successMessage" style="display: none;">
+        <div style="text-align: center; padding: 2rem; background: var(--smoky-black-3); border-radius: 8px; border: 1px solid var(--white-alpha-10);">
+          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--gold-crayola) 0%, #b8860b 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+            <ion-icon name="checkmark-outline" style="font-size: 2rem; color: var(--smoky-black-1);"></ion-icon>
+          </div>
+          <h3 style="color: var(--gold-crayola); font-family: var(--fontFamily-forum); font-size: 1.5rem; margin-bottom: 1rem;">Welcome!</h3>
+          <p style="color: var(--quick-silver); line-height: 1.6; margin-bottom: 1.5rem;" id="welcomeText">
+            Your account has been set up successfully. Redirecting you now...
+          </p>
+        </div>
+      </div>
+
+      <!-- Error Message (Hidden by default) -->
+      <div class="error-message-container" id="errorMessage" style="display: none;">
+        <div style="text-align: center; padding: 2rem; background: var(--smoky-black-3); border-radius: 8px; border: 1px solid #ef4444; border-left: 4px solid #ef4444;">
+          <div style="width: 60px; height: 60px; background: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+            <ion-icon name="close-outline" style="font-size: 2rem; color: white;"></ion-icon>
+          </div>
+          <h3 style="color: #ef4444; font-family: var(--fontFamily-forum); font-size: 1.5rem; margin-bottom: 1rem;">Authentication Failed</h3>
+          <p style="color: var(--quick-silver); line-height: 1.6; margin-bottom: 1.5rem;" id="errorText">
+            There was an issue setting up your account. Please try again.
+          </p>
+          <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="login.html" class="auth-btn" style="display: inline-block; text-decoration: none; padding: 0.875rem 1.5rem;">
+              Try Again
+            </a>
+            <a href="index.html" style="display: inline-block; text-decoration: none; padding: 0.875rem 1.5rem; color: var(--gold-crayola); border: 1px solid var(--gold-crayola); border-radius: 8px;">
+              Go Home
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!--
+    - ionicons
+  -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+  <!--
+    - custom js link
+  -->
+  <script src="./assets/js/script.js"></script>
+  <script type="module" src="./assets/js/auth/callback.js"></script>
+
+</body>
+
+</html>

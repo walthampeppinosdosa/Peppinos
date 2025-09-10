@@ -30,6 +30,16 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/peppinos'
 .then(() => console.log('MongoDB connected successfully'))
 .catch((err) => console.error('MongoDB connection error:', err));
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 // Routes
 app.use('/api/auth', authLimiter);
 app.use('/api/auth', require('./routes/auth/auth-routes'));

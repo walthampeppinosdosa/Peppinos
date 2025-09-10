@@ -69,12 +69,12 @@ const hideHeader = function () {
 
 window.addEventListener("scroll", function () {
   if (window.scrollY >= 50) {
-    header.classList.add("active");
-    backTopBtn.classList.add("active");
+    if (header) header.classList.add("active");
+    if (backTopBtn) backTopBtn.classList.add("active");
     hideHeader();
   } else {
-    header.classList.remove("active");
-    backTopBtn.classList.remove("active");
+    if (header) header.classList.remove("active");
+    if (backTopBtn) backTopBtn.classList.remove("active");
   }
 });
 
@@ -275,7 +275,7 @@ function initLogo() {
   console.log(`🔍 Found ${logoContainers.length} logo containers`);
 
   if (logoContainers.length === 0) {
-    console.error('❌ No logo containers found! Check HTML structure');
+    console.warn('⚠️ No logo containers found - this is normal for pages without logo animation');
     return;
   }
 

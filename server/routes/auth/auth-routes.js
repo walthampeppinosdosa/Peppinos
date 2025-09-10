@@ -8,7 +8,12 @@ const {
   googleLogin,
   logout,
   getProfile,
-  refreshToken
+  refreshToken,
+  kindeTokenExchange,
+  kindeSync,
+  forgotPassword,
+  resetPassword,
+  verifyResetToken
 } = require('../../controllers/auth/auth-controller');
 
 // Import middleware
@@ -17,6 +22,8 @@ const {
   validateRegister,
   validateLogin,
   validateGoogleAuth,
+  validateForgotPassword,
+  validateResetPassword,
   handleValidationErrors
 } = require('../../middleware/validation-middleware');
 
@@ -37,5 +44,20 @@ router.get('/profile', authenticateToken, getProfile);
 
 // POST /api/auth/refresh
 router.post('/refresh', refreshToken);
+
+// POST /api/auth/kinde-token-exchange
+router.post('/kinde-token-exchange', kindeTokenExchange);
+
+// POST /api/auth/kinde-sync
+router.post('/kinde-sync', kindeSync);
+
+// POST /api/auth/forgot-password
+router.post('/forgot-password', validateForgotPassword, handleValidationErrors, forgotPassword);
+
+// POST /api/auth/reset-password
+router.post('/reset-password', validateResetPassword, handleValidationErrors, resetPassword);
+
+// POST /api/auth/verify-reset-token
+router.post('/verify-reset-token', verifyResetToken);
 
 module.exports = router;

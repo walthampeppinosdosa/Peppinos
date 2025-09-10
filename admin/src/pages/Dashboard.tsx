@@ -574,9 +574,7 @@ export const Dashboard: React.FC = () => {
             <Card key={index} className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-transparent hover:border-l-primary">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
-                <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                </div>
+                <stat.icon className={`h-5 w-5 ${stat.color}`} />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold mb-1">{stat.value}</div>
@@ -617,72 +615,87 @@ export const Dashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 {stats?.charts?.dailyRevenue ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={stats.charts.dailyRevenue}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="_id" />
-                      <YAxis />
-                      <Tooltip
-                        formatter={(value, name) => [
-                          name === 'revenue' ? formatCurrency(value as number) : value,
-                          name === 'revenue' ? 'Revenue' : 'Orders'
-                        ]}
-                      />
-                      <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <>
+                    <div className="flex gap-1 flex-wrap items-center mb-2">
+                      {isSuperAdmin() && (
+                        <>
+                          {/* Veg Export Dropdown */}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                disabled={isLoading}
+                                className="text-green-600 hover:bg-green-100/20 dark:hover:bg-green-900/20"
+                                title="Export Veg"
+                              >
+                                <Leaf className="h-5 w-5" />
+                                <ChevronDown className="h-3 w-3 ml-0.5" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleExportVegNonVeg('veg', 'pdf')}>
+                                <FileText className="h-4 w-4 mr-2" />
+                                Export as PDF
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleExportVegNonVeg('veg', 'excel')}>
+                                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                                Export as Excel
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleExportVegNonVeg('veg', 'csv')}>
+                                <FileDown className="h-4 w-4 mr-2" />
+                                Export as CSV
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+
+                          {/* Non-Veg Export Dropdown */}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                disabled={isLoading}
+                                className="text-red-600 hover:bg-red-100/20 dark:hover:bg-red-900/20"
+                                title="Export Non-Veg"
+                              >
+                                <Utensils className="h-5 w-5" />
+                                <ChevronDown className="h-3 w-3 ml-0.5" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleExportVegNonVeg('non-veg', 'pdf')}>
+                                <FileText className="h-4 w-4 mr-2" />
+                                Export as PDF
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleExportVegNonVeg('non-veg', 'excel')}>
+                                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                                Export as Excel
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleExportVegNonVeg('non-veg', 'csv')}>
+                                <FileDown className="h-4 w-4 mr-2" />
+                                Export as CSV
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </>
+                      )}
+                    </div>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={stats.charts.dailyRevenue}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="_id" tick={{ fontSize: 12 }} angle={-45} textAnchor="end" height={60} />
+                        <YAxis tick={{ fontSize: 12 }} tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
+                        <Tooltip formatter={(value, name) => [formatCurrency(value as number), 'Revenue']} labelFormatter={(label) => `Date: ${label}`} />
+                        <Legend />
+                        <Bar dataKey="revenue" fill="hsl(var(--primary))" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </>
                 ) : (
                   <div className="flex items-center justify-center h-[300px]">
                     <div className="text-center">
                       <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">No revenue data available</p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <PieChart className="h-5 w-5" />
-                  Order Status Distribution
-                </CardTitle>
-                <CardDescription>Current order status breakdown</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {stats?.charts?.orderStatusDistribution ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={stats.charts.orderStatusDistribution}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={120}
-                        paddingAngle={5}
-                        dataKey="count"
-                      >
-                        {stats.charts.orderStatusDistribution.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={
-                              entry._id === 'completed' ? 'hsl(var(--success))' :
-                              entry._id === 'pending' ? 'hsl(var(--warning))' :
-                              entry._id === 'cancelled' ? 'hsl(var(--destructive))' :
-                              'hsl(var(--muted))'
-                            }
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="flex items-center justify-center h-[300px]">
-                    <div className="text-center">
-                      <PieChart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                       <p className="text-muted-foreground">No order data available</p>
                     </div>
                   </div>
