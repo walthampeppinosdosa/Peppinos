@@ -129,11 +129,17 @@ class AuthCallbackHandler {
     
     // Show success toast
     showSuccess(`Welcome, ${user.name}!`);
-    
-    // Redirect after a delay
-    const redirectUrl = getRedirectUrl('./index.html');
+
+    // Redirect after a delay - construct proper path
+    const currentPath = window.location.pathname;
+    const currentDir = currentPath.substring(0, currentPath.lastIndexOf('/'));
+    const indexPath = currentDir + '/index.html';
+    const fullUrl = window.location.origin + indexPath;
+
+    console.log('🔄 OAuth callback redirect to:', fullUrl);
+
     setTimeout(() => {
-      window.location.href = redirectUrl;
+      window.location.href = fullUrl;
     }, 2000);
   }
 

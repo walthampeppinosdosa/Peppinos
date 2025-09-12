@@ -81,7 +81,17 @@ export const setCurrentUser = (user) => {
 export const isAuthenticated = () => {
   const token = getAuthToken();
   const isGuest = localStorage.getItem('peppinos_is_guest') === 'true';
-  return (token && !isTokenExpired(token)) || isGuest;
+  const hasValidToken = token && !isTokenExpired(token);
+  const result = hasValidToken || isGuest;
+
+  console.log('🔐 isAuthenticated check:', {
+    token: token ? 'present' : 'missing',
+    isGuest,
+    hasValidToken,
+    result
+  });
+
+  return result;
 };
 
 // Check if user is a guest
@@ -146,15 +156,18 @@ const notifyAuthChange = (isAuthenticated, user = null) => {
 // Login user
 export const loginUser = (authData) => {
   const { accessToken, refreshToken, user } = authData;
-  
+
+  // Clear any guest status
+  localStorage.removeItem('peppinos_is_guest');
+
   setAuthTokens(accessToken, refreshToken);
   setCurrentUser(user);
-  
+
   notifyAuthChange(true, user);
-  
+
   // Set up token refresh timer
   setupTokenRefresh();
-  
+
   return user;
 };
 
@@ -282,10 +295,16 @@ export const requireAuth = (redirectUrl = './login.html') => {
 
 // Redirect to home if already authenticated
 export const requireGuest = (redirectUrl = './index.html') => {
+  console.log('🔍 requireGuest called from:', new Error().stack.split('\n')[2]);
+  console.log('🔐 Current auth status:', isAuthenticated());
+  console.log('📍 Current page:', window.location.href);
+
   if (isAuthenticated()) {
+    console.log('🔄 User is authenticated, redirecting from guest page to:', redirectUrl);
     window.location.href = redirectUrl;
     return false;
   }
+  console.log('✅ User is not authenticated, staying on guest page');
   return true;
 };
 
@@ -305,7 +324,25 @@ export const requireRole = (requiredRole, redirectUrl = './index.html') => {
 // Get redirect URL from query params
 export const getRedirectUrl = (defaultUrl = './index.html') => {
   const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('redirect') || defaultUrl;
+  const redirectParam = urlParams.get('redirect');
+
+  // If no redirect parameter, use default
+  if (!redirectParam) {
+    return defaultUrl;
+  }
+
+  // If redirect parameter is an absolute path starting with /, make it relative
+  if (redirectParam.startsWith('/')) {
+    // Convert absolute path to relative path within peppinos folder
+    if (redirectParam === '/' || redirectParam === '/index.html') {
+      return './index.html';
+    }
+    // For other absolute paths, try to make them relative
+    return '.' + redirectParam;
+  }
+
+  // If it's already a relative path or full URL, use as is
+  return redirectParam;
 };
 
 // Format user display name

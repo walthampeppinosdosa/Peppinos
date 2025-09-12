@@ -651,7 +651,7 @@
 
           <h2 class="headline section-title text-center">Our Signature Dishes</h2>
 
-          <ul class="grid-list">
+          <ul class="grid-list" id="featured-menu-container">
 
             <li>
               <div class="menu-card hover:card">
@@ -1397,6 +1397,16 @@
     - authentication integration
   -->
   <script type="module" src="./assets/js/auth.js"></script>
+
+  <!--
+    - dynamic menu integration for featured items
+  -->
+  <script type="module">
+    import { featuredMenuLoader } from './assets/js/featured-menu.js';
+
+    // Featured menu loader will auto-initialize
+    console.log('Featured menu loader imported');
+  </script>
 
   <!--
     - ionicon link

@@ -28,27 +28,36 @@ const createRateLimit = (windowMs, max, message, skipSuccessfulRequests = false)
   });
 };
 
-// General rate limit
-const generalLimiter = createRateLimit(
-  15 * 60 * 1000, // 15 minutes
-  process.env.NODE_ENV === 'development' ? 1000 : 100, // Higher limit for development
-  'Too many requests from this IP, please try again later.'
-);
+// General rate limit - disabled in development
+const generalLimiter = process.env.NODE_ENV === 'development'
+  ? (req, res, next) => next() // Skip rate limiting in development
+  : createRateLimit(
+      15 * 60 * 1000, // 15 minutes
+      100, // limit each IP to 100 requests per windowMs
+      'Too many requests from this IP, please try again later.'
+    );
 
-// Auth rate limit (stricter)
-const authLimiter = createRateLimit(
-  15 * 60 * 1000, // 15 minutes
-  5, // limit each IP to 5 requests per windowMs
-  'Too many authentication attempts, please try again later.',
-  true // Skip successful requests
-);
+// Auth rate limit (stricter) - disabled in development
+const authLimiter = process.env.NODE_ENV === 'development'
+  ? (req, res, next) => {
+      console.log('🔓 Auth rate limiting disabled in development');
+      next();
+    } // Skip rate limiting in development
+  : createRateLimit(
+      15 * 60 * 1000, // 15 minutes
+      5, // limit each IP to 5 requests per windowMs
+      'Too many authentication attempts, please try again later.',
+      true // Skip successful requests
+    );
 
-// Password reset rate limit
-const passwordResetLimiter = createRateLimit(
-  60 * 60 * 1000, // 1 hour
-  3, // limit each IP to 3 password reset requests per hour
-  'Too many password reset attempts, please try again later.'
-);
+// Password reset rate limit - disabled in development
+const passwordResetLimiter = process.env.NODE_ENV === 'development'
+  ? (req, res, next) => next() // Skip rate limiting in development
+  : createRateLimit(
+      60 * 60 * 1000, // 1 hour
+      3, // limit each IP to 3 password reset requests per hour
+      'Too many password reset attempts, please try again later.'
+    );
 
 // API rate limit
 const apiLimiter = createRateLimit(

@@ -49,9 +49,16 @@ class HttpClient {
     if (!response.ok) {
       // Handle authentication errors
       if (response.status === 401) {
-        removeAuthData();
-        window.location.href = '/login.html';
-        throw new Error('Authentication required');
+        // Don't redirect if this is a login attempt (let the login handler deal with it)
+        const isLoginAttempt = response.url && response.url.includes('/auth/login');
+        if (!isLoginAttempt) {
+          removeAuthData();
+          window.location.href = './login.html';
+        }
+        const error = new Error(data.message || 'Authentication required');
+        error.status = response.status;
+        error.data = data;
+        throw error;
       }
 
       // Handle other errors
@@ -177,8 +184,15 @@ export const userAPI = {
 export const menuAPI = {
   getAll: (params = {}) => httpClient.get(CONFIG.API.ENDPOINTS.MENU.GET_ALL, params),
   getById: (id) => httpClient.get(`${CONFIG.API.ENDPOINTS.MENU.GET_BY_ID}/${id}`),
-  getByCategory: (category, params = {}) => httpClient.get(`${CONFIG.API.ENDPOINTS.MENU.GET_BY_CATEGORY}/${category}`, params),
-  search: (query, params = {}) => httpClient.get(CONFIG.API.ENDPOINTS.MENU.SEARCH, { q: query, ...params })
+  getByCategory: (category, params = {}) => httpClient.get(CONFIG.API.ENDPOINTS.MENU.GET_BY_CATEGORY, { category, ...params }),
+  search: (query, params = {}) => httpClient.get(CONFIG.API.ENDPOINTS.MENU.SEARCH, { q: query, ...params }),
+  getFeatured: (params = {}) => httpClient.get(CONFIG.API.ENDPOINTS.MENU.FEATURED, params)
+};
+
+// Categories API functions
+export const categoriesAPI = {
+  getAll: (params = {}) => httpClient.get(CONFIG.API.ENDPOINTS.CATEGORIES.GET_ALL, params),
+  getById: (id) => httpClient.get(`${CONFIG.API.ENDPOINTS.CATEGORIES.GET_BY_ID}/${id}`)
 };
 
 // Order API functions
@@ -199,11 +213,7 @@ export const cartAPI = {
   clear: () => httpClient.delete(CONFIG.API.ENDPOINTS.CART.CLEAR)
 };
 
-// Categories API functions
-export const categoriesAPI = {
-  getAll: () => httpClient.get(CONFIG.API.ENDPOINTS.CATEGORIES.GET_ALL),
-  getById: (id) => httpClient.get(`${CONFIG.API.ENDPOINTS.CATEGORIES.GET_BY_ID}/${id}`)
-};
+
 
 // Export the HTTP client for custom requests
 export { httpClient };

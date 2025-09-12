@@ -207,44 +207,68 @@ const getMenuItemById = async (req, res) => {
 };
 
 /**
- * Get all categories (public)
+ * Get all categories (public) - returns both parent and menu categories
  * GET /api/shop/categories
  */
 const getAllCategories = async (req, res) => {
   try {
-    const { isVegetarian = '' } = req.query;
+    const {
+      isVegetarian = '',
+      type = '',
+      hierarchical = 'false',
+      parentId = ''
+    } = req.query;
 
     // Build query - only active categories
     let query = { isActive: true };
 
-    // Vegetarian filter
-    if (isVegetarian !== '') {
+    // Type filter (parent or menu)
+    if (type) {
+      query.type = type;
+    }
+
+    // Parent category filter for menu categories
+    if (parentId) {
+      query.parentCategory = parentId;
+    }
+
+    // For parent categories, apply vegetarian filter
+    if (isVegetarian !== '' && (!type || type === 'parent')) {
       query.isVegetarian = isVegetarian === 'true';
     }
 
-    const categories = await Category.find(query)
-      .select('-__v')
-      .sort({ sortOrder: 1, name: 1 })
-      .lean();
+    let categories;
 
-    // Get menu item count for each category
-    const categoriesWithCount = await Promise.all(
-      categories.map(async (category) => {
-        const menuItemCount = await Menu.countDocuments({
-          category: category._id,
-          isActive: true
-        });
-        return {
-          ...category,
-          menuItemCount
-        };
-      })
-    );
+    if (hierarchical === 'true') {
+      // Return hierarchical structure with parent categories and their menu categories
+      categories = await Category.getHierarchical();
+    } else {
+      // Return flat list of categories
+      categories = await Category.find(query)
+        .populate('parentCategory', 'name isVegetarian')
+        .select('-__v')
+        .sort({ sortOrder: 1, name: 1 })
+        .lean();
+
+      // Get menu item count for each category
+      categories = await Promise.all(
+        categories.map(async (category) => {
+          const menuItemCount = await Menu.countDocuments({
+            category: category._id,
+            isActive: true
+          });
+          return {
+            ...category,
+            menuItemCount
+          };
+        })
+      );
+    }
 
     res.status(200).json({
       success: true,
       message: 'Categories retrieved successfully',
-      data: { categories: categoriesWithCount }
+      data: { categories }
     });
   } catch (error) {
     console.error('Get categories error:', error);

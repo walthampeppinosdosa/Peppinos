@@ -279,175 +279,39 @@
 
           <h2 class="headline section-title text-center">Our Signature Dishes</h2>
 
-          <ul class="grid-list">
+          <!-- Menu Search and Filters -->
+          <div class="menu-controls">
+            <div class="search-wrapper">
+              <input type="text" id="menu-search" placeholder="Search menu items..." class="search-input">
+              <button id="menu-search-btn" class="search-btn" aria-label="Search menu">
+                <ion-icon name="search-outline"></ion-icon>
+              </button>
+            </div>
 
-            <li>
-              <div class="menu-card hover:card">
+            <div class="filter-buttons">
+              <button id="filter-veg" class="filter-btn veg-filter">
+                <ion-icon name="leaf-outline"></ion-icon>
+                Vegetarian
+              </button>
+              <button id="filter-nonveg" class="filter-btn nonveg-filter">
+                <ion-icon name="restaurant-outline"></ion-icon>
+                Non-Vegetarian
+              </button>
+              <button id="clear-filters" class="filter-btn clear-filter">
+                <ion-icon name="refresh-outline"></ion-icon>
+                All Items
+              </button>
+            </div>
+          </div>
 
-                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-1.png" width="100" height="100" loading="lazy" alt="Masala Dosa"
-                    class="img-cover">
-                </figure>
-
-                <div>
-
-                  <div class="title-wrapper">
-                    <h3 class="title-3">
-                      <a href="#" class="card-title">Masala Dosa</a>
-                    </h3>
-
-                    <span class="badge label-1">Popular</span>
-
-                    <span class="span title-2">$12.99</span>
-                  </div>
-
-                  <p class="card-text label-1">
-                    Crispy rice and lentil crepe filled with spiced potato curry, served with sambar and chutneys.
-                  </p>
-
-                </div>
-
-              </div>
-            </li>
-
-            <li>
-              <div class="menu-card hover:card">
-
-                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-2.png" width="100" height="100" loading="lazy" alt="Chicken Biryani"
-                    class="img-cover">
-                </figure>
-
-                <div>
-
-                  <div class="title-wrapper">
-                    <h3 class="title-3">
-                      <a href="#" class="card-title">Chicken Biryani</a>
-                    </h3>
-
-                    <span class="span title-2">$16.99</span>
-                  </div>
-
-                  <p class="card-text label-1">
-                    Fragrant basmati rice layered with tender chicken, aromatic spices, and fresh herbs.
-                  </p>
-
-                </div>
-
-              </div>
-            </li>
-
-            <li>
-              <div class="menu-card hover:card">
-
-                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-3.png" width="100" height="100" loading="lazy" alt="Paneer Tikka"
-                    class="img-cover">
-                </figure>
-
-                <div>
-
-                  <div class="title-wrapper">
-                    <h3 class="title-3">
-                      <a href="#" class="card-title">Paneer Tikka</a>
-                    </h3>
-
-                    <span class="span title-2">$14.99</span>
-                  </div>
-
-                  <p class="card-text label-1">
-                    Marinated cottage cheese cubes grilled to perfection with bell peppers and onions.
-                  </p>
-
-                </div>
-
-              </div>
-            </li>
-
-            <li>
-              <div class="menu-card hover:card">
-
-                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-4.png" width="100" height="100" loading="lazy" alt="Butter Chicken"
-                    class="img-cover">
-                </figure>
-
-                <div>
-
-                  <div class="title-wrapper">
-                    <h3 class="title-3">
-                      <a href="#" class="card-title">Butter Chicken</a>
-                    </h3>
-
-                    <span class="badge label-1">Chef Special</span>
-
-                    <span class="span title-2">$18.99</span>
-                  </div>
-
-                  <p class="card-text label-1">
-                    Tender chicken in a rich, creamy tomato-based sauce with aromatic spices and herbs.
-                  </p>
-
-                </div>
-
-              </div>
-            </li>
-
-            <li>
-              <div class="menu-card hover:card">
-
-                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-5.png" width="100" height="100" loading="lazy" alt="Olivas Rellenas"
-                    class="img-cover">
-                </figure>
-
-                <div>
-
-                  <div class="title-wrapper">
-                    <h3 class="title-3">
-                      <a href="#" class="card-title">Samosa Chaat</a>
-                    </h3>
-
-                    <span class="span title-2">$8.99</span>
-                  </div>
-
-                  <p class="card-text label-1">
-                    Crispy samosas topped with yogurt, chutneys, onions, and fresh herbs for a burst of flavors.
-                  </p>
-
-                </div>
-
-              </div>
-            </li>
-
-            <li>
-              <div class="menu-card hover:card">
-
-                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-6.png" width="100" height="100" loading="lazy" alt="Lamb Curry"
-                    class="img-cover">
-                </figure>
-
-                <div>
-
-                  <div class="title-wrapper">
-                    <h3 class="title-3">
-                      <a href="#" class="card-title">Lamb Curry</a>
-                    </h3>
-
-                    <span class="span title-2">$22.99</span>
-                  </div>
-
-                  <p class="card-text label-1">
-                    Tender lamb slow-cooked in a rich blend of traditional spices and aromatic curry sauce.
-                  </p>
-
-                </div>
-
-              </div>
-            </li>
-
-          </ul>
+          <!-- Dynamic Menu Container -->
+          <div class="menu-categories" id="dynamic-menu-container">
+            <!-- Menu categories will be loaded dynamically here -->
+            <div class="menu-loading" style="text-align: center; padding: 40px;">
+              <div style="font-size: 24px; margin-bottom: 10px;">🍽️</div>
+              <p>Loading delicious menu items...</p>
+            </div>
+          </div>
 
           <p class="menu-text text-center">
             Lunch Buffet: Mon-Fri <span class="span">11:30 AM</span> to <span class="span">3:00 PM</span>
@@ -673,6 +537,11 @@
   -->
   <script type="module" src="./assets/js/navigation.js"></script>
   <script type="module" src="./assets/js/auth.js"></script>
+
+  <!--
+    - dynamic menu integration
+  -->
+  <script type="module" src="./assets/js/simple-menu-loader.js"></script>
 
 </body>
 

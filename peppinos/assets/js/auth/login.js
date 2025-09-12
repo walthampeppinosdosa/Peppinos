@@ -4,7 +4,7 @@
  */
 
 import { authAPI } from '../api.js';
-import { loginUser, requireGuest, getRedirectUrl } from '../auth.js';
+import { loginUser, requireGuest, getRedirectUrl, isAuthenticated } from '../auth.js';
 import { validateLoginForm, displayFormErrors, clearFormErrors } from '../validation.js';
 import { showLoading, hideLoading, showSuccess, showError } from '../ui.js';
 import { CONFIG } from '../config.js';
@@ -25,6 +25,8 @@ class LoginHandler {
     this.rememberMeCheckbox = document.getElementById('rememberMe');
     
     this.isLoading = false;
+    this.lastSubmitTime = 0;
+    this.submitCooldown = 1000; // 1 second cooldown between attempts
     
     this.init();
   }
@@ -69,11 +71,25 @@ class LoginHandler {
 
   async handleSubmit(event) {
     event.preventDefault();
-    
+
     if (this.isLoading) return;
-    
-    // Clear previous errors
+
+    // Prevent rapid successive submissions
+    const now = Date.now();
+    if (now - this.lastSubmitTime < this.submitCooldown) {
+      console.log('⏳ Login attempt too soon, please wait...');
+      return;
+    }
+    this.lastSubmitTime = now;
+
+    console.log('🔄 Login form submitted');
+
+    // Clear previous errors and UI state
     clearFormErrors(this.form);
+
+    // Clear any existing error toasts
+    const existingToasts = document.querySelectorAll('.toast');
+    existingToasts.forEach(toast => toast.remove());
     
     // Get form data
     const formData = new FormData(this.form);
@@ -82,6 +98,8 @@ class LoginHandler {
       password: formData.get('password'),
       rememberMe: formData.get('rememberMe') === 'on'
     };
+
+    console.log('📧 Login attempt for email:', loginData.email);
     
     // Validate form
     const validation = validateLoginForm(loginData);
@@ -101,38 +119,84 @@ class LoginHandler {
       });
       
       if (response.success) {
+        console.log('✅ Login API response successful:', response);
+
         // Store authentication data
         const user = loginUser(response.data);
-        
+        console.log('👤 User logged in:', user);
+
+        // Check authentication status
+        console.log('🔐 Is authenticated after login:', isAuthenticated());
+        console.log('💾 Auth data in storage:', {
+          token: localStorage.getItem('accessToken'),
+          user: localStorage.getItem('currentUser')
+        });
+
         // Show success message
         showSuccess(`Welcome back, ${user.name}!`);
-        
-        // Redirect to intended page or home
-        const redirectUrl = getRedirectUrl('./index.html');
 
+        // Redirect immediately after successful login
+        console.log('🔄 Preparing immediate redirect after successful login...');
+        console.log('📍 Current location:', window.location.href);
+        console.log('📍 Current pathname:', window.location.pathname);
+        console.log('📍 Current origin:', window.location.origin);
+
+        // Construct the correct path explicitly
+        const currentPath = window.location.pathname; // e.g., "/peppinos/login.html"
+        const currentDir = currentPath.substring(0, currentPath.lastIndexOf('/')); // e.g., "/peppinos"
+        const indexPath = currentDir + '/index.html'; // e.g., "/peppinos/index.html"
+        const fullUrl = window.location.origin + indexPath; // e.g., "http://localhost:5500/peppinos/index.html"
+
+        console.log('🎯 Current directory:', currentDir);
+        console.log('🎯 Index path:', indexPath);
+        console.log('🎯 Full target URL:', fullUrl);
+        console.log('🚀 Executing immediate redirect...');
+        console.log('🔐 Final auth check before redirect:', isAuthenticated());
+
+        // Add a small delay to ensure auth state is set
         setTimeout(() => {
-          window.location.href = redirectUrl;
-        }, 1000);
+          console.log('🔄 Delayed redirect executing...');
+          console.log('🔐 Auth check at redirect time:', isAuthenticated());
+          window.location.href = fullUrl;
+        }, 100);
         
       } else {
         throw new Error(response.message || 'Login failed');
       }
       
     } catch (error) {
-      console.error('Login error:', error);
-      
+      console.error('❌ Login error:', error);
+      console.error('❌ Error status:', error.status);
+      console.error('❌ Error message:', error.message);
+
+      // Clear any loading states and reset form
+      this.setLoadingState(false);
+
       // Handle specific error cases
       if (error.status === 401) {
+        console.log('🔐 Authentication failed - showing error toast');
         showError('Invalid email or password. Please try again.');
       } else if (error.status === 403) {
         showError('Your account has been suspended. Please contact support.');
       } else if (error.status === 429) {
-        showError('Too many login attempts. Please try again later.');
+        console.log('⏰ Rate limit exceeded');
+        showError('Too many login attempts. Please wait a moment and try again.');
+        // Reset the form state after rate limit error
+        setTimeout(() => {
+          this.resetFormState();
+          console.log('🔄 Rate limit cooldown - form reset');
+        }, 2000);
       } else {
         showError(error.message || 'Login failed. Please try again.');
       }
-      
+
+      // Ensure form is ready for next attempt
+      setTimeout(() => {
+        console.log('🔄 Form ready for next login attempt');
+      }, 100);
+
     } finally {
+      // Ensure loading state is always cleared
       this.setLoadingState(false);
     }
   }
@@ -181,7 +245,7 @@ class LoginHandler {
 
   setLoadingState(loading) {
     this.isLoading = loading;
-    
+
     if (loading) {
       showLoading(this.loginBtn, 'Signing In...');
       this.form.style.pointerEvents = 'none';
@@ -189,6 +253,19 @@ class LoginHandler {
       hideLoading(this.loginBtn);
       this.form.style.pointerEvents = 'auto';
     }
+  }
+
+  resetFormState() {
+    console.log('🔄 Resetting form state');
+    this.setLoadingState(false);
+    clearFormErrors(this.form);
+
+    // Clear any existing toasts
+    const existingToasts = document.querySelectorAll('.toast');
+    existingToasts.forEach(toast => toast.remove());
+
+    // Reset submit cooldown
+    this.lastSubmitTime = 0;
   }
 
   prefillEmailFromParams() {

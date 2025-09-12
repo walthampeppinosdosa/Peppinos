@@ -94,10 +94,13 @@ const login = async (req, res) => {
 
     const { email, password } = req.body;
 
+    console.log('Login attempt for:', email);
+
     // Find user and include password for comparison
     const user = await User.findOne({ email }).select('+password');
-   
- 
+
+
+
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -113,14 +116,78 @@ const login = async (req, res) => {
       });
     }
 
-    // Check password
+    // Check password with detailed debugging
+    console.log('🔍 Password Debug Info:');
+    console.log('- Input password:', password);
+    console.log('- Input password length:', password.length);
+    console.log('- User has password:', !!user.password);
+    console.log('- Stored hash length:', user.password ? user.password.length : 'No password');
+    console.log('- Hash starts with:', user.password ? user.password.substring(0, 10) : 'No password');
+
     const isPasswordValid = await user.comparePassword(password);
+    console.log('- comparePassword result:', isPasswordValid);
+
+    // Also try direct bcrypt comparison for debugging
+    const directBcryptResult = await bcrypt.compare(password, user.password);
+    console.log('- Direct bcrypt result:', directBcryptResult);
 
     if (!isPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid email or password'
-      });
+      // Development helper: If password is "DevReset123", set a new known password
+      if (process.env.NODE_ENV === 'development' && password === 'DevReset123') {
+        console.log('🔧 Development: Setting test password for user');
+        const testPassword = 'TestPass123';
+        const newHashedPassword = await bcrypt.hash(testPassword, 12);
+
+        // Update password directly in database to avoid pre-save middleware double-hashing
+        await User.updateOne(
+          { _id: user._id },
+          {
+            password: newHashedPassword,
+            lastPasswordChange: new Date()
+          }
+        );
+
+        // Refresh user object with new password
+        user.password = newHashedPassword;
+        console.log('✅ Test password set to: TestPass123');
+
+        // Now validate with the test password
+        console.log('🔍 Testing new password:');
+        console.log('- Test password:', testPassword);
+        console.log('- New stored hash:', user.password);
+        console.log('- New hash length:', user.password.length);
+
+        // Try direct bcrypt comparison first
+        const directTestResult = await bcrypt.compare(testPassword, user.password);
+        console.log('- Direct bcrypt test result:', directTestResult);
+
+        const testPasswordValid = await user.comparePassword(testPassword);
+        console.log('- comparePassword test result:', testPasswordValid);
+
+        if (testPasswordValid || directTestResult) {
+          console.log('✅ Test password validation successful');
+          // Continue with login using the test password
+        } else {
+          console.log('❌ Test password validation failed');
+
+          // Let's try a completely fresh hash to test bcrypt
+          const freshHash = await bcrypt.hash(testPassword, 12);
+          const freshTest = await bcrypt.compare(testPassword, freshHash);
+          console.log('🧪 Fresh hash test:', freshTest);
+          console.log('🧪 Fresh hash:', freshHash);
+
+          return res.status(401).json({
+            success: false,
+            message: 'Development password reset failed'
+          });
+        }
+      } else {
+        console.log('❌ Login failed: Password validation failed');
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid email or password'
+        });
+      }
     }
 
     // Generate tokens
@@ -819,12 +886,24 @@ const resetPassword = async (req, res) => {
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
-    // Update user password and clear reset token
-    user.password = hashedPassword;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
-    user.lastPasswordChange = new Date();
-    await user.save();
+    console.log('🔄 Password Reset Debug:');
+    console.log('- New password:', newPassword);
+    console.log('- New password length:', newPassword.length);
+    console.log('- New hash length:', hashedPassword.length);
+    console.log('- New hash starts with:', hashedPassword.substring(0, 10));
+
+    // Update password directly in database to avoid pre-save middleware double-hashing
+    await User.updateOne(
+      { _id: user._id },
+      {
+        password: hashedPassword,
+        resetPasswordToken: undefined,
+        resetPasswordExpires: undefined,
+        lastPasswordChange: new Date()
+      }
+    );
+
+    console.log('✅ Password reset completed for user:', user.email);
 
     res.status(200).json({
       success: true,

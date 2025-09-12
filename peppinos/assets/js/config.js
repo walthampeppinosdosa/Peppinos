@@ -27,12 +27,13 @@ export const CONFIG = {
         CHANGE_PASSWORD: '/api/user/change-password',
         DELETE_ACCOUNT: '/api/user/delete-account'
       },
-      // Menu endpoints
+      // Menu endpoints (Shop)
       MENU: {
-        GET_ALL: '/api/menu',
-        GET_BY_ID: '/api/menu',
-        GET_BY_CATEGORY: '/api/menu/category',
-        SEARCH: '/api/menu/search'
+        GET_ALL: '/api/shop/menus',
+        GET_BY_ID: '/api/shop/menus',
+        GET_BY_CATEGORY: '/api/shop/menus',
+        SEARCH: '/api/shop/menus/search',
+        FEATURED: '/api/shop/menus/featured'
       },
       // Order endpoints
       ORDER: {
@@ -50,10 +51,10 @@ export const CONFIG = {
         REMOVE_ITEM: '/api/cart/remove',
         CLEAR: '/api/cart/clear'
       },
-      // Categories endpoints
+      // Categories endpoints (Shop)
       CATEGORIES: {
-        GET_ALL: '/api/categories',
-        GET_BY_ID: '/api/categories'
+        GET_ALL: '/api/shop/categories',
+        GET_BY_ID: '/api/shop/categories'
       }
     }
   },
@@ -71,8 +72,8 @@ export const CONFIG = {
   KINDE: {
     DOMAIN: 'https://peppinos.kinde.com',
     CLIENT_ID: 'd69b5d0c9b724b04a47b2a29a410ac25',
-    REDIRECT_URI: 'http://localhost:5500/auth-callback.html',
-    LOGOUT_URI: 'http://localhost:5500',
+    REDIRECT_URI: 'http://localhost:5500/peppinos/auth-callback.html',
+    LOGOUT_URI: 'http://localhost:5500/peppinos',
     SCOPE: 'openid profile email',
     // OAuth 2.0 Endpoints
     AUTH_URL: 'https://peppinos.kinde.com/oauth2/auth',
