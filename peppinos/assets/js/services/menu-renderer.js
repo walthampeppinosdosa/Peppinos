@@ -51,6 +51,7 @@ export class MenuRenderer {
    */
   renderSimpleGridMenu(organized, container) {
     let menuHTML = '';
+    let modalsHTML = '';
 
     // Collect all items from all categories
     const allItems = [];
@@ -73,12 +74,32 @@ export class MenuRenderer {
       });
     }
 
-    // Render all items
+    // Render all items and their modals
     allItems.forEach(item => {
       menuHTML += this.renderMenuItem(item, item.isVegetarian);
+      modalsHTML += this.createCartOptionsModal(item);
     });
 
     container.innerHTML = menuHTML;
+
+    // Add modals to the body
+    if (modalsHTML) {
+      const modalsContainer = document.getElementById('cart-modals-container') || this.createModalsContainer();
+      modalsContainer.innerHTML = modalsHTML;
+    }
+  }
+
+  /**
+   * Create or get modals container
+   */
+  createModalsContainer() {
+    let container = document.getElementById('cart-modals-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'cart-modals-container';
+      document.body.appendChild(container);
+    }
+    return container;
   }
 
   /**
@@ -222,9 +243,221 @@ export class MenuRenderer {
             <p class="card-text label-1">
               ${item.description || 'Delicious menu item prepared with authentic spices and fresh ingredients.'}
             </p>
+
+            <div class="card-actions">
+              <button class="btn btn-primary add-to-cart-btn"
+                      data-item-id="${item._id}"
+                      data-item-name="${item.name}"
+                      data-item-price="${currentPrice}"
+                      data-is-veg="${isVeg}">
+                <ion-icon name="bag-add-outline"></ion-icon>
+                Add to Cart
+              </button>
+            </div>
           </div>
         </div>
       </li>
+    `;
+  }
+
+  /**
+   * Create cart options modal for menu item
+   * @param {Object} item - Menu item data
+   * @returns {string} Modal HTML string
+   */
+  createCartOptionsModal(item) {
+    const hasOptions = this.hasCartOptions(item);
+
+    if (!hasOptions) {
+      return ''; // No modal needed if no options
+    }
+
+    return `
+      <div class="cart-options-modal" id="cartModal-${item._id}" style="display: none;">
+        <div class="modal-overlay" data-modal-close></div>
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title">${item.name}</h3>
+            <button class="modal-close-btn" data-modal-close>
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            ${this.renderQuantitySelector()}
+            ${this.renderSizeOptions(item.sizes)}
+            ${this.renderSpicyLevelOptions(item.spicyLevel)}
+            ${this.renderPreparationOptions(item.preparations)}
+            ${this.renderSpecialInstructions(item.specialInstructions)}
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-modal-close>Cancel</button>
+            <button class="btn btn-primary" id="confirmAddToCart-${item._id}">
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Check if item has cart options that require user selection
+   * @param {Object} item - Menu item data
+   * @returns {boolean}
+   */
+  hasCartOptions(item) {
+    return (
+      (item.sizes && item.sizes.length > 0) ||
+      (item.spicyLevel && item.spicyLevel.length > 0) ||
+      (item.preparations && item.preparations.length > 0) ||
+      item.specialInstructions
+    );
+  }
+
+  /**
+   * Render quantity selector
+   * @returns {string} HTML string
+   */
+  renderQuantitySelector() {
+    return `
+      <div class="option-group">
+        <label class="option-label">Quantity</label>
+        <div class="quantity-selector">
+          <button type="button" class="quantity-btn" data-action="decrease">-</button>
+          <input type="number" class="quantity-input" value="1" min="1" max="10">
+          <button type="button" class="quantity-btn" data-action="increase">+</button>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Render size options
+   * @param {Array} sizes - Available sizes
+   * @returns {string} HTML string
+   */
+  renderSizeOptions(sizes) {
+    if (!sizes || sizes.length === 0) return '';
+
+    const sizeOptions = sizes.map(size => `
+      <label class="radio-option">
+        <input type="radio" name="size" value="${size.name}" data-price="${size.price}" ${size.isDefault ? 'checked' : ''}>
+        <span class="radio-label">
+          <span class="size-name">${size.name}</span>
+          <span class="size-price">$${size.price}</span>
+        </span>
+      </label>
+    `).join('');
+
+    return `
+      <div class="option-group">
+        <label class="option-label">Size <span class="required">*</span></label>
+        <div class="radio-group">
+          ${sizeOptions}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Render spicy level options
+   * @param {Array} spicyLevels - Available spicy levels
+   * @returns {string} HTML string
+   */
+  renderSpicyLevelOptions(spicyLevels) {
+    if (!spicyLevels || spicyLevels.length === 0) return '';
+
+    // Default spicy levels if none provided
+    const defaultSpicyLevels = ['Mild', 'Medium', 'Spicy', 'Extra Spicy'];
+    const levelsToUse = spicyLevels.length > 0 ? spicyLevels : defaultSpicyLevels;
+
+    const spicyOptions = levelsToUse.map(level => `
+      <label class="radio-option">
+        <input type="radio" name="spicyLevel" value="${level}">
+        <span class="radio-label">${level}</span>
+      </label>
+    `).join('');
+
+    return `
+      <div class="option-group">
+        <label class="option-label">Spicy Level</label>
+        <div class="radio-group">
+          ${spicyOptions}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Render preparation options
+   * @param {Array} preparations - Available preparation options
+   * @returns {string} HTML string
+   */
+  renderPreparationOptions(preparations) {
+    if (!preparations || preparations.length === 0) return '';
+
+    // Common preparation options for fallback
+    const commonPreparations = [
+      { id: 'gluten-free', name: 'Gluten Free' },
+      { id: 'vegan', name: 'Vegan' },
+      { id: 'no-cilantro', name: 'No Cilantro' },
+      { id: 'extra-spicy', name: 'Extra Spicy' },
+      { id: 'mild', name: 'Mild' }
+    ];
+
+    // Handle both populated and non-populated preparations
+    const prepOptions = preparations.map((prep, index) => {
+      let prepId, prepName;
+
+      if (typeof prep === 'string') {
+        // ObjectId string - use common preparations as fallback
+        const commonPrep = commonPreparations[index] || { id: prep, name: 'Preparation Option' };
+        prepId = prep;
+        prepName = commonPrep.name;
+      } else if (prep._id) {
+        // Populated object
+        prepId = prep._id;
+        prepName = prep.name || 'Preparation Option';
+      } else {
+        // Simple string
+        prepId = prep;
+        prepName = prep;
+      }
+
+      return `
+        <label class="checkbox-option">
+          <input type="checkbox" name="preparations" value="${prepId}">
+          <span class="checkbox-label">${prepName}</span>
+        </label>
+      `;
+    }).join('');
+
+    return `
+      <div class="option-group">
+        <label class="option-label">Preparation</label>
+        <div class="checkbox-group">
+          ${prepOptions}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Render special instructions field
+   * @param {string} defaultInstructions - Default special instructions
+   * @returns {string} HTML string
+   */
+  renderSpecialInstructions(defaultInstructions = '') {
+    return `
+      <div class="option-group">
+        <label class="option-label">Special Instructions</label>
+        <textarea
+          class="special-instructions-input"
+          placeholder="Any special requests or dietary requirements..."
+          rows="3">${defaultInstructions}</textarea>
+      </div>
     `;
   }
 

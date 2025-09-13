@@ -5,6 +5,7 @@
 
 import { isAuthenticated, getCurrentUser, logoutUser, addAuthListener } from './auth.js';
 import { showSuccess, showError } from './ui.js';
+import { cartService } from './services/cart-service.js';
 
 /**
  * Navigation Manager
@@ -13,17 +14,53 @@ class NavigationManager {
   constructor() {
     this.navbar = document.querySelector('[data-navbar]');
     this.headerActions = document.querySelector('.header-actions');
+    this.authButtons = document.getElementById('auth-buttons');
     this.navbarActions = document.querySelector('.navbar-actions');
-    
+
     this.init();
   }
 
-  init() {
+  async init() {
     // Listen for authentication state changes
     addAuthListener(this.handleAuthStateChange.bind(this));
-    
-    // Update navigation on page load
+
+    // Ensure DOM elements are ready
+    await this.waitForElements();
+
+    // Update navigation immediately
     this.updateNavigation();
+
+    // Initialize cart service and listen for cart updates
+    try {
+      await cartService.init();
+      cartService.addEventListener((cart) => {
+        const count = cart ? (cart.totalItems || cart.items?.length || 0) : 0;
+        this.updateCartCount(count);
+      });
+
+      // Update cart count on initial load
+      const cart = await cartService.getCart();
+      const count = cart ? (cart.totalItems || cart.items?.length || 0) : 0;
+      this.updateCartCount(count);
+    } catch (error) {
+      console.error('Error initializing cart service in navigation:', error);
+    }
+  }
+
+  async waitForElements() {
+    // Wait for auth-buttons element to be available
+    let attempts = 0;
+    const maxAttempts = 50; // 5 seconds max wait
+
+    while (!this.authButtons && attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      this.authButtons = document.getElementById('auth-buttons');
+      attempts++;
+    }
+
+    if (!this.authButtons) {
+      console.warn('auth-buttons element not found after waiting');
+    }
   }
 
   handleAuthStateChange(isAuth, user) {
@@ -39,15 +76,10 @@ class NavigationManager {
   }
 
   showGuestNav() {
-    // Update header actions for guests
-    if (this.headerActions) {
-      this.headerActions.innerHTML = `
-        <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google" rel="noopener">
-          <span class="text text-1">Google Reviews</span>
-          <span class="text text-2" aria-hidden="true">Google Reviews</span>
-        </a>
-        
-        <a href="login.html" class="btn btn-secondary">
+    // Update auth buttons for guests (preserve cart icon and other header elements)
+    if (this.authButtons) {
+      this.authButtons.innerHTML = `
+        <a href="./login.html" class="btn btn-secondary">
           <span class="text text-1">Sign In</span>
           <span class="text text-2" aria-hidden="true">Sign In</span>
         </a>
@@ -62,7 +94,7 @@ class NavigationManager {
           <span class="text text-2" aria-hidden="true">Google Reviews</span>
         </a>
 
-        <a href="login.html" class="btn btn-secondary navbar-btn">
+        <a href="./login.html" class="btn btn-secondary navbar-btn">
           <span class="text text-1">Sign In</span>
           <span class="text text-2" aria-hidden="true">Sign In</span>
         </a>
@@ -75,33 +107,34 @@ class NavigationManager {
     const userName = user ? user.name : 'User';
     const userInitials = this.getUserInitials(userName);
 
-    // Update header actions for authenticated users
-    if (this.headerActions) {
-      this.headerActions.innerHTML = `
+    // Update auth buttons for authenticated users (preserve cart icon and other header elements)
+    if (this.authButtons) {
+      this.authButtons.innerHTML = `
         <div class="user-menu" style="position: relative;">
           <button class="user-menu-toggle" id="userMenuToggle" style="display: flex; align-items: center; background: none; border: none; cursor: pointer; padding: 0.5rem; border-radius: 50%; transition: background 0.3s ease;" title="${userName}">
             <div class="user-avatar" style="width: 40px; height: 40px; background: var(--gold-crayola); color: var(--smoky-black-1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1rem;">
               ${userInitials}
             </div>
           </button>
-          
+
           <div class="user-dropdown" id="userDropdown" style="display: none; position: absolute; top: 100%; right: 0; background: var(--eerie-black-2); border: 1px solid var(--white-alpha-10); border-radius: 8px; min-width: 200px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); z-index: 1000; margin-top: 0.5rem;">
             <div style="padding: 1rem; border-bottom: 1px solid var(--white-alpha-10);">
               <p style="color: var(--white); font-weight: 600; margin-bottom: 0.25rem;">${userName}</p>
               <p style="color: var(--quick-silver); font-size: 0.85rem;">${user ? user.email : ''}</p>
             </div>
             <div style="padding: 0.5rem 0;">
-              <a href="profile.html" class="dropdown-item" style="display: block; padding: 0.75rem 1rem; color: var(--white); text-decoration: none; transition: background 0.3s ease;">
+              <a href="./profile.html" class="dropdown-item" style="display: block; padding: 0.75rem 1rem; color: var(--white); text-decoration: none; transition: background 0.3s ease;">
                 <ion-icon name="person-outline" style="margin-right: 0.5rem;"></ion-icon>
                 My Profile
               </a>
-              <a href="orders.html" class="dropdown-item" style="display: block; padding: 0.75rem 1rem; color: var(--white); text-decoration: none; transition: background 0.3s ease;">
+              <a href="./orders.html" class="dropdown-item" style="display: block; padding: 0.75rem 1rem; color: var(--white); text-decoration: none; transition: background 0.3s ease;">
                 <ion-icon name="receipt-outline" style="margin-right: 0.5rem;"></ion-icon>
                 My Orders
               </a>
-              <a href="cart.html" class="dropdown-item" style="display: block; padding: 0.75rem 1rem; color: var(--white); text-decoration: none; transition: background 0.3s ease;">
+              <a href="./cart.html" class="dropdown-item" style="display: block; padding: 0.75rem 1rem; color: var(--white); text-decoration: none; transition: background 0.3s ease; position: relative;">
                 <ion-icon name="bag-outline" style="margin-right: 0.5rem;"></ion-icon>
                 Cart
+                <span class="dropdown-cart-count" id="dropdownCartCount" style="position: absolute; top: 0.5rem; right: 1rem; background: var(--gold-crayola); color: var(--eerie-black-1); font-size: 11px; font-weight: 600; min-width: 16px; height: 16px; border-radius: 50%; display: none; align-items: center; justify-content: center; line-height: 1;">0</span>
               </a>
               <div style="border-top: 1px solid var(--white-alpha-10); margin: 0.5rem 0;"></div>
               <button class="dropdown-item logout-btn" id="logoutBtn" style="display: block; width: 100%; text-align: left; padding: 0.75rem 1rem; color: var(--white); background: none; border: none; cursor: pointer; transition: background 0.3s ease;">
@@ -115,6 +148,9 @@ class NavigationManager {
 
       // Add dropdown functionality
       this.setupUserDropdown();
+
+      // Update cart count after dropdown is created
+      this.updateCartCountAfterRender();
     }
 
     // Update navbar actions for authenticated users (mobile)
@@ -132,17 +168,18 @@ class NavigationManager {
           </div>
           
           <div style="display: grid; gap: 0.5rem;">
-            <a href="profile.html" class="btn btn-secondary navbar-btn" style="justify-content: center;">
+            <a href="./profile.html" class="btn btn-secondary navbar-btn" style="justify-content: center;">
               <span class="text text-1">My Profile</span>
               <span class="text text-2" aria-hidden="true">My Profile</span>
             </a>
-            <a href="orders.html" class="btn btn-secondary navbar-btn" style="justify-content: center;">
+            <a href="./orders.html" class="btn btn-secondary navbar-btn" style="justify-content: center;">
               <span class="text text-1">My Orders</span>
               <span class="text text-2" aria-hidden="true">My Orders</span>
             </a>
-            <a href="cart.html" class="btn btn-secondary navbar-btn" style="justify-content: center;">
+            <a href="./cart.html" class="btn btn-secondary navbar-btn" style="justify-content: center; position: relative;">
               <span class="text text-1">Cart</span>
               <span class="text text-2" aria-hidden="true">Cart</span>
+              <span class="mobile-cart-count" id="mobileCartCount" style="position: absolute; top: -5px; right: -5px; background: var(--gold-crayola); color: var(--eerie-black-1); font-size: 11px; font-weight: 600; min-width: 18px; height: 18px; border-radius: 50%; display: none; align-items: center; justify-content: center; line-height: 1;">0</span>
             </a>
             <button class="btn btn-secondary navbar-btn logout-btn-mobile" id="logoutBtnMobile" style="justify-content: center;">
               <span class="text text-1">Sign Out</span>
@@ -154,6 +191,9 @@ class NavigationManager {
 
       // Add mobile logout functionality
       this.setupMobileLogout();
+
+      // Update cart count after mobile navigation is created
+      this.updateCartCountAfterRender();
     }
   }
 
@@ -231,7 +271,7 @@ class NavigationManager {
 
   getUserInitials(name) {
     if (!name) return 'U';
-    
+
     const nameParts = name.trim().split(' ');
     if (nameParts.length >= 2) {
       return (nameParts[0][0] + nameParts[1][0]).toUpperCase();
@@ -239,11 +279,55 @@ class NavigationManager {
       return nameParts[0][0].toUpperCase();
     }
   }
+
+  /**
+   * Update cart count after navigation elements are rendered
+   */
+  async updateCartCountAfterRender() {
+    try {
+      const cart = await cartService.getCart();
+      const count = cart ? (cart.totalItems || cart.items?.length || 0) : 0;
+      this.updateCartCount(count);
+    } catch (error) {
+      console.error('Error getting cart for navigation update:', error);
+    }
+  }
+
+  /**
+   * Update cart count badges in dropdown and mobile navigation
+   * @param {number} count - Number of items in cart
+   */
+  updateCartCount(count) {
+    // Update dropdown cart count
+    const dropdownCartCount = document.getElementById('dropdownCartCount');
+    if (dropdownCartCount) {
+      dropdownCartCount.textContent = count;
+      dropdownCartCount.style.display = count > 0 ? 'flex' : 'none';
+    }
+
+    // Update mobile cart count
+    const mobileCartCount = document.getElementById('mobileCartCount');
+    if (mobileCartCount) {
+      mobileCartCount.textContent = count;
+      mobileCartCount.style.display = count > 0 ? 'flex' : 'none';
+    }
+  }
 }
 
 // Initialize navigation manager when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-  new NavigationManager();
-});
+let navigationManager = null;
+
+function initializeNavigation() {
+  if (!navigationManager) {
+    navigationManager = new NavigationManager();
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeNavigation);
+} else {
+  // DOM is already loaded, initialize immediately
+  initializeNavigation();
+}
 
 export default NavigationManager;

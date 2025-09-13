@@ -101,12 +101,35 @@ const addToGuestCart = async (req, res) => {
       });
     }
 
-    // Validate size
-    const sizeInfo = menuItem.sizes.find(s => s.name === size);
-    if (!sizeInfo) {
+    // Validate size - be flexible with size validation
+    let sizeInfo = null;
+    let actualSize = size;
+
+    if (menuItem.sizes && menuItem.sizes.length > 0) {
+      sizeInfo = menuItem.sizes.find(s => s.name === size);
+
+      // If requested size not found, try to find a default size or use first available
+      if (!sizeInfo) {
+        sizeInfo = menuItem.sizes.find(s => s.isDefault) || menuItem.sizes[0];
+        actualSize = sizeInfo.name;
+        console.log(`Size "${size}" not found for menu item ${menuItem.name}, using "${sizeInfo.name}" instead`);
+      }
+    } else {
+      // If no sizes defined, create a default size with the menu item's discounted price
+      sizeInfo = {
+        name: size,
+        price: menuItem.discountedPrice || menuItem.mrp || 0,
+        isDefault: true
+      };
+      console.log(`No sizes defined for menu item ${menuItem.name}, using default price`);
+    }
+
+    // Ensure we have a valid price
+    const basePrice = sizeInfo.price || menuItem.discountedPrice || menuItem.mrp || 0;
+    if (basePrice <= 0) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid size selected'
+        message: 'Invalid price for menu item'
       });
     }
 
@@ -124,18 +147,34 @@ const addToGuestCart = async (req, res) => {
     let cart = await Cart.getOrCreateCart(guestUser._id);
 
     // Calculate price
-    const priceAtTime = sizeInfo.price;
+    const priceAtTime = basePrice;
     const addonTotal = validAddons.reduce((total, addon) => {
       const menuAddon = menuItem.addons.find(ma => ma._id.toString() === addon.id);
       return total + (menuAddon ? menuAddon.price * addon.quantity : 0);
     }, 0);
     const itemTotal = (priceAtTime + addonTotal) * quantity;
 
+    // Helper function to compare addons
+    const compareAddons = (addons1, addons2) => {
+      if (addons1.length !== addons2.length) return false;
+
+      const sorted1 = addons1.sort((a, b) => a.name.localeCompare(b.name));
+      const sorted2 = addons2.sort((a, b) => a.name.localeCompare(b.name));
+
+      return sorted1.every((addon1, index) => {
+        const addon2 = sorted2[index];
+        return addon1.name === addon2.name &&
+               addon1.price === addon2.price &&
+               addon1.quantity === addon2.quantity;
+      });
+    };
+
     // Check if item already exists in cart with same configuration
     const existingItemIndex = cart.items.findIndex(item =>
       item.menu.toString() === menuItemId &&
-      item.size === size &&
-      JSON.stringify(item.addons.sort()) === JSON.stringify(validAddons.sort())
+      item.size === actualSize &&
+      (item.specialInstructions || '') === (specialInstructions || '') &&
+      compareAddons(item.addons || [], validAddons)
     );
 
     if (existingItemIndex > -1) {
@@ -149,7 +188,7 @@ const addToGuestCart = async (req, res) => {
       cart.items.push({
         menu: menuItemId,
         quantity,
-        size,
+        size: actualSize,
         addons: validAddons.map(addon => {
           const menuAddon = menuItem.addons.find(ma => ma._id.toString() === addon.id);
           return {
@@ -201,7 +240,11 @@ const updateGuestCartItem = async (req, res) => {
     const { sessionId, itemId } = req.params;
     const { quantity } = req.body;
 
-    const cart = await GuestCart.findOne({ sessionId });
+    // Get or create guest user
+    const guestUser = await getOrCreateGuestUser(sessionId);
+
+    // Get cart for guest user
+    const cart = await Cart.findOne({ user: guestUser._id, isActive: true });
     if (!cart) {
       return res.status(404).json({
         success: false,
@@ -271,7 +314,11 @@ const removeFromGuestCart = async (req, res) => {
   try {
     const { sessionId, itemId } = req.params;
 
-    const cart = await GuestCart.findOne({ sessionId });
+    // Get or create guest user
+    const guestUser = await getOrCreateGuestUser(sessionId);
+
+    // Get cart for guest user
+    const cart = await Cart.findOne({ user: guestUser._id, isActive: true });
     if (!cart) {
       return res.status(404).json({
         success: false,
@@ -316,7 +363,11 @@ const clearGuestCart = async (req, res) => {
   try {
     const { sessionId } = req.params;
 
-    const cart = await GuestCart.findOne({ sessionId });
+    // Get or create guest user
+    const guestUser = await getOrCreateGuestUser(sessionId);
+
+    // Get cart for guest user
+    const cart = await Cart.findOne({ user: guestUser._id, isActive: true });
     if (!cart) {
       return res.status(404).json({
         success: false,

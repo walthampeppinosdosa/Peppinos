@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Primary meta tags -->
+  <title>Checkout - Peppino's Restaurant</title>
+  <meta name="title" content="Checkout - Peppino's Restaurant">
+  <meta name="description" content="Complete your order at Peppino's Restaurant">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  <!-- Google font link -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap" rel="stylesheet">
+
+  <!-- Custom CSS link -->
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/components.css">
+
+  <!-- Preload images -->
+  <link rel="preload" as="image" href="./assets/images/hero-slider-1.png">
+  <link rel="preload" as="image" href="./assets/images/hero-slider-2.png">
+  <link rel="preload" as="image" href="./assets/images/hero-slider-3.png">
+
+  <style>
+    .checkout-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: var(--shadow-1);
+    }
+
+    .form-section {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      border: 1px solid var(--cultured);
+      border-radius: 8px;
+    }
+
+    .form-section h3 {
+      color: var(--gold-crayola);
+      margin-bottom: 1rem;
+      font-family: var(--ff-forum);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--eerie-black-1);
+      font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--cultured);
+      border-radius: 4px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--gold-crayola);
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .radio-option input[type="radio"] {
+      width: auto;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--cultured);
+    }
+
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+
+    .cart-item-details {
+      flex: 1;
+    }
+
+    .cart-item-name {
+      font-weight: 600;
+      color: var(--eerie-black-1);
+      margin-bottom: 0.25rem;
+    }
+
+    .cart-item-info {
+      font-size: 0.9rem;
+      color: var(--quick-silver);
+    }
+
+    .cart-item-price {
+      font-weight: 600;
+      color: var(--gold-crayola);
+    }
+
+    .cart-totals {
+      border-top: 2px solid var(--gold-crayola);
+      padding-top: 1rem;
+      margin-top: 1rem;
+    }
+
+    .cart-total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .cart-total-row.final {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--gold-crayola);
+    }
+
+    .btn-checkout {
+      width: 100%;
+      background: var(--gold-crayola);
+      color: var(--eerie-black-1);
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+    }
+
+    .btn-checkout:hover {
+      background: var(--golden-poppy);
+      transform: translateY(-2px);
+    }
+
+    .btn-checkout:disabled {
+      background: var(--quick-silver);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .error-message {
+      color: var(--red-crayola);
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+      display: none;
+    }
+
+    .restaurant-status {
+      background: var(--red-crayola);
+      color: var(--white);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .restaurant-status.open {
+      background: var(--green-crayola);
+    }
+
+    .restaurant-status h4 {
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .restaurant-status p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .user-info-display {
+      background: var(--cultured);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .user-info-display h4 {
+      color: var(--gold-crayola);
+      margin-bottom: 0.5rem;
+    }
+
+    .user-info-display p {
+      margin: 0.25rem 0;
+      color: var(--eerie-black-1);
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .radio-group {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .checkout-container {
+        margin: 1rem;
+        padding: 1rem;
+      }
+
+      .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .cart-item-details {
+        width: 100%;
+      }
+
+      /* Mobile form improvements */
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 1rem;
+      }
+
+      .radio-option {
+        padding: 1rem;
+        border: 1px solid var(--cultured);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition-1);
+      }
+
+      .radio-option:hover,
+      .radio-option:has(input:checked) {
+        border-color: var(--gold-crayola);
+        background: var(--white-alpha-10);
+      }
+
+      .btn-checkout {
+        padding: 1.25rem 2rem;
+        font-size: 1.2rem;
+        border-radius: 8px;
+      }
+
+      /* Better touch targets */
+      .radio-option input[type="radio"] {
+        width: 20px;
+        height: 20px;
+      }
+
+      .radio-option label {
+        cursor: pointer;
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+
+<body class="has-preloader">
+
+  <!-- Preloader -->
+  <div class="preloader" data-preloader>
+    <div class="circle" data-circle></div>
+  </div>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="container">
+      <address class="topbar-item">
+        <div class="icon">
+          <ion-icon name="location-outline" aria-hidden="true"></ion-icon>
+        </div>
+        <span class="span">
+          434 Moody St, Waltham, MA 02453
+        </span>
+      </address>
+
+      <div class="separator"></div>
+
+      <div class="topbar-item item-2">
+        <div class="icon">
+          <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+        </div>
+        <span class="span">Daily : 11.30 am to 10.30 pm</span>
+      </div>
+
+      <a href="tel:+17815476099" class="topbar-item link">
+        <div class="icon">
+          <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
+        </div>
+        <span class="span">(781) 547-6099</span>
+      </a>
+
+      <div class="separator"></div>
+
+      <a href="mailto:Walthampeppinosdosa@gmail.com" class="topbar-item link">
+        <div class="icon">
+          <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+        </div>
+        <span class="span">Walthampeppinosdosa@gmail.com</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header" data-header>
+    <div class="container">
+
+      <a href="index.html" class="logo">
+        <div class="logo-container">
+          <div class="logo-spinner">
+            <div class="logo-face logo-face-1">
+              <img src="./assets/images/logo.svg" width="300" height="95" alt="Peppino's - home" class="logo-img">
+            </div>
+            <div class="logo-face logo-face-2">
+              <img src="./assets/images/logo-alt.svg" width="300" height="95" alt="Peppino's - home" class="logo-img">
+            </div>
+            <div class="logo-face logo-face-3">
+              <img src="./assets/images/logo-gold.svg" width="300" height="95" alt="Peppino's - home" class="logo-img">
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <nav class="navbar" data-navbar>
+
+        <button class="close-btn" aria-label="close menu" data-nav-toggler>
+          <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+        </button>
+
+        <a href="index.html" class="logo">
+          <div class="logo-container">
+            <div class="logo-spinner">
+              <div class="logo-face logo-face-1">
+                <img src="./assets/images/logo.svg" width="300" height="95" alt="Peppino's - home" class="logo-img">
+              </div>
+              <div class="logo-face logo-face-2">
+                <img src="./assets/images/logo-alt.svg" width="300" height="95" alt="Peppino's - home" class="logo-img">
+              </div>
+              <div class="logo-face logo-face-3">
+                <img src="./assets/images/logo-gold.svg" width="300" height="95" alt="Peppino's - home" class="logo-img">
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <ul class="navbar-list">
+
+          <li class="navbar-item">
+            <a href="index.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Home</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="menu.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Menus</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="about.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">About Us</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="chefs.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Our Chefs</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="catering.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Catering</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="contact.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Contact</span>
+            </a>
+          </li>
+
+        </ul>
+
+        <div class="text-center">
+          <p class="headline-1 text-white navbar-title">Visit Us</p>
+
+          <address class="body-4">
+            434 Moody St, <br>
+            Waltham, MA 02453
+          </address>
+
+          <p class="body-4 navbar-text">Lunch Buffet: Mon-Fri 11:30AM-3PM</p>
+
+          <a href="mailto:Walthampeppinosdosa@gmail.com" class="body-4 sidebar-link">Walthampeppinosdosa@gmail.com</a>
+
+          <div class="separator"></div>
+
+          <a href="tel:+17815476099" class="body-1 contact-number hover-underline">
+            (781) 547-6099
+          </a>
+        </div>
+
+        <div class="navbar-actions">
+          <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google navbar-btn" rel="noopener">
+            <span class="text text-1">Google Reviews</span>
+            <span class="text text-2" aria-hidden="true">Google Reviews</span>
+          </a>
+
+          <a href="contact.html#reservation" class="btn btn-secondary navbar-btn">
+            <span class="text text-1">Find A Table</span>
+            <span class="text text-2" aria-hidden="true">Find A Table</span>
+          </a>
+        </div>
+
+      </nav>
+
+      <div class="header-actions">
+        <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google" rel="noopener">
+          <span class="text text-1">Google Reviews</span>
+          <span class="text text-2" aria-hidden="true">Google Reviews</span>
+        </a>
+
+        <a href="contact.html#reservation" class="btn btn-secondary">
+          <span class="text text-1">Find A Table</span>
+          <span class="text text-2" aria-hidden="true">Find A Table</span>
+        </a>
+
+        <!-- Auth buttons will be populated by JavaScript -->
+        <div id="auth-buttons"></div>
+
+        <!-- Cart Icon -->
+        <button class="cart-icon-btn" id="cartIcon" aria-label="Open cart">
+          <ion-icon name="bag-outline"></ion-icon>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+      </div>
+
+      <button class="nav-open-btn" aria-label="open menu" data-nav-toggler>
+        <span class="line line-1"></span>
+        <span class="line line-2"></span>
+        <span class="line line-3"></span>
+      </button>
+
+      <div class="overlay" data-nav-toggler data-overlay></div>
+
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <article>
+
+      <!-- Checkout Section -->
+      <section class="section checkout" aria-label="checkout">
+        <div class="container">
+          <div class="checkout-container">
+
+            <!-- Restaurant Status -->
+            <div class="restaurant-status" id="restaurantStatus" style="display: none;">
+              <h4>Restaurant Status</h4>
+              <p>Closed ⋅ Opens 11:30AM</p>
+              <p>The restaurant is now closed, but you may schedule an order for later.</p>
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="form-section" id="cartSummary">
+              <h3>Order Summary</h3>
+              <div id="cartItems">
+                <!-- Cart items will be populated here -->
+              </div>
+              <div class="cart-totals">
+                <div class="cart-total-row">
+                  <span>Subtotal:</span>
+                  <span id="cartSubtotal">$0.00</span>
+                </div>
+                <div class="cart-total-row">
+                  <span>Tax:</span>
+                  <span id="cartTax">$0.00</span>
+                </div>
+                <div class="cart-total-row final">
+                  <span>Total:</span>
+                  <span id="cartTotal">$0.00</span>
+                </div>
+              </div>
+            </div>
+
+            <form id="checkoutForm">
+              <!-- User Information Display -->
+              <div class="form-section">
+                <h3>Your Information</h3>
+                <div class="user-info-display" id="userInfoDisplay">
+                  <!-- User info will be populated here -->
+                </div>
+                <p class="body-4" style="color: var(--quick-silver);">
+                  Need to update your information?
+                  <a href="./profile.html" style="color: var(--gold-crayola);">Edit Profile</a>
+                </p>
+              </div>
+
+              <!-- Order Type -->
+              <div class="form-section">
+                <h3>Order Type</h3>
+                <div class="radio-group">
+                  <div class="radio-option">
+                    <input type="radio" id="pickup" name="orderType" value="pickup">
+                    <label for="pickup">Pickup</label>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" id="delivery" name="orderType" value="delivery" checked>
+                    <label for="delivery">Delivery</label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Delivery Address (shown only for delivery) -->
+              <div class="form-section" id="deliveryAddressSection">
+                <h3>Delivery Address</h3>
+
+                <div class="form-group">
+                  <label for="street">Street Address *</label>
+                  <input type="text" id="street" name="street" required>
+                  <div class="error-message" id="streetError"></div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="city">City *</label>
+                    <input type="text" id="city" name="city" required>
+                    <div class="error-message" id="cityError"></div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="state">State *</label>
+                    <input type="text" id="state" name="state" required>
+                    <div class="error-message" id="stateError"></div>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="zipCode">ZIP Code *</label>
+                    <input type="text" id="zipCode" name="zipCode" required>
+                    <div class="error-message" id="zipCodeError"></div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="country">Country</label>
+                    <input type="text" id="country" name="country" value="United States">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Timing -->
+              <div class="form-section">
+                <h3>Timing</h3>
+                <div class="radio-group">
+                  <div class="radio-option">
+                    <input type="radio" id="asap" name="timing" value="asap" checked>
+                    <label for="asap">ASAP</label>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" id="scheduled" name="timing" value="scheduled">
+                    <label for="scheduled">Schedule</label>
+                  </div>
+                </div>
+
+                <!-- Scheduled Time Section -->
+                <div id="scheduledTimeSection" style="display: none; margin-top: 1rem;">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="scheduledDate">Pick Day *</label>
+                      <input type="date" id="scheduledDate" name="scheduledDate">
+                      <div class="error-message" id="scheduledDateError"></div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="scheduledTime">Pick Time *</label>
+                      <input type="time" id="scheduledTime" name="scheduledTime">
+                      <div class="error-message" id="scheduledTimeError"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Payment Information -->
+              <div class="form-section">
+                <h3>Payment Information</h3>
+                <div class="radio-group">
+                  <div class="radio-option">
+                    <input type="radio" id="payOnline" name="paymentMethod" value="pay_online" checked>
+                    <label for="payOnline">Pay Online</label>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" id="payInStore" name="paymentMethod" value="pay_in_store">
+                    <label for="payInStore">Pay in Store</label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Special Instructions -->
+              <div class="form-section">
+                <h3>Special Instructions</h3>
+                <div class="form-group">
+                  <textarea id="specialInstructions" name="specialInstructions" rows="4"
+                    placeholder="Special instructions, allergies, etc..."></textarea>
+                  <div class="error-message" id="specialInstructionsError"></div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-checkout" id="submitBtn">
+                Place Order
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer section has-bg-image text-center"
+    style="background-image: url('./assets/images/footer-bg.jpg')">
+    <div class="container">
+
+      <div class="footer-top grid-list">
+
+        <div class="footer-brand">
+
+          <a href="index.html" class="logo">
+            <img src="./assets/images/logo.svg" width="160" height="50" loading="lazy" alt="Peppino's">
+          </a>
+
+          <address class="body-4">
+            434 Moody St, Waltham, MA 02453
+          </address>
+
+          <a href="mailto:Walthampeppinosdosa@gmail.com" class="body-4 contact-link">Walthampeppinosdosa@gmail.com</a>
+
+          <a href="tel:+17815476099" class="body-4 contact-link">Booking Request : (781) 547-6099</a>
+
+          <p class="body-4">
+            Lunch Buffet: Mon-Fri 11:30AM-3PM
+          </p>
+
+          <div class="wrapper">
+            <div class="separator"></div>
+            <div class="separator"></div>
+            <div class="separator"></div>
+          </div>
+
+          <p class="title-1">Get News & Offers</p>
+          <p class="label-1">
+            Subscribe us & Get <span class="span">25% Off.</span>
+          </p>
+
+          <form action="" class="input-wrapper">
+            <div class="icon-wrapper">
+              <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+              <input type="email" name="email_address" placeholder="Your email" autocomplete="off" class="input-field">
+            </div>
+            <button type="submit" class="btn btn-secondary">
+              <span class="text text-1">Subscribe</span>
+              <span class="text text-2" aria-hidden="true">Subscribe</span>
+            </button>
+          </form>
+        </div>
+
+        <ul class="footer-list">
+          <li>
+            <a href="./index.html" class="label-2 footer-link hover-underline">Home</a>
+          </li>
+          <li>
+            <a href="./menu.html" class="label-2 footer-link hover-underline">Menus</a>
+          </li>
+          <li>
+            <a href="./about.html" class="label-2 footer-link hover-underline">About Us</a>
+          </li>
+          <li>
+            <a href="./chefs.html" class="label-2 footer-link hover-underline">Our Chefs</a>
+          </li>
+          <li>
+            <a href="./contact.html" class="label-2 footer-link hover-underline">Contact</a>
+          </li>
+        </ul>
+
+        <ul class="footer-list">
+          <li>
+            <a href="#" class="label-2 footer-link hover-underline">Facebook</a>
+          </li>
+          <li>
+            <a href="#" class="label-2 footer-link hover-underline">Instagram</a>
+          </li>
+          <li>
+            <a href="#" class="label-2 footer-link hover-underline">Twitter</a>
+          </li>
+          <li>
+            <a href="#" class="label-2 footer-link hover-underline">Youtube</a>
+          </li>
+          <li>
+            <a href="#" class="label-2 footer-link hover-underline">Google Map</a>
+          </li>
+        </ul>
+
+      </div>
+
+      <div class="footer-bottom">
+        <p class="copyright">
+          &copy; 2024 Peppino's. All Rights Reserved | Crafted by <a href="#" target="_blank"
+            class="link">codewithsadee</a>
+        </p>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Back to top button -->
+  <a href="#top" class="back-top-btn active" aria-label="back to top" data-back-top-btn>
+    <ion-icon name="chevron-up" aria-hidden="true"></ion-icon>
+  </a>
+
+  <!-- Custom JS link -->
+  <script src="./assets/js/script.js"></script>
+
+  <!-- Ionicon link -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+  <!-- Navigation and Auth -->
+  <script type="module" src="./assets/js/navigation.js"></script>
+  <script type="module" src="./assets/js/auth.js"></script>
+
+  <!-- Cart UI -->
+  <script type="module" src="./assets/js/components/cart-ui.js"></script>
+
+  <!-- Checkout functionality -->
+  <script type="module">
+    import { cartService } from './assets/js/services/cart-service.js';
+    import { cartUI } from './assets/js/components/cart-ui.js';
+    import { formatCurrency } from './assets/js/ui.js';
+    import { restaurantHours } from './assets/js/services/restaurant-hours.js';
+    import { getCurrentUser, isAuthenticated } from './assets/js/auth.js';
+
+    class AuthenticatedCheckoutManager {
+      constructor() {
+        this.form = document.getElementById('checkoutForm');
+        this.cartSummary = document.getElementById('cartSummary');
+        this.cartItems = document.getElementById('cartItems');
+        this.submitBtn = document.getElementById('submitBtn');
+        this.userInfoDisplay = document.getElementById('userInfoDisplay');
+        this.init();
+      }
+
+      async init() {
+        // Check if user is authenticated
+        if (!isAuthenticated()) {
+          window.location.href = './login.html';
+          return;
+        }
+
+        await cartService.init();
+        this.setupEventListeners();
+        this.updateCartSummary();
+        this.setupFormValidation();
+        this.updateRestaurantStatus();
+        this.setupMobileEnhancements();
+        this.displayUserInfo();
+
+        // Listen for cart updates
+        cartService.addEventListener((cart) => {
+          this.updateCartSummary();
+        });
+      }
+
+      displayUserInfo() {
+        const user = getCurrentUser();
+        if (user) {
+          this.userInfoDisplay.innerHTML = `
+            <h4>Account Information</h4>
+            <p><strong>Name:</strong> ${user.name || 'Not provided'}</p>
+            <p><strong>Email:</strong> ${user.email || 'Not provided'}</p>
+            <p><strong>Phone:</strong> ${user.phone || 'Not provided'}</p>
+          `;
+        }
+      }
+
+      setupEventListeners() {
+        // Order type change
+        document.querySelectorAll('input[name="orderType"]').forEach(radio => {
+          radio.addEventListener('change', this.handleOrderTypeChange.bind(this));
+        });
+
+        // Timing change
+        document.querySelectorAll('input[name="timing"]').forEach(radio => {
+          radio.addEventListener('change', this.handleTimingChange.bind(this));
+        });
+
+        // Form submission
+        this.form.addEventListener('submit', this.handleFormSubmit.bind(this));
+      }
+
+      handleOrderTypeChange(e) {
+        const deliverySection = document.getElementById('deliveryAddressSection');
+        if (e.target.value === 'delivery') {
+          deliverySection.style.display = 'block';
+          // Make delivery fields required
+          deliverySection.querySelectorAll('input[required]').forEach(input => {
+            input.required = true;
+          });
+        } else {
+          deliverySection.style.display = 'none';
+          // Remove required from delivery fields
+          deliverySection.querySelectorAll('input').forEach(input => {
+            input.required = false;
+          });
+        }
+        this.updateTimeSlots();
+      }
+
+      handleTimingChange(e) {
+        const scheduledSection = document.getElementById('scheduledTimeSection');
+        if (e.target.value === 'scheduled') {
+          scheduledSection.style.display = 'block';
+          scheduledSection.querySelectorAll('input').forEach(input => {
+            input.required = true;
+          });
+        } else {
+          scheduledSection.style.display = 'none';
+          scheduledSection.querySelectorAll('input').forEach(input => {
+            input.required = false;
+          });
+        }
+      }
+
+      async updateCartSummary() {
+        const cart = await cartService.getCart();
+
+        if (!cart || !cart.items || cart.items.length === 0) {
+          this.cartItems.innerHTML = '<p>Your cart is empty.</p>';
+          this.submitBtn.disabled = true;
+          return;
+        }
+
+        // Render cart items
+        this.cartItems.innerHTML = cart.items.map(item => this.renderCartItem(item)).join('');
+
+        // Update totals
+        const subtotal = cart.subtotal || 0;
+        const tax = cartService.calculateTax(subtotal);
+        const total = subtotal + tax;
+
+        document.getElementById('cartSubtotal').textContent = formatCurrency(subtotal);
+        document.getElementById('cartTax').textContent = formatCurrency(tax);
+        document.getElementById('cartTotal').textContent = formatCurrency(total);
+
+        this.submitBtn.disabled = false;
+      }
+
+      renderCartItem(item) {
+        return `
+          <div class="cart-item">
+            <div class="cart-item-details">
+              <div class="cart-item-name">${item.menu?.name || 'Unknown Item'}</div>
+              <div class="cart-item-info">
+                Quantity: ${item.quantity} | Size: ${item.size}
+                ${item.addons && item.addons.length > 0 ? `<br>Add-ons: ${item.addons.map(addon => addon.name).join(', ')}` : ''}
+                ${item.specialInstructions ? `<br>Note: ${item.specialInstructions}` : ''}
+              </div>
+            </div>
+            <div class="cart-item-price">
+              ${formatCurrency(item.itemTotal || 0)}
+            </div>
+          </div>
+        `;
+      }
+
+      updateRestaurantStatus() {
+        const statusElement = document.getElementById('restaurantStatus');
+        const isOpen = restaurantHours.isCurrentlyOpen();
+
+        if (!isOpen) {
+          statusElement.style.display = 'block';
+          statusElement.classList.remove('open');
+          document.getElementById('asap').disabled = true;
+          document.getElementById('scheduled').checked = true;
+          this.handleTimingChange({ target: { value: 'scheduled' } });
+        } else {
+          statusElement.style.display = 'none';
+          document.getElementById('asap').disabled = false;
+        }
+      }
+
+      setupFormValidation() {
+        // Set minimum date for scheduling (today if open, tomorrow if closed)
+        const today = new Date();
+        const isOpen = restaurantHours.isCurrentlyOpen();
+        const minDate = isOpen ? today : new Date(today.getTime() + 24 * 60 * 60 * 1000);
+        document.getElementById('scheduledDate').min = minDate.toISOString().split('T')[0];
+
+        // Set maximum date (30 days from now)
+        const maxDate = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+        document.getElementById('scheduledDate').max = maxDate.toISOString().split('T')[0];
+
+        // Initialize form state
+        this.handleOrderTypeChange({ target: { value: 'delivery' } });
+        this.handleTimingChange({ target: { value: 'asap' } });
+
+        // Setup date change listener for time slots
+        document.getElementById('scheduledDate').addEventListener('change', this.updateTimeSlots.bind(this));
+        document.querySelectorAll('input[name="orderType"]').forEach(radio => {
+          radio.addEventListener('change', this.updateTimeSlots.bind(this));
+        });
+      }
+
+      updateTimeSlots() {
+        const dateInput = document.getElementById('scheduledDate');
+        const timeInput = document.getElementById('scheduledTime');
+        const orderType = document.querySelector('input[name="orderType"]:checked')?.value || 'pickup';
+
+        if (!dateInput.value) {
+          timeInput.innerHTML = '<option value="">Select a date first</option>';
+          return;
+        }
+
+        const selectedDate = new Date(dateInput.value + 'T00:00:00');
+        const timeSlots = restaurantHours.getAvailableTimeSlots(selectedDate, orderType);
+
+        if (timeSlots.length === 0) {
+          timeInput.innerHTML = '<option value="">No available times</option>';
+          return;
+        }
+
+        // Convert time input to select dropdown
+        if (timeInput.tagName !== 'SELECT') {
+          const select = document.createElement('select');
+          select.id = 'scheduledTime';
+          select.name = 'scheduledTime';
+          select.required = timeInput.required;
+          timeInput.parentNode.replaceChild(select, timeInput);
+        }
+
+        const selectElement = document.getElementById('scheduledTime');
+        selectElement.innerHTML = '<option value="">Select a time</option>' +
+          timeSlots.map(slot => `<option value="${slot.time}">${slot.display}</option>`).join('');
+      }
+
+      async handleFormSubmit(e) {
+        e.preventDefault();
+
+        if (!cartService.cart || !cartService.cart.items || cartService.cart.items.length === 0) {
+          alert('Your cart is empty. Please add items before placing an order.');
+          return;
+        }
+
+        // Validate scheduled time if scheduling
+        const timing = new FormData(this.form).get('timing');
+        if (timing === 'scheduled') {
+          const scheduledDate = new FormData(this.form).get('scheduledDate');
+          const scheduledTime = new FormData(this.form).get('scheduledTime');
+          const orderType = new FormData(this.form).get('orderType');
+
+          if (!scheduledDate || !scheduledTime) {
+            alert('Please select a date and time for your scheduled order.');
+            return;
+          }
+
+          const selectedDate = new Date(scheduledDate + 'T00:00:00');
+          if (!restaurantHours.isTimeSlotAvailable(selectedDate, scheduledTime, orderType)) {
+            alert('The selected time slot is no longer available. Please choose another time.');
+            this.updateTimeSlots();
+            return;
+          }
+        }
+
+        try {
+          this.submitBtn.disabled = true;
+          this.submitBtn.textContent = 'Processing...';
+
+          const formData = new FormData(this.form);
+          const orderData = this.buildOrderData(formData);
+
+          // Submit order
+          const response = await fetch('/api/shop/orders', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('peppinos_auth_token')}`
+            },
+            body: JSON.stringify(orderData)
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            // Clear cart
+            await cartService.clearCart();
+
+            // Redirect to success page or show success message
+            alert('Order placed successfully! You will receive a confirmation email shortly.');
+            window.location.href = './orders.html';
+          } else {
+            throw new Error(result.message || 'Failed to place order');
+          }
+        } catch (error) {
+          console.error('Error placing order:', error);
+          alert('Failed to place order. Please try again.');
+        } finally {
+          this.submitBtn.disabled = false;
+          this.submitBtn.textContent = 'Place Order';
+        }
+      }
+
+      buildOrderData(formData) {
+        const cart = cartService.cart;
+        const user = getCurrentUser();
+
+        const orderData = {
+          // Customer information from user account
+          customerInfo: {
+            name: user.name,
+            phone: user.phone,
+            email: user.email
+          },
+
+          // Order details
+          orderType: formData.get('orderType'),
+          timing: formData.get('timing'),
+          paymentMethod: formData.get('paymentMethod'),
+          specialInstructions: formData.get('specialInstructions'),
+
+          // Cart items
+          items: cart.items,
+          subtotal: cart.subtotal,
+          tax: cartService.calculateTax(cart.subtotal),
+          total: cart.subtotal + cartService.calculateTax(cart.subtotal),
+
+          // User ID for authenticated orders
+          userId: user._id || user.id
+        };
+
+        // Add delivery address if delivery order
+        if (formData.get('orderType') === 'delivery') {
+          orderData.deliveryAddress = {
+            street: formData.get('street'),
+            city: formData.get('city'),
+            state: formData.get('state'),
+            zipCode: formData.get('zipCode'),
+            country: formData.get('country') || 'United States'
+          };
+        }
+
+        // Add scheduled time if scheduled
+        if (formData.get('timing') === 'scheduled') {
+          orderData.scheduledDate = formData.get('scheduledDate');
+          orderData.scheduledTime = formData.get('scheduledTime');
+        }
+
+        return orderData;
+      }
+
+      setupMobileEnhancements() {
+        // Same mobile enhancements as guest checkout
+        if (window.innerWidth <= 768) {
+          const formSections = document.querySelectorAll('.form-section');
+          formSections.forEach(section => {
+            const inputs = section.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+              input.addEventListener('focus', () => {
+                setTimeout(() => {
+                  section.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                  });
+                }, 300);
+              });
+            });
+          });
+
+          document.querySelectorAll('.radio-option').forEach(option => {
+            option.addEventListener('touchstart', () => {
+              option.style.transform = 'scale(0.98)';
+            });
+
+            option.addEventListener('touchend', () => {
+              setTimeout(() => {
+                option.style.transform = '';
+              }, 100);
+            });
+
+            option.addEventListener('click', () => {
+              const radio = option.querySelector('input[type="radio"]');
+              if (radio) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change'));
+              }
+            });
+          });
+        }
+      }
+    }
+
+    // Initialize checkout manager
+    new AuthenticatedCheckoutManager();
+  </script>
+
+</body>
+</html>

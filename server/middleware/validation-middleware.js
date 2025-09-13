@@ -46,6 +46,45 @@ const validateLogin = [
 ];
 
 /**
+ * Validation rules for profile update
+ */
+const validateProfileUpdate = [
+  body('name')
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage('Name cannot be empty')
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Name must be between 2 and 50 characters'),
+
+  body('phoneNumber')
+    .optional()
+    .trim()
+    .matches(/^\+?[\d\s-()]+$/)
+    .withMessage('Please provide a valid phone number'),
+
+  body('address')
+    .optional()
+    .trim()
+    .isLength({ max: 200 })
+    .withMessage('Address cannot exceed 200 characters'),
+
+  body('city')
+    .optional()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage('City cannot exceed 50 characters'),
+
+  body('postalCode')
+    .optional()
+    .trim()
+    .isLength({ max: 20 })
+    .withMessage('Postal code cannot exceed 20 characters')
+];
+
+
+
+/**
  * Validation rules for Google OAuth
  */
 const validateGoogleAuth = [
@@ -625,8 +664,9 @@ module.exports = {
   validateRegister,
   validateLogin,
   validateGoogleAuth,
-  validateUpdateProfile,
+  validateProfileUpdate,
   validatePasswordChange,
+  validateUpdateProfile,
   validateForgotPassword,
   validateResetPassword,
   validateProduct,

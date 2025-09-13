@@ -78,9 +78,13 @@
   letter-spacing: var(--letterSpacing-5);
   max-width: max-content;
   border: 2px solid var(--gold-crayola);
-  padding: 12px 45px;
+  padding: 14px 50px;
   overflow: hidden;
   z-index: 1;
+  min-height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn::before {
@@ -196,6 +200,25 @@
 }
 
 .w-100 { width: 100%; }
+
+/* Responsive button styles */
+@media (max-width: 768px) {
+  .btn {
+    padding: 12px 35px;
+    font-size: var(--fontSize-label-1);
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn {
+    padding: 10px 25px;
+    font-size: var(--fontSize-body-4);
+    min-height: 44px;
+    width: 100%;
+    max-width: 280px;
+  }
+}
 
 .move-anim { animation: move 5s linear infinite; }
 

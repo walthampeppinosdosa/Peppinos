@@ -85,7 +85,7 @@ const addToCart = async (req, res) => {
       });
     }
 
-    const { menuItemId, quantity = 1, size = 'Medium', addons = [] } = req.body;
+    const { menuItemId, quantity = 1, size = 'Medium', addons = [], specialInstructions = '' } = req.body;
 
     // Verify menu item exists and is active
     const menuItem = await Menu.findById(menuItemId);
@@ -104,19 +104,48 @@ const addToCart = async (req, res) => {
       });
     }
 
-    // Validate size
-    let validSize = false;
-    if (Array.isArray(menuItem.sizes)) {
+    // Validate size - be flexible with size validation
+    let sizeInfo = null;
+    let actualSize = size;
+
+    if (menuItem.sizes && menuItem.sizes.length > 0) {
       // Handle both string array and object array formats
-      validSize = menuItem.sizes.some(s =>
-        typeof s === 'string' ? s === size : s.name === size
-      );
+      if (typeof menuItem.sizes[0] === 'string') {
+        // String array format
+        if (menuItem.sizes.includes(size)) {
+          sizeInfo = { name: size, price: menuItem.discountedPrice };
+        } else {
+          // Use first available size
+          actualSize = menuItem.sizes[0];
+          sizeInfo = { name: actualSize, price: menuItem.discountedPrice };
+          console.log(`Size "${size}" not found for menu item ${menuItem.name}, using "${actualSize}" instead`);
+        }
+      } else {
+        // Object array format
+        sizeInfo = menuItem.sizes.find(s => s.name === size);
+        if (!sizeInfo) {
+          // Try to find default size or use first available
+          sizeInfo = menuItem.sizes.find(s => s.isDefault) || menuItem.sizes[0];
+          actualSize = sizeInfo.name;
+          console.log(`Size "${size}" not found for menu item ${menuItem.name}, using "${actualSize}" instead`);
+        }
+      }
+    } else {
+      // If no sizes defined, create a default size with the menu item's discounted price
+      sizeInfo = {
+        name: size,
+        price: menuItem.discountedPrice || menuItem.mrp || 0,
+        isDefault: true
+      };
+      console.log(`No sizes defined for menu item ${menuItem.name}, using default price`);
     }
 
-    if (!validSize) {
+    // Ensure we have a valid price
+    const basePrice = sizeInfo.price || menuItem.discountedPrice || menuItem.mrp || 0;
+    if (basePrice <= 0) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid size selected'
+        message: 'Invalid price for menu item'
       });
     }
 
@@ -143,11 +172,27 @@ const addToCart = async (req, res) => {
       cart = new Cart({ user: req.user._id, items: [] });
     }
 
-    // Check if item already exists in cart
+    // Helper function to compare addons
+    const compareAddons = (addons1, addons2) => {
+      if (addons1.length !== addons2.length) return false;
+
+      const sorted1 = addons1.sort((a, b) => a.name.localeCompare(b.name));
+      const sorted2 = addons2.sort((a, b) => a.name.localeCompare(b.name));
+
+      return sorted1.every((addon1, index) => {
+        const addon2 = sorted2[index];
+        return addon1.name === addon2.name &&
+               addon1.price === addon2.price &&
+               addon1.quantity === addon2.quantity;
+      });
+    };
+
+    // Check if item already exists in cart with same configuration
     const existingItemIndex = cart.items.findIndex(item =>
       item.menu.toString() === menuItemId &&
-      item.size === size &&
-      JSON.stringify(item.addons.sort()) === JSON.stringify(validAddons.sort())
+      item.size === actualSize &&
+      (item.specialInstructions || '') === (specialInstructions || '') &&
+      compareAddons(item.addons || [], validAddons)
     );
 
     if (existingItemIndex > -1) {
@@ -161,8 +206,7 @@ const addToCart = async (req, res) => {
         });
       }
 
-      // Recalculate pricing for updated quantity
-      const basePrice = menuItem.discountedPrice || menuItem.mrp;
+      // Recalculate pricing for updated quantity using size price
       const addonsTotal = validAddons.reduce((total, addon) => total + (addon.price * addon.quantity), 0);
       const priceAtTime = basePrice;
       const itemTotal = (basePrice + addonsTotal) * newQuantity;
@@ -171,8 +215,7 @@ const addToCart = async (req, res) => {
       cart.items[existingItemIndex].priceAtTime = priceAtTime;
       cart.items[existingItemIndex].itemTotal = itemTotal;
     } else {
-      // Calculate pricing
-      const basePrice = menuItem.discountedPrice || menuItem.mrp;
+      // Calculate pricing using size price
       const addonsTotal = validAddons.reduce((total, addon) => total + (addon.price * addon.quantity), 0);
       const priceAtTime = basePrice;
       const itemTotal = (basePrice + addonsTotal) * quantity;
@@ -181,14 +224,61 @@ const addToCart = async (req, res) => {
       cart.items.push({
         menu: menuItemId,
         quantity,
-        size,
+        size: actualSize,
         addons: validAddons,
+        specialInstructions: specialInstructions || '',
         priceAtTime,
         itemTotal
       });
     }
 
-    await cart.save();
+    // Handle version conflicts with retry logic
+    let retryCount = 0;
+    const maxRetries = 3;
+
+    while (retryCount < maxRetries) {
+      try {
+        await cart.save();
+        break; // Success, exit retry loop
+      } catch (saveError) {
+        if (saveError.name === 'VersionError' && retryCount < maxRetries - 1) {
+          retryCount++;
+          console.log(`Version conflict, retrying... (${retryCount}/${maxRetries})`);
+
+          // Reload the cart to get the latest version
+          cart = await Cart.findById(cart._id);
+          if (!cart) {
+            throw new Error('Cart not found during retry');
+          }
+
+          // Re-apply the changes
+          const existingItemIndex = cart.items.findIndex(item =>
+            item.menu.toString() === menuItemId &&
+            item.size === actualSize &&
+            JSON.stringify(item.addons.sort()) === JSON.stringify(validAddons.sort())
+          );
+
+          if (existingItemIndex > -1) {
+            cart.items[existingItemIndex].quantity += quantity;
+            cart.items[existingItemIndex].itemTotal = (basePrice + addonsTotal) * cart.items[existingItemIndex].quantity;
+          } else {
+            cart.items.push({
+              menu: menuItemId,
+              quantity,
+              size: actualSize,
+              addons: validAddons,
+              priceAtTime: basePrice,
+              itemTotal: (basePrice + addonsTotal) * quantity
+            });
+          }
+
+          // Small delay before retry
+          await new Promise(resolve => setTimeout(resolve, 100));
+        } else {
+          throw saveError; // Re-throw if not a version error or max retries reached
+        }
+      }
+    }
 
     // Populate and return updated cart
     await cart.populate('items.menu', 'name images discountedPrice mrp');
@@ -200,9 +290,18 @@ const addToCart = async (req, res) => {
     });
   } catch (error) {
     console.error('Add to cart error:', error);
+
+    // Send specific error message to frontend
+    let errorMessage = 'Failed to add item to cart';
+    if (error.name === 'VersionError') {
+      errorMessage = 'Cart was updated by another request. Please try again.';
+    } else if (error.message.includes('not found')) {
+      errorMessage = 'Item or cart not found';
+    }
+
     res.status(500).json({
       success: false,
-      message: 'Failed to add item to cart',
+      message: errorMessage,
       error: error.message
     });
   }
@@ -241,7 +340,7 @@ const updateCartItem = async (req, res) => {
     }
 
     // Check menu item availability
-    const menuItem = await Menu.findById(cart.items[itemIndex].product);
+    const menuItem = await Menu.findById(cart.items[itemIndex].menu);
     if (!menuItem || !menuItem.isActive) {
       return res.status(400).json({
         success: false,

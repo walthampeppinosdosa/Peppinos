@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Primary meta tags -->
+  <title>My Profile - Peppino's Restaurant</title>
+  <meta name="title" content="My Profile - Peppino's Restaurant">
+  <meta name="description" content="Manage your profile at Peppino's Restaurant">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  <!-- Google font link -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap" rel="stylesheet">
+
+  <!-- Custom CSS link -->
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/components.css">
+
+  <!-- Preload images -->
+  <link rel="preload" as="image" href="./assets/images/hero-slider-1.png">
+  <link rel="preload" as="image" href="./assets/images/hero-slider-2.png">
+  <link rel="preload" as="image" href="./assets/images/hero-slider-3.png">
+
+  <style>
+    .profile-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .profile-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .profile-content {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    .profile-sidebar {
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: var(--shadow-1);
+      padding: 2rem;
+      position: sticky;
+      top: 2rem;
+    }
+
+    .profile-main {
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: var(--shadow-1);
+      padding: 2rem;
+    }
+
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto 1rem;
+      display: block;
+      border: 4px solid var(--gold-crayola);
+    }
+
+    .profile-name {
+      text-align: center;
+      color: var(--eerie-black-1);
+      margin-bottom: 0.5rem;
+    }
+
+    .profile-email {
+      text-align: center;
+      color: var(--davys-gray);
+      margin-bottom: 2rem;
+    }
+
+    .profile-nav {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .profile-nav-item {
+      margin-bottom: 0.5rem;
+    }
+
+    .profile-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      color: var(--eerie-black-1);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .profile-nav-link:hover,
+    .profile-nav-link.active {
+      background: var(--gold-crayola);
+      color: var(--white);
+    }
+
+    .profile-section {
+      display: none;
+    }
+
+    .profile-section.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--eerie-black-1);
+      font-weight: 600;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--cultured);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--gold-crayola);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .btn-save {
+      background: var(--gold-crayola);
+      color: var(--white);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-save:hover {
+      background: var(--golden-poppy);
+    }
+
+    .btn-cancel {
+      background: var(--davys-gray);
+      color: var(--white);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-cancel:hover {
+      background: #666;
+    }
+
+    .avatar-upload {
+      position: relative;
+      display: inline-block;
+    }
+
+    .avatar-upload-btn {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: var(--gold-crayola);
+      color: var(--white);
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .avatar-upload-input {
+      display: none;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--cultured);
+      padding: 1.5rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--gold-crayola);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: var(--davys-gray);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .profile-content {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .profile-sidebar {
+        position: static;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Preloader -->
+  <div class="preload" data-preaload>
+    <div class="circle"></div>
+    <p class="text">Peppino's</p>
+  </div>
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="container">
+      <address class="topbar-item">
+        <div class="icon">
+          <ion-icon name="location-outline" aria-hidden="true"></ion-icon>
+        </div>
+        <span class="span">434 Moody St, Waltham, MA 02453</span>
+      </address>
+
+      <div class="separator"></div>
+
+      <div class="topbar-item item-2">
+        <div class="icon">
+          <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+        </div>
+        <span class="span">Lunch Buffet: Mon-Fri 11:30AM-3PM</span>
+      </div>
+
+      <a href="tel:+17815476099" class="topbar-item link">
+        <div class="icon">
+          <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
+        </div>
+        <span class="span">(781) 547-6099</span>
+      </a>
+
+      <div class="separator"></div>
+
+      <a href="mailto:walthampeppinosdosa@gmail.com" class="topbar-item link">
+        <div class="icon">
+          <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+        </div>
+        <span class="span">walthampeppinosdosa@gmail.com</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header" data-header>
+    <div class="container">
+      <a href="index.html" class="logo">
+        <div class="logo-container">
+          <div class="logo-face logo-face-1">
+            <img src="./assets/images/logo-1.png" width="360" height="114" alt="Peppino's Dosa - Home">
+          </div>
+          <div class="logo-face logo-face-2">
+            <img src="./assets/images/logo-2.png" width="360" height="114" alt="Peppino's Dosa - Home">
+          </div>
+          <div class="logo-face logo-face-3">
+            <img src="./assets/images/logo-3.png" width="360" height="114" alt="Peppino's Dosa - Home">
+          </div>
+        </div>
+      </a>
+
+      <nav class="navbar" data-navbar>
+        <button class="close-btn" aria-label="close menu" data-nav-toggler>
+          <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+        </button>
+
+        <ul class="navbar-list">
+          <li class="navbar-item">
+            <a href="index.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Home</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="menu.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Menus</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="about.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">About Us</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="chefs.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Our Chefs</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="catering.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Catering</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="contact.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Contact</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="text-center">
+          <p class="headline-1 navbar-title">Visit Us</p>
+          <address class="body-4">
+            434 Moody St, <br>
+            Waltham, MA 02453
+          </address>
+
+          <p class="body-4 navbar-text">Lunch Buffet: Mon-Fri 11:30AM-3PM</p>
+          <a href="mailto:walthampeppinosdosa@gmail.com" class="body-4 sidebar-link">walthampeppinosdosa@gmail.com</a>
+
+          <div class="separator"></div>
+
+          <p class="contact-label">Booking Request</p>
+          <a href="tel:+17815476099" class="body-1 contact-number hover-underline">
+            (781) 547-6099
+          </a>
+        </div>
+
+        <div class="navbar-actions">
+          <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google navbar-btn" rel="noopener">
+            <span class="text text-1">Google Reviews</span>
+            <span class="text text-2" aria-hidden="true">Google Reviews</span>
+          </a>
+
+          <a href="contact.html#reservation" class="btn btn-secondary navbar-btn">
+            <span class="text text-1">Find A Table</span>
+            <span class="text text-2" aria-hidden="true">Find A Table</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="header-actions">
+        <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google" rel="noopener">
+          <span class="text text-1">Google Reviews</span>
+          <span class="text text-2" aria-hidden="true">Google Reviews</span>
+        </a>
+
+        <a href="contact.html#reservation" class="btn btn-secondary">
+          <span class="text text-1">Find A Table</span>
+          <span class="text text-2" aria-hidden="true">Find A Table</span>
+        </a>
+
+        <!-- Auth buttons will be populated by JavaScript -->
+        <div id="auth-buttons"></div>
+
+        <!-- Cart Icon -->
+        <button class="cart-icon-btn" id="cartIcon" aria-label="Open cart">
+          <ion-icon name="bag-outline"></ion-icon>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+      </div>
+
+      <button class="nav-open-btn" aria-label="open menu" data-nav-toggler>
+        <span class="line line-1"></span>
+        <span class="line line-2"></span>
+        <span class="line line-3"></span>
+      </button>
+
+      <div class="overlay" data-nav-toggler data-overlay></div>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main>
+    <article>
+      <!-- Profile section -->
+      <section class="section profile" aria-labelledby="profile-label">
+        <div class="container">
+          <div class="profile-container">
+            <div class="profile-header">
+              <h1 class="headline-1" id="profile-label">My Profile</h1>
+              <p class="section-subtitle label-2">Manage your account settings</p>
+            </div>
+
+            <div class="profile-content" id="profile-content">
+              <div class="profile-sidebar">
+                <div class="avatar-upload">
+                  <img src="https://via.placeholder.com/120x120/f0f0f0/666666?text=User" alt="Profile Picture" class="profile-avatar" id="profileAvatar">
+                  <button class="avatar-upload-btn" onclick="profilePage.uploadAvatar()">
+                    <ion-icon name="camera-outline"></ion-icon>
+                  </button>
+                  <input type="file" class="avatar-upload-input" id="avatarInput" accept="image/*">
+                </div>
+
+                <h3 class="profile-name" id="profileName">Loading...</h3>
+                <p class="profile-email" id="profileEmail">Loading...</p>
+
+                <ul class="profile-nav">
+                  <li class="profile-nav-item">
+                    <a href="#" class="profile-nav-link active" data-section="overview">
+                      <ion-icon name="person-outline"></ion-icon>
+                      <span>Overview</span>
+                    </a>
+                  </li>
+                  <li class="profile-nav-item">
+                    <a href="#" class="profile-nav-link" data-section="edit-profile">
+                      <ion-icon name="create-outline"></ion-icon>
+                      <span>Edit Profile</span>
+                    </a>
+                  </li>
+                  <li class="profile-nav-item">
+                    <a href="#" class="profile-nav-link" data-section="change-password">
+                      <ion-icon name="lock-closed-outline"></ion-icon>
+                      <span>Change Password</span>
+                    </a>
+                  </li>
+                  <li class="profile-nav-item">
+                    <a href="./orders.html" class="profile-nav-link">
+                      <ion-icon name="receipt-outline"></ion-icon>
+                      <span>My Orders</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="profile-main">
+                <!-- Overview Section -->
+                <div class="profile-section active" id="overview">
+                  <h2 class="title-2">Account Overview</h2>
+
+                  <div class="stats-grid">
+                    <div class="stat-card">
+                      <div class="stat-number" id="totalOrders">0</div>
+                      <div class="stat-label">Total Orders</div>
+                    </div>
+                    <div class="stat-card">
+                      <div class="stat-number" id="totalSpent">$0</div>
+                      <div class="stat-label">Total Spent</div>
+                    </div>
+                    <div class="stat-card">
+                      <div class="stat-number" id="favoriteItems">0</div>
+                      <div class="stat-label">Favorite Items</div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" id="displayName" readonly>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Email</label>
+                      <input type="email" class="form-input" id="displayEmail" readonly>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Phone</label>
+                      <input type="tel" class="form-input" id="displayPhone" readonly>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Address</label>
+                    <input type="text" class="form-input" id="displayAddress" readonly>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Member Since</label>
+                      <input type="text" class="form-input" id="memberSince" readonly>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Last Login</label>
+                      <input type="text" class="form-input" id="lastLogin" readonly>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Edit Profile Section -->
+                <div class="profile-section" id="edit-profile">
+                  <h2 class="title-2">Edit Profile</h2>
+
+                  <form id="profileForm">
+                    <div class="form-group">
+                      <label class="form-label">Full Name *</label>
+                      <input type="text" class="form-input" id="editName" required>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label">Email *</label>
+                        <input type="email" class="form-input" id="editEmail" required readonly>
+                        <small style="color: var(--davys-gray);">Email cannot be changed</small>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-input" id="editPhone">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Address</label>
+                      <input type="text" class="form-input" id="editAddress">
+                    </div>
+
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label">City</label>
+                        <input type="text" class="form-input" id="editCity">
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Postal Code</label>
+                        <input type="text" class="form-input" id="editPostalCode">
+                      </div>
+                    </div>
+
+                    <div class="btn-group">
+                      <button type="submit" class="btn-save">Save Changes</button>
+                      <button type="button" class="btn-cancel" onclick="profilePage.cancelEdit()">Cancel</button>
+                    </div>
+                  </form>
+                </div>
+
+                <!-- Change Password Section -->
+                <div class="profile-section" id="change-password">
+                  <h2 class="title-2">Change Password</h2>
+
+                  <form id="passwordForm">
+                    <div class="form-group">
+                      <label class="form-label">Current Password *</label>
+                      <input type="password" class="form-input" id="currentPassword" required>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">New Password *</label>
+                      <input type="password" class="form-input" id="newPassword" required>
+                      <small style="color: var(--davys-gray);">Password must be at least 8 characters long</small>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Confirm New Password *</label>
+                      <input type="password" class="form-input" id="confirmPassword" required>
+                    </div>
+
+                    <div class="btn-group">
+                      <button type="submit" class="btn-save">Change Password</button>
+                      <button type="button" class="btn-cancel" onclick="profilePage.cancelPasswordChange()">Cancel</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer section has-bg-image text-center"
+    style="background-image: url('./assets/images/footer-bg.jpg')">
+    <div class="container">
+      <div class="footer-top grid-list">
+        <div class="footer-brand">
+          <a href="./index.html" class="logo">
+            <img src="./assets/images/logo.svg" width="160" height="50" alt="Peppino's - Home">
+          </a>
+
+          <address class="body-4">
+            434 Moody St, <br>
+            Waltham, MA 02453
+          </address>
+
+          <a href="mailto:walthampeppinosdosa@gmail.com" class="body-4 contact-link">walthampeppinosdosa@gmail.com</a>
+          <a href="tel:+17815476099" class="body-4 contact-link">Booking Request : (781) 547-6099</a>
+
+          <p class="body-4">
+            Open : 09:00 am - 01:00 pm
+          </p>
+
+          <div class="wrapper">
+            <div class="separator"></div>
+            <div class="separator"></div>
+            <div class="separator"></div>
+          </div>
+
+          <p class="title-1">Get News & Offers</p>
+          <p class="label-1">
+            Subscribe us & Get <span class="span">25% Off.</span>
+          </p>
+
+          <form action="" class="input-wrapper">
+            <div class="icon-wrapper">
+              <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+              <input type="email" name="email_address" placeholder="Your email" autocomplete="off" class="input-field">
+            </div>
+            <button type="submit" class="btn btn-secondary">
+              <span class="text text-1">Subscribe</span>
+              <span class="text text-2" aria-hidden="true">Subscribe</span>
+            </button>
+          </form>
+        </div>
+
+        <ul class="footer-list">
+          <li>
+            <a href="./index.html" class="label-2 footer-link hover-underline">Home</a>
+          </li>
+          <li>
+            <a href="./menu.html" class="label-2 footer-link hover-underline">Menus</a>
+          </li>
+          <li>
+            <a href="./about.html" class="label-2 footer-link hover-underline">About Us</a>
+          </li>
+          <li>
+            <a href="./chefs.html" class="label-2 footer-link hover-underline">Our Chefs</a>
+          </li>
+          <li>
+            <a href="./contact.html" class="label-2 footer-link hover-underline">Contact</a>
+          </li>
+        </ul>
+
+        <ul class="footer-list">
+          <li>
+            <a href="#" class="label-2 footer-link hover-underline">Facebook</a>
+          </li>
+          <li>
+            <a href="#" class="label-2 footer-link hover-underline">Instagram</a>
+          </li>
+          <li>
+            <a href="#" class="label-2 footer-link hover-underline">Twitter</a>
+          </li>
+          <li>
+            <a href="#" class="label-2 footer-link hover-underline">Youtube</a>
+          </li>
+          <li>
+            <a href="#" class="label-2 footer-link hover-underline">Google Map</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="copyright">
+          &copy; 2022 Peppino's. All Rights Reserved | Crafted by <a href="#" target="_blank"
+            class="link">codewithsadee</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to top button -->
+  <a href="#top" class="back-top-btn active" aria-label="back to top" data-back-top-btn>
+    <ion-icon name="chevron-up" aria-hidden="true"></ion-icon>
+  </a>
+
+  <!-- Custom JS -->
+  <script src="./assets/js/script.js"></script>
+  <script type="module" src="./assets/js/profile.js"></script>
+
+  <!-- Ionicon link -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+  <!-- Authentication integration -->
+  <script type="module" src="./assets/js/navigation.js"></script>
+  <script type="module" src="./assets/js/auth.js"></script>
+</body>
+
+</html>

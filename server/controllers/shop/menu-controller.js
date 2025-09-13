@@ -1,5 +1,6 @@
 const Menu = require('../../models/Menu');
 const Category = require('../../models/Category');
+const mongoose = require('mongoose');
 
 /**
  * Get all menu items for shop (public)
@@ -50,9 +51,15 @@ const getAllMenuItems = async (req, res) => {
       if (maxPrice) query.discountedPrice.$lte = parseFloat(maxPrice);
     }
 
-    // Spicy level filter
+    // Spicy level filter - handle both ObjectId and string values
     if (spicyLevel) {
-      query.spicyLevel = spicyLevel;
+      // Check if spicyLevel is a valid ObjectId
+      if (mongoose.Types.ObjectId.isValid(spicyLevel)) {
+        query.spicyLevel = { $in: [spicyLevel] };
+      } else {
+        // For backward compatibility, skip spicy level filter if it's not a valid ObjectId
+        console.log('Invalid spicyLevel filter value:', spicyLevel, 'skipping filter - updated');
+      }
     }
 
     // Tags filter
@@ -73,8 +80,8 @@ const getAllMenuItems = async (req, res) => {
       sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
     }
 
-    // Execute query with pagination
-    const menuItems = await Menu.find(query)
+    // Execute query with pagination and safe population
+    let menuItems = await Menu.find(query)
       .populate('category', 'name slug')
       .select('-__v')
       .sort(sortOptions)
@@ -82,30 +89,87 @@ const getAllMenuItems = async (req, res) => {
       .skip((page - 1) * limit)
       .lean();
 
+    // Safely populate spicyLevel and preparations
+    for (let item of menuItems) {
+      try {
+        if (item.spicyLevel) {
+          try {
+            // Ensure spicyLevel is an array
+            const spicyLevelArray = Array.isArray(item.spicyLevel) ? item.spicyLevel : [item.spicyLevel];
+
+            if (spicyLevelArray.length > 0) {
+              // Check if spicyLevel contains ObjectIds
+              const validSpicyLevels = spicyLevelArray.filter(level =>
+                level && mongoose.Types.ObjectId.isValid(level)
+              );
+
+              if (validSpicyLevels.length > 0) {
+                const SpicyLevel = require('../../models/SpicyLevel');
+                const populatedSpicyLevels = await SpicyLevel.find({
+                  _id: { $in: validSpicyLevels }
+                }).select('name description level').lean();
+                item.spicyLevel = populatedSpicyLevels;
+              } else {
+                // If no valid ObjectIds, keep original values as strings
+                item.spicyLevel = spicyLevelArray.filter(level => level);
+              }
+            }
+          } catch (spicyError) {
+            console.log('Spicy level population error for item:', item._id, spicyError.message);
+            // Keep original value on error
+          }
+        }
+
+        if (item.preparations) {
+          try {
+            // Ensure preparations is an array
+            const preparationsArray = Array.isArray(item.preparations) ? item.preparations : [item.preparations];
+
+            if (preparationsArray.length > 0) {
+              // Check if preparations contains ObjectIds
+              const validPreparations = preparationsArray.filter(prep =>
+                prep && mongoose.Types.ObjectId.isValid(prep)
+              );
+
+              if (validPreparations.length > 0) {
+                const Preparation = require('../../models/Preparation');
+                const populatedPreparations = await Preparation.find({
+                  _id: { $in: validPreparations }
+                }).select('name description').lean();
+                item.preparations = populatedPreparations;
+              } else {
+                // If no valid ObjectIds, keep original values as strings
+                item.preparations = preparationsArray.filter(prep => prep);
+              }
+            }
+          } catch (prepError) {
+            console.log('Preparation population error for item:', item._id, prepError.message);
+            // Keep original value on error
+          }
+        }
+      } catch (error) {
+        console.log('Population error for item:', item._id, error.message);
+      }
+    }
+
     // Get total count for pagination
     const total = await Menu.countDocuments(query);
 
-    // Get available filters for frontend
-    const filters = await Menu.aggregate([
+    // Get available filters for frontend (simplified to avoid spicyLevel aggregation issues)
+    const priceRange = await Menu.aggregate([
       { $match: { isActive: true } },
       {
         $group: {
           _id: null,
-          priceRange: {
-            $push: {
-              min: { $min: '$discountedPrice' },
-              max: { $max: '$discountedPrice' }
-            }
-          },
-          spicyLevels: { $addToSet: '$spicyLevel' },
+          minPrice: { $min: '$discountedPrice' },
+          maxPrice: { $max: '$discountedPrice' },
           availableTags: { $addToSet: '$tags' }
         }
       },
       {
         $project: {
-          minPrice: { $min: '$priceRange.min' },
-          maxPrice: { $max: '$priceRange.max' },
-          spicyLevels: 1,
+          minPrice: 1,
+          maxPrice: 1,
           availableTags: {
             $reduce: {
               input: '$availableTags',
@@ -116,6 +180,13 @@ const getAllMenuItems = async (req, res) => {
         }
       }
     ]);
+
+    const filters = priceRange[0] || {
+      minPrice: 0,
+      maxPrice: 0,
+      spicyLevels: [],
+      availableTags: []
+    };
 
     res.status(200).json({
       success: true,
@@ -128,12 +199,7 @@ const getAllMenuItems = async (req, res) => {
           totalItems: total,
           itemsPerPage: parseInt(limit)
         },
-        filters: filters[0] || {
-          minPrice: 0,
-          maxPrice: 0,
-          spicyLevels: [],
-          availableTags: []
-        }
+        filters: filters
       }
     });
   } catch (error) {
@@ -154,9 +220,54 @@ const getMenuItemById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const menuItem = await Menu.findOne({ _id: id, isActive: true })
+    let menuItem = await Menu.findOne({ _id: id, isActive: true })
       .populate('category', 'name slug description')
       .lean();
+
+    // Safely populate spicyLevel and preparations for single item
+    if (menuItem) {
+      try {
+        if (menuItem.spicyLevel) {
+          // Ensure spicyLevel is an array
+          const spicyLevelArray = Array.isArray(menuItem.spicyLevel) ? menuItem.spicyLevel : [menuItem.spicyLevel];
+
+          if (spicyLevelArray.length > 0) {
+            const validSpicyLevels = spicyLevelArray.filter(level =>
+              mongoose.Types.ObjectId.isValid(level)
+            );
+
+            if (validSpicyLevels.length > 0) {
+              const SpicyLevel = require('../../models/SpicyLevel');
+              const populatedSpicyLevels = await SpicyLevel.find({
+                _id: { $in: validSpicyLevels }
+              }).select('name description level').lean();
+              menuItem.spicyLevel = populatedSpicyLevels;
+            }
+          }
+        }
+
+        if (menuItem.preparations) {
+          // Ensure preparations is an array
+          const preparationsArray = Array.isArray(menuItem.preparations) ? menuItem.preparations : [menuItem.preparations];
+
+          if (preparationsArray.length > 0) {
+            const validPreparations = preparationsArray.filter(prep =>
+              mongoose.Types.ObjectId.isValid(prep)
+            );
+
+            if (validPreparations.length > 0) {
+              const Preparation = require('../../models/Preparation');
+              const populatedPreparations = await Preparation.find({
+                _id: { $in: validPreparations }
+              }).select('name description').lean();
+              menuItem.preparations = populatedPreparations;
+            }
+          }
+        }
+      } catch (error) {
+        console.log('Population error for single item:', menuItem._id, error.message);
+      }
+    }
 
     if (!menuItem) {
       return res.status(404).json({

@@ -94,6 +94,20 @@ class HttpClient {
       if (CONFIG.DEV.ENABLE_LOGGING) {
         console.error('API Request Error:', error);
       }
+
+      // Handle rate limiting with retry
+      if (error.status === 429) {
+        console.warn('Rate limited, retrying after delay...');
+        await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 1000)); // Wait 2-3 seconds
+        try {
+          const retryResponse = await fetch(url, config);
+          return await this.handleResponse(retryResponse);
+        } catch (retryError) {
+          console.error('Retry failed:', retryError);
+          throw retryError;
+        }
+      }
+
       throw error;
     }
   }

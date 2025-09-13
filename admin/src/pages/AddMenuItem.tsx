@@ -110,6 +110,7 @@ export const AddMenuItem: React.FC = () => {
 
   const watchedMrp = watch('mrp');
   const watchedDiscountedPrice = watch('discountedPrice');
+  const watchedCategory = watch('category');
 
   // Fetch menu item data when in edit mode
   useEffect(() => {
@@ -120,7 +121,8 @@ export const AddMenuItem: React.FC = () => {
 
   // Populate form when currentMenuItem is loaded in edit mode
   useEffect(() => {
-    if (isEditMode && currentMenuItem && currentMenuItem._id === id) {
+    if (isEditMode && currentMenuItem && currentMenuItem._id === id && categories.length > 0 && parentCategories.length > 0) {
+
       // Populate basic form fields
       setValue('name', currentMenuItem.name);
       setValue('description', currentMenuItem.description);
@@ -128,13 +130,36 @@ export const AddMenuItem: React.FC = () => {
       setValue('discountedPrice', currentMenuItem.discountedPrice || 0);
       setValue('quantity', currentMenuItem.quantity || 1);
       setValue('preparationTime', currentMenuItem.preparationTime || 15);
-      setValue('category', currentMenuItem.category._id);
 
-      // Set parent category
-      if (currentMenuItem.category?.isVegetarian !== undefined) {
-        const parentCategoryValue = currentMenuItem.category.isVegetarian ? 'veg' : 'nonveg';
-        setSelectedParentCategory(parentCategoryValue);
-        setValue('parentCategory', parentCategoryValue);
+      // Handle category - it might be a string ID or an object with _id
+      let categoryId = '';
+      if (currentMenuItem.category) {
+        if (typeof currentMenuItem.category === 'string') {
+          categoryId = currentMenuItem.category;
+        } else if (currentMenuItem.category._id) {
+          categoryId = currentMenuItem.category._id;
+        }
+      }
+
+      // Verify that the category exists in the loaded categories before setting it
+      if (categoryId) {
+        const categoryExists = categories.some(cat => cat._id === categoryId);
+        if (categoryExists) {
+          setValue('category', categoryId);
+        }
+      }
+
+      // Set parent category based on menu item's isVegetarian property
+      if (currentMenuItem.isVegetarian !== undefined) {
+        // Find the appropriate parent category from parentCategories
+        const parentCategory = parentCategories.find(parent =>
+          parent.isVegetarian === currentMenuItem.isVegetarian
+        );
+
+        if (parentCategory) {
+          setSelectedParentCategory(parentCategory._id);
+          setValue('parentCategory', parentCategory._id);
+        }
       }
 
       // Set spicy levels
@@ -221,7 +246,7 @@ export const AddMenuItem: React.FC = () => {
         setValue('specialInstructions', currentMenuItem.specialInstructions);
       }
     }
-  }, [currentMenuItem, isEditMode, id, setValue]);
+  }, [currentMenuItem, isEditMode, id, setValue, categories, parentCategories]);
 
   // Real-time price validation
   useEffect(() => {
@@ -794,6 +819,7 @@ export const AddMenuItem: React.FC = () => {
               <div>
                 <Label htmlFor="category">Menu Category *</Label>
                 <Select
+                  value={watchedCategory || ''}
                   onValueChange={(value) => setValue('category', value)}
                   disabled={user?.role === 'super-admin' && !selectedParentCategory}
                 >

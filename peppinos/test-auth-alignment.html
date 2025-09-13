@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Alignment Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Authentication Alignment Test</h1>
+    
+    <div class="test-section">
+        <h2>Authentication Status</h2>
+        <button onclick="testAuthStatus()">Test Auth Status</button>
+        <div id="auth-results" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Cart Service Authentication</h2>
+        <button onclick="testCartAuth()">Test Cart Auth</button>
+        <div id="cart-results" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Cart Service Actions</h2>
+        <button onclick="reinitializeCart()">Re-initialize Cart Service</button>
+        <button onclick="addTestItem()">Check Cart Endpoint</button>
+        <button onclick="testQuantityUpdate()">Test Quantity Update</button>
+        <div id="cart-action-results" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Debug Information</h2>
+        <button onclick="showDebugInfo()">Show Debug Info</button>
+        <div id="debug-results" class="result"></div>
+    </div>
+
+    <script type="module">
+        import { 
+            isAuthenticated, 
+            isUserAuthenticated, 
+            isGuestUser, 
+            getCurrentUser 
+        } from './assets/js/auth.js';
+        import { cartService } from './assets/js/services/cart-service.js';
+
+        // Initialize cart service
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await cartService.init();
+                console.log('Cart service initialized');
+            } catch (error) {
+                console.error('Error initializing cart service:', error);
+            }
+        });
+
+        window.testAuthStatus = () => {
+            const results = document.getElementById('auth-results');
+            const user = getCurrentUser();
+            
+            const authData = {
+                'isAuthenticated()': isAuthenticated(),
+                'isUserAuthenticated()': isUserAuthenticated(),
+                'isGuestUser()': isGuestUser(),
+                'getCurrentUser()': user,
+                'user._id': user?._id,
+                'user.id': user?.id,
+                'localStorage.peppinos_is_guest': localStorage.getItem('peppinos_is_guest'),
+                'token present': !!localStorage.getItem('peppinos_auth_token')
+            };
+            
+            results.innerHTML = '<pre>' + JSON.stringify(authData, null, 2) + '</pre>';
+            console.log('🔐 Auth Status Test:', authData);
+        };
+
+        window.testCartAuth = () => {
+            const results = document.getElementById('cart-results');
+            
+            const cartData = {
+                'cartService.isAuthenticated': cartService.isAuthenticated,
+                'cartService.sessionId': cartService.sessionId,
+                'cartService.checkUserAuthentication()': cartService.checkUserAuthentication(),
+                'cart item count': cartService.getItemCount(),
+                'expected user ID': getCurrentUser()?._id || getCurrentUser()?.id
+            };
+            
+            results.innerHTML = '<pre>' + JSON.stringify(cartData, null, 2) + '</pre>';
+            console.log('🛒 Cart Auth Test:', cartData);
+        };
+
+        window.reinitializeCart = async () => {
+            const results = document.getElementById('cart-action-results');
+            try {
+                // Force re-initialization
+                cartService._initialized = false;
+                await cartService.init();
+
+                results.innerHTML = '<div class="success">Cart service re-initialized successfully!</div>';
+                results.innerHTML += '<pre>' + JSON.stringify({
+                    'isAuthenticated': cartService.isAuthenticated,
+                    'sessionId': cartService.sessionId,
+                    'itemCount': cartService.getItemCount()
+                }, null, 2) + '</pre>';
+            } catch (error) {
+                results.innerHTML = '<div class="error">Error: ' + error.message + '</div>';
+            }
+        };
+
+        window.addTestItem = async () => {
+            const results = document.getElementById('cart-action-results');
+            try {
+                // First, let's just check the cart status without adding items
+                results.innerHTML = '<div class="success">Cart Status Check:</div>';
+                results.innerHTML += '<pre>' + JSON.stringify({
+                    'cartService.isAuthenticated': cartService.isAuthenticated,
+                    'cartService.sessionId': cartService.sessionId,
+                    'itemCount': cartService.getItemCount(),
+                    'expected user ID': getCurrentUser()?._id || getCurrentUser()?.id,
+                    'session matches user': cartService.sessionId === (getCurrentUser()?._id || getCurrentUser()?.id)
+                }, null, 2) + '</pre>';
+
+                // Show which endpoint would be used
+                const endpoint = cartService.isAuthenticated ?
+                    '/api/shop/cart/items (USER CART)' :
+                    `/api/shop/guest/cart/${cartService.sessionId} (GUEST CART)`;
+
+                results.innerHTML += '<div><strong>Would use endpoint:</strong> ' + endpoint + '</div>';
+
+            } catch (error) {
+                results.innerHTML = '<div class="error">Error: ' + error.message + '</div>';
+            }
+        };
+
+        window.testQuantityUpdate = async () => {
+            const results = document.getElementById('cart-action-results');
+            try {
+                results.innerHTML = '<div>Testing quantity update with existing cart items...</div>';
+
+                // Get current cart
+                const cart = await cartService.getCart();
+                results.innerHTML += `<div>Current cart has ${cart?.items?.length || 0} items</div>`;
+
+                if (cart && cart.items && cart.items.length > 0) {
+                    const firstItem = cart.items[0];
+                    const itemId = firstItem._id;
+                    const currentQuantity = firstItem.quantity;
+                    const newQuantity = currentQuantity === 1 ? 2 : 1; // Toggle between 1 and 2
+
+                    results.innerHTML += `<div>Updating item ${itemId} from quantity ${currentQuantity} to ${newQuantity}</div>`;
+
+                    try {
+                        await cartService.updateCartItem(itemId, newQuantity);
+                        results.innerHTML += '<div class="success">✅ SUCCESS: Quantity updated successfully!</div>';
+                    } catch (error) {
+                        results.innerHTML += `<div class="error">❌ ERROR: ${error.message}</div>`;
+                    }
+                } else {
+                    results.innerHTML += '<div>No items in cart to test quantity update</div>';
+                }
+            } catch (error) {
+                results.innerHTML = '<div class="error">Error: ' + error.message + '</div>';
+            }
+        };
+
+        window.showDebugInfo = () => {
+            const results = document.getElementById('debug-results');
+
+            // Call the debug function if available
+            if (window.debugCart) {
+                window.debugCart();
+            }
+
+            const debugData = {
+                'All localStorage keys': Object.keys(localStorage),
+                'Auth token': localStorage.getItem('peppinos_auth_token') ? 'present' : 'missing',
+                'User data': localStorage.getItem('peppinos_user_data') ? 'present' : 'missing',
+                'Guest flag': localStorage.getItem('peppinos_is_guest'),
+                'Cart data': localStorage.getItem('peppinos_cart') ? 'present' : 'missing'
+            };
+
+            results.innerHTML = '<pre>' + JSON.stringify(debugData, null, 2) + '</pre>';
+            console.log('🔍 Debug Info:', debugData);
+        };
+    </script>
+</body>
+</html>

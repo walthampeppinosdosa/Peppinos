@@ -32,6 +32,21 @@ const userSchema = new mongoose.Schema({
     trim: true,
     match: [/^\+?[\d\s-()]+$/, 'Please enter a valid phone number']
   },
+  address: {
+    type: String,
+    trim: true,
+    maxlength: [200, 'Address cannot exceed 200 characters']
+  },
+  city: {
+    type: String,
+    trim: true,
+    maxlength: [50, 'City cannot exceed 50 characters']
+  },
+  postalCode: {
+    type: String,
+    trim: true,
+    maxlength: [20, 'Postal code cannot exceed 20 characters']
+  },
   role: {
     type: String,
     enum: ['super-admin', 'veg-admin', 'non-veg-admin', 'customer', 'guest'],

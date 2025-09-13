@@ -120,6 +120,7 @@ export const hasAnyRole = (roles) => {
 // Get user permissions
 export const getUserPermissions = () => {
   const user = getCurrentUser();
+  console.log('getUserPermissions called with user:', user);
   return user ? user.permissions || [] : [];
 };
 
@@ -153,6 +154,133 @@ const notifyAuthChange = (isAuthenticated, user = null) => {
   });
 };
 
+/**
+ * Enhanced Authentication Service (consolidated from auth-service.js)
+ */
+
+// Service-style event listeners for compatibility
+const serviceListeners = [];
+
+export const addEventListener = (callback) => {
+  serviceListeners.push(callback);
+};
+
+export const removeEventListener = (callback) => {
+  const index = serviceListeners.indexOf(callback);
+  if (index > -1) {
+    serviceListeners.splice(index, 1);
+  }
+};
+
+const notifyServiceListeners = (event, data) => {
+  serviceListeners.forEach(callback => {
+    try {
+      callback(event, data);
+    } catch (error) {
+      console.error('Service listener error:', error);
+    }
+  });
+};
+
+// Check if user is actually authenticated (not guest)
+export const isUserAuthenticated = () => {
+  const user = getCurrentUser();
+  const token = getAuthToken();
+  const isGuest = isGuestUser();
+
+  // User is authenticated if they have a valid token AND are not a guest
+  // Check both user.id and user._id for compatibility
+  const userId = user?.id || user?._id;
+  return token && !isTokenExpired(token) && !isGuest && user && userId;
+};
+
+/**
+ * Login Prompt Modal (from auth-service.js)
+ */
+export const showLoginPrompt = (message = 'Please sign in to continue with your order') => {
+  return new Promise((resolve, reject) => {
+    // Create login modal
+    const modal = document.createElement('div');
+    modal.className = 'auth-modal-overlay';
+    modal.innerHTML = `
+      <div class="auth-modal">
+        <div class="auth-modal-header">
+          <h3>Sign In Required</h3>
+          <button class="auth-modal-close" aria-label="Close modal">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
+
+        <div class="auth-modal-body">
+          <p>${message}</p>
+          <p>Your cart items will be saved and transferred to your account after signing in.</p>
+
+          <div class="auth-options">
+            <button class="btn-auth btn-signin" id="signInBtn">
+              <ion-icon name="log-in-outline"></ion-icon>
+              Sign In
+            </button>
+
+            <button class="btn-auth btn-signup" id="signUpBtn">
+              <ion-icon name="person-add-outline"></ion-icon>
+              Create Account
+            </button>
+
+            <button class="btn-auth btn-guest" id="continueGuestBtn">
+              <ion-icon name="person-outline"></ion-icon>
+              Continue as Guest
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Add modal to page
+    document.body.appendChild(modal);
+
+    // Handle modal interactions
+    const handleModalClick = (e) => {
+      if (e.target.id === 'signInBtn') {
+        resolve({ action: 'signin' });
+        redirectToLogin();
+      } else if (e.target.id === 'signUpBtn') {
+        resolve({ action: 'signup' });
+        redirectToSignup();
+      } else if (e.target.id === 'continueGuestBtn') {
+        resolve({ action: 'guest' });
+        closeModal();
+      } else if (e.target.classList.contains('auth-modal-close') ||
+                 e.target.classList.contains('auth-modal-overlay')) {
+        reject(new Error('Modal cancelled'));
+        closeModal();
+      }
+    };
+
+    const closeModal = () => {
+      modal.removeEventListener('click', handleModalClick);
+      document.body.removeChild(modal);
+    };
+
+    const redirectToLogin = () => {
+      sessionStorage.setItem('auth_redirect', window.location.href);
+      window.location.href = './login.html';
+      closeModal();
+    };
+
+    const redirectToSignup = () => {
+      sessionStorage.setItem('auth_redirect', window.location.href);
+      window.location.href = './register.html';
+      closeModal();
+    };
+
+    // Add event listener
+    modal.addEventListener('click', handleModalClick);
+
+    // Focus on modal for accessibility
+    modal.focus();
+  });
+};
+
 // Login user
 export const loginUser = (authData) => {
   const { accessToken, refreshToken, user } = authData;
@@ -164,6 +292,7 @@ export const loginUser = (authData) => {
   setCurrentUser(user);
 
   notifyAuthChange(true, user);
+  notifyServiceListeners('authenticated', user);
 
   // Set up token refresh timer
   setupTokenRefresh();
@@ -176,10 +305,11 @@ export const logoutUser = () => {
   const user = getCurrentUser();
   removeAuthData();
   notifyAuthChange(false, null);
-  
+  notifyServiceListeners('unauthenticated', null);
+
   // Clear any timers
   clearTokenRefreshTimer();
-  
+
   return user;
 };
 
@@ -266,16 +396,54 @@ export const checkSession = () => {
 // Initialize authentication state
 export const initializeAuth = () => {
   const isAuth = checkSession();
-  
+
   if (isAuth) {
     setupTokenRefresh();
     const user = getCurrentUser();
     notifyAuthChange(true, user);
+    notifyServiceListeners('authenticated', user);
   } else {
     notifyAuthChange(false, null);
+    notifyServiceListeners('unauthenticated', null);
   }
-  
+
   return isAuth;
+};
+
+/**
+ * Cart Transfer Functionality (from auth-service.js)
+ */
+export const transferTempCartToUser = async () => {
+  try {
+    // Get temporary cart data
+    const tempCart = localStorage.getItem('peppinos_cart');
+    if (!tempCart) return;
+
+    const cartData = JSON.parse(tempCart);
+    if (!cartData.items || cartData.items.length === 0) return;
+
+    // Import httpClient dynamically to avoid circular dependencies
+    const { httpClient } = await import('./api.js');
+
+    // Transfer cart to authenticated user
+    const response = await httpClient.post('/api/shop/cart/transfer', {
+      tempCartData: cartData
+    });
+
+    if (response.success) {
+      // Clear temporary cart
+      localStorage.removeItem('peppinos_cart');
+
+      // Notify listeners about cart transfer
+      notifyServiceListeners('cartTransferred', response.data);
+
+      console.log('✅ Cart transferred successfully');
+      return response.data;
+    }
+  } catch (error) {
+    console.error('❌ Failed to transfer cart:', error);
+    throw error;
+  }
 };
 
 /**
@@ -379,29 +547,38 @@ export default {
   setAuthTokens,
   removeAuthData,
   isTokenExpired,
-  
+
   // User management
   getCurrentUser,
   setCurrentUser,
   isAuthenticated,
+  isUserAuthenticated,
+  isGuestUser,
+  isRegisteredUser,
   hasRole,
   hasAnyRole,
   hasPermission,
-  
+
   // Authentication actions
   loginUser,
   logoutUser,
   refreshAuthToken,
-  
+
   // Session management
   checkSession,
   initializeAuth,
-  
+
   // Route protection
   requireAuth,
   requireGuest,
   requireRole,
-  
+
+  // Service compatibility
+  addEventListener,
+  removeEventListener,
+  showLoginPrompt,
+  transferTempCartToUser,
+
   // Utilities
   getRedirectUrl,
   getUserDisplayName,

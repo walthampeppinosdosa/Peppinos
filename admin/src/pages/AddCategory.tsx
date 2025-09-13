@@ -103,11 +103,24 @@ export const AddCategory: React.FC = () => {
   }, [parentCategories, currentUser, isEditMode, setValue, watch]);
   // Populate form when currentCategory is loaded in edit mode
   useEffect(() => {
-    if (isEditMode && currentCategory && currentCategory._id === id) {
+    if (isEditMode && currentCategory && currentCategory._id === id && parentCategories.length > 0) {
+      // Handle parentCategory - it might be a string ID or an object with _id
+      let parentCategoryId = '';
+      if (currentCategory.parentCategory) {
+        if (typeof currentCategory.parentCategory === 'string') {
+          parentCategoryId = currentCategory.parentCategory;
+        } else if (currentCategory.parentCategory._id) {
+          parentCategoryId = currentCategory.parentCategory._id;
+        }
+      }
+
+      // Verify that the parent category exists in the loaded parent categories
+      const parentExists = parentCategories.some(parent => parent._id === parentCategoryId);
+
       reset({
         name: currentCategory.name || '',
         description: currentCategory.description || '',
-        parentCategory: currentCategory.parentCategory?._id || '',
+        parentCategory: parentExists ? parentCategoryId : '',
         sortOrder: currentCategory.sortOrder || 0,
         isActive: currentCategory.isActive ?? true,
       });
@@ -122,7 +135,7 @@ export const AddCategory: React.FC = () => {
       setImageToDelete(null);
       setSelectedImage(null);
     }
-  }, [currentCategory, id, isEditMode, reset]);
+  }, [currentCategory, id, isEditMode, reset, parentCategories]);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

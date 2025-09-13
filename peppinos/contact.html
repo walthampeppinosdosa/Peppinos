@@ -106,12 +106,12 @@
 
       <div class="separator"></div>
 
-      <a href="mailto:booking@peppinosdosa.com" class="topbar-item link">
+      <a href="mailto:walthampeppinosdosa@gmail.com" class="topbar-item link">
         <div class="icon">
           <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
         </div>
 
-        <span class="span">booking@peppinosdosa.com</span>
+        <span class="span">walthampeppinosdosa@gmail.com</span>
       </a>
 
     </div>
@@ -213,7 +213,7 @@
 
           <p class="body-4 navbar-text">Lunch Buffet: Mon-Fri 11:30AM-3PM</p>
 
-          <a href="mailto:booking@peppinosdosa.com" class="body-4 sidebar-link">booking@peppinosdosa.com</a>
+          <a href="mailto:walthampeppinosdosa@gmail.com" class="body-4 sidebar-link">walthampeppinosdosa@gmail.com</a>
 
           <div class="separator"></div>
 
@@ -248,6 +248,15 @@
           <span class="text text-1">Find A Table</span>
           <span class="text text-2" aria-hidden="true">Find A Table</span>
         </a>
+
+        <!-- Auth buttons will be populated by JavaScript -->
+        <div id="auth-buttons"></div>
+
+        <!-- Cart Icon -->
+        <button class="cart-icon-btn" id="cartIcon" aria-label="Open cart">
+          <ion-icon name="bag-outline"></ion-icon>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
       </div>
 
       <button class="nav-open-btn" aria-label="open menu" data-nav-toggler>
@@ -419,7 +428,7 @@
             434 Moody St, Waltham, MA 02453
           </address>
 
-          <a href="mailto:booking@peppinosdosa.com" class="body-4 contact-link">booking@peppinosdosa.com</a>
+          <a href="mailto:walthampeppinosdosa@gmail.com" class="body-4 contact-link">walthampeppinosdosa@gmail.com</a>
 
           <a href="tel:+17815476099" class="body-4 contact-link">Booking Request : (781) 547-6099</a>
 
@@ -548,6 +557,19 @@
   -->
   <script src="./assets/js/script.js"></script>
   <script src="./assets/js/custom.js"></script>
+
+  <!-- Cart functionality -->
+  <script type="module">
+    import { cartService } from './assets/js/services/cart-service.js';
+    import { CartUI } from './assets/js/components/cart-ui.js';
+    import { authService } from './assets/js/services/auth-service.js';
+
+    // Initialize cart when page loads
+    document.addEventListener('DOMContentLoaded', async () => {
+      await cartService.init();
+      new CartUI();
+    });
+  </script>
 
   <!--
     - ionicon link

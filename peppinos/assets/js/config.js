@@ -151,16 +151,22 @@ if (typeof window !== 'undefined') {
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     // Development environment
     CONFIG.API.BASE_URL = 'http://localhost:5000';
+    CONFIG.KINDE.REDIRECT_URI = 'http://localhost:5500/peppinos/auth-callback.html';
+    CONFIG.KINDE.LOGOUT_URI = 'http://localhost:5500/peppinos';
     CONFIG.DEV.ENABLE_LOGGING = true;
     CONFIG.DEV.DEBUG_MODE = true;
   } else if (hostname.includes('staging')) {
     // Staging environment
     CONFIG.API.BASE_URL = 'https://staging-api.peppinosdosa.com';
+    CONFIG.KINDE.REDIRECT_URI = 'https://staging.peppinosdosa.com/auth-callback.html';
+    CONFIG.KINDE.LOGOUT_URI = 'https://staging.peppinosdosa.com';
     CONFIG.DEV.ENABLE_LOGGING = true;
     CONFIG.DEV.DEBUG_MODE = false;
   } else {
-    // Production environment
-    CONFIG.API.BASE_URL = 'https://api.peppinosdosa.com';
+    // Production environment - use relative URLs for Firebase hosting rewrites
+    CONFIG.API.BASE_URL = '';
+    CONFIG.KINDE.REDIRECT_URI = 'https://walthampeppinos.web.app/auth-callback.html';
+    CONFIG.KINDE.LOGOUT_URI = 'https://walthampeppinos.web.app';
     CONFIG.DEV.ENABLE_LOGGING = false;
     CONFIG.DEV.DEBUG_MODE = false;
   }

@@ -207,13 +207,33 @@ export class MenuService {
   }
 
   /**
+   * Get a single menu item by ID
+   * @param {string} itemId - Menu item ID
+   * @returns {Promise<Object>} Menu item data
+   */
+  async getMenuItemById(itemId) {
+    try {
+      const response = await menuAPI.getById(itemId);
+
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to fetch menu item');
+      }
+
+      return response.data.menuItem || response.data;
+    } catch (error) {
+      console.error('Error fetching menu item:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Get featured menu items
    * @returns {Promise<Array>} Featured menu items
    */
   async getFeaturedItems() {
     try {
       const response = await menuAPI.getFeatured();
-      
+
       if (!response.success) {
         throw new Error(response.message || 'Failed to fetch featured items');
       }

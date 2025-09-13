@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Page Not Found - Peppino's Restaurant</title>
+    <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+    <style media="screen">
+      body {
+        background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+        color: #ffffff;
+        font-family: 'DM Sans', Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #message {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        max-width: 500px;
+        margin: 20px;
+        padding: 40px 32px;
+        border-radius: 12px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .logo {
+        width: 120px;
+        height: auto;
+        margin-bottom: 20px;
+      }
+      #message h2 {
+        color: #d4af37;
+        font-weight: bold;
+        font-size: 48px;
+        margin: 0 0 16px;
+        font-family: 'Forum', serif;
+      }
+      #message h1 {
+        font-size: 28px;
+        font-weight: 600;
+        color: #ffffff;
+        margin: 0 0 24px;
+        font-family: 'Forum', serif;
+      }
+      #message p {
+        line-height: 1.6;
+        margin: 16px 0 24px;
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.8);
+      }
+      #message a {
+        display: inline-block;
+        text-align: center;
+        background: #d4af37;
+        text-transform: uppercase;
+        text-decoration: none;
+        color: #0d1b2a;
+        padding: 16px 32px;
+        border-radius: 8px;
+        font-weight: 600;
+        margin: 8px;
+        transition: all 0.3s ease;
+      }
+      #message a:hover {
+        background: #f4c430;
+        transform: translateY(-2px);
+      }
+      .links {
+        margin-top: 32px;
+      }
+      @media (max-width: 600px) {
+        #message {
+          margin: 10px;
+          padding: 24px 20px;
+        }
+        #message h2 {
+          font-size: 36px;
+        }
+        #message h1 {
+          font-size: 24px;
+        }
+        #message a {
+          display: block;
+          margin: 8px 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="message">
+      <img src="./assets/images/logo.svg" alt="Peppino's Restaurant" class="logo">
+      <h2>404</h2>
+      <h1>Oops! Page Not Found</h1>
+      <p>The page you're looking for seems to have wandered off like a lost dosa! Don't worry, we'll help you find your way back to delicious food.</p>
+      <div class="links">
+        <a href="./index.html">Go Home</a>
+        <a href="./menu.html">View Menu</a>
+        <a href="./contact.html">Contact Us</a>
+      </div>
+    </div>
+  </body>
+</html>

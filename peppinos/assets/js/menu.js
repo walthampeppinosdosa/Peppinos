@@ -5,6 +5,7 @@
 
 import { menuService } from './services/menu-service.js';
 import { menuRenderer } from './services/menu-renderer.js';
+import { cartOptionsService } from './services/cart-options-service.js'; // Auto-initializes
 import { showToast } from './ui.js';
 
 /**

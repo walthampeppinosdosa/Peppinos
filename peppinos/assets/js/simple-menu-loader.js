@@ -188,6 +188,7 @@ class CategoryMenuLoader {
 
     this.container.innerHTML = menuHTML;
     this.setupDropdownInteractions();
+    this.setupCartInteractions();
   }
 
   /**
@@ -207,6 +208,7 @@ class CategoryMenuLoader {
     const featuredItems = allItems.slice(0, 6);
     const menuHTML = featuredItems.map(item => this.renderMenuItem(item)).join('');
     this.container.innerHTML = menuHTML;
+    this.setupCartInteractions();
   }
 
   /**
@@ -319,6 +321,19 @@ class CategoryMenuLoader {
                     ${item.description || 'Delicious menu item prepared with authentic spices and fresh ingredients.'}
                   </p>
 
+                  <div class="menu-item-actions">
+                    <div class="quantity-selector">
+                      <button class="qty-btn qty-decrease" data-menu-id="${item._id}">-</button>
+                      <span class="qty-display" data-menu-id="${item._id}">1</span>
+                      <button class="qty-btn qty-increase" data-menu-id="${item._id}">+</button>
+                    </div>
+
+                    <button class="btn-add-to-cart" data-menu-id="${item._id}" data-menu-name="${item.name}" data-menu-price="${currentPrice}">
+                      <ion-icon name="bag-add-outline"></ion-icon>
+                      Add to Cart
+                    </button>
+                  </div>
+
                 </div>
 
               </div>
@@ -344,6 +359,91 @@ class CategoryMenuLoader {
         // Update arrow
         const title = header.querySelector('.category-title');
         title.textContent = title.textContent.replace(/[▼▲]/, isVisible ? '▼' : '▲');
+      });
+    });
+  }
+
+  /**
+   * Setup cart interactions (quantity selectors and add to cart buttons)
+   */
+  setupCartInteractions() {
+    // Quantity increase buttons
+    this.container.querySelectorAll('.qty-increase').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const menuId = e.target.dataset.menuId;
+        const qtyDisplay = this.container.querySelector(`.qty-display[data-menu-id="${menuId}"]`);
+        let currentQty = parseInt(qtyDisplay.textContent);
+        if (currentQty < 10) { // Max quantity limit
+          qtyDisplay.textContent = currentQty + 1;
+        }
+      });
+    });
+
+    // Quantity decrease buttons
+    this.container.querySelectorAll('.qty-decrease').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const menuId = e.target.dataset.menuId;
+        const qtyDisplay = this.container.querySelector(`.qty-display[data-menu-id="${menuId}"]`);
+        let currentQty = parseInt(qtyDisplay.textContent);
+        if (currentQty > 1) { // Min quantity limit
+          qtyDisplay.textContent = currentQty - 1;
+        }
+      });
+    });
+
+    // Add to cart buttons
+    this.container.querySelectorAll('.btn-add-to-cart').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const button = e.currentTarget;
+        const menuId = button.dataset.menuId;
+        const menuName = button.dataset.menuName;
+        const menuPrice = parseFloat(button.dataset.menuPrice);
+        const qtyDisplay = this.container.querySelector(`.qty-display[data-menu-id="${menuId}"]`);
+        const quantity = parseInt(qtyDisplay.textContent);
+
+        try {
+          // Disable button during request
+          button.disabled = true;
+          button.innerHTML = '<ion-icon name="hourglass-outline"></ion-icon> Adding...';
+
+          // Import cart options service dynamically
+          const { CartOptionsService } = await import('./services/cart-options-service.js');
+
+          // Create cart options service instance if not exists
+          if (!window.cartOptionsService) {
+            window.cartOptionsService = new CartOptionsService();
+          }
+
+          // Set up button data for cart options service
+          button.dataset.itemId = menuId;
+          button.dataset.itemName = menuName;
+          button.dataset.itemPrice = menuPrice;
+          button.dataset.isVeg = this.menuData.find(item => item._id === menuId)?.isVegetarian || 'true';
+
+          // Handle add to cart with options checking
+          await window.cartOptionsService.handleAddToCartClick(button);
+
+          // Reset button state (success feedback is handled by cart service)
+          button.disabled = false;
+          button.innerHTML = '<ion-icon name="bag-add-outline"></ion-icon> Add to Cart';
+          button.style.background = 'var(--gold-crayola)';
+          // Reset quantity to 1
+          qtyDisplay.textContent = '1';
+
+        } catch (error) {
+          console.error('Error adding to cart:', error);
+
+          // Show error feedback
+          button.innerHTML = '<ion-icon name="close-outline"></ion-icon> Error';
+          button.style.background = 'var(--red-orange-crayola)';
+
+          // Reset button after 2 seconds
+          setTimeout(() => {
+            button.disabled = false;
+            button.innerHTML = '<ion-icon name="bag-add-outline"></ion-icon> Add to Cart';
+            button.style.background = 'var(--gold-crayola)';
+          }, 2000);
+        }
       });
     });
   }
@@ -447,6 +547,7 @@ class CategoryMenuLoader {
 
     filterHTML += '</ul></div>';
     this.container.innerHTML = filterHTML;
+    this.setupCartInteractions();
   }
 
   /**
@@ -513,6 +614,7 @@ class CategoryMenuLoader {
 
     resultsHTML += '</ul></div>';
     this.container.innerHTML = resultsHTML;
+    this.setupCartInteractions();
   }
 }
 

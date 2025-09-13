@@ -97,12 +97,16 @@ const corsOptions = {
     const allowedOrigins = [
       process.env.CLIENT_URL,
       process.env.ADMIN_URL,
+      'http://localhost:3000',
       'http://localhost:5500',
       'http://localhost:3001',
       'http://localhost:5173',
       'http://localhost:8081',
       'https://peppinos-admin.vercel.app',
-      'https://peppinos-client.vercel.app'
+      'https://peppinos-client.vercel.app',
+      // Firebase hosting URLs
+      'https://walthampeppinos.web.app',
+      'https://peppinos-admin.web.app'
     ];
     
     // Allow requests with no origin (like mobile apps or curl requests) in development

@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Primary meta tags -->
+  <title>Order Confirmation - Peppino's Restaurant</title>
+  <meta name="title" content="Order Confirmation - Peppino's Restaurant">
+  <meta name="description" content="Your order has been confirmed at Peppino's Restaurant">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  <!-- Google font link -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap" rel="stylesheet">
+
+  <!-- Custom CSS link -->
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/components.css">
+
+  <!-- Preload images -->
+  <link rel="preload" as="image" href="./assets/images/hero-slider-1.png">
+  <link rel="preload" as="image" href="./assets/images/hero-slider-2.png">
+  <link rel="preload" as="image" href="./assets/images/hero-slider-3.png">
+
+  <style>
+    .confirmation-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: var(--shadow-1);
+      text-align: center;
+    }
+
+    .success-icon {
+      font-size: 4rem;
+      color: var(--green);
+      margin-bottom: 1rem;
+    }
+
+    .order-details {
+      background: var(--eerie-black-4);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      text-align: left;
+    }
+
+    .order-details h3 {
+      color: var(--gold-crayola);
+      margin-bottom: 1rem;
+      font-family: var(--ff-forum);
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      color: var(--white);
+    }
+
+    .detail-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .order-items {
+      margin: 1rem 0;
+    }
+
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--white-alpha-10);
+      color: var(--white);
+    }
+
+    .order-item:last-child {
+      border-bottom: none;
+    }
+
+    .item-details {
+      flex: 1;
+    }
+
+    .item-name {
+      font-weight: 600;
+    }
+
+    .item-info {
+      font-size: 0.875rem;
+      color: var(--quick-silver);
+    }
+
+    .item-price {
+      font-weight: 600;
+      color: var(--gold-crayola);
+    }
+
+    .total-section {
+      border-top: 1px solid var(--white-alpha-10);
+      padding-top: 1rem;
+      margin-top: 1rem;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      color: var(--white);
+    }
+
+    .total-final {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--gold-crayola);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    .btn-action {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition-1);
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: var(--gold-crayola);
+      color: var(--eerie-black-1);
+    }
+
+    .btn-primary:hover {
+      background: var(--golden-poppy);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid var(--gold-crayola);
+      color: var(--gold-crayola);
+    }
+
+    .btn-secondary:hover {
+      background: var(--gold-crayola);
+      color: var(--eerie-black-1);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .loading ion-icon {
+      font-size: 3rem;
+      color: var(--gold-crayola);
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .error-message {
+      color: var(--red-orange-crayola);
+      text-align: center;
+      padding: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .confirmation-container {
+        margin: 1rem;
+        padding: 1rem;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .detail-row,
+      .order-item,
+      .total-row {
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+    }
+  </style>
+</head>
+
+<body id="top">
+
+  <!-- HEADER -->
+  <header class="header" data-header>
+    <div class="container">
+      <a href="./index.html" class="logo">
+        <img src="./assets/images/logo-1.png" width="160" height="50" alt="Peppino's - Home">
+      </a>
+
+      <nav class="navbar" data-navbar>
+        <button class="close-btn" aria-label="close menu" data-nav-toggler>
+          <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+        </button>
+
+        <a href="./index.html" class="logo">
+          <img src="./assets/images/logo-1.png" width="160" height="50" alt="Peppino's - Home">
+        </a>
+
+        <ul class="navbar-list">
+          <li class="navbar-item">
+            <a href="./index.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Home</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="./menu.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Menus</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="./about.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">About Us</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="./contact.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Contact</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="text-center">
+          <p class="headline-1 navbar-title">Visit Us</p>
+          <address class="body-4">
+            434 Moody St, Waltham, MA 02453
+          </address>
+
+          <p class="body-4 navbar-text">Open: 11:30AM - 10:00PM</p>
+          <a href="mailto:Walthampeppinosdosa@gmail.com" class="body-4 sidebar-link">Walthampeppinosdosa@gmail.com</a>
+
+          <div class="separator"></div>
+
+          <p class="contact-label">Booking Request</p>
+          <a href="tel:+17815476099" class="body-1 contact-number hover-underline">
+            (781) 547-6099
+          </a>
+        </div>
+      </nav>
+
+      <button class="nav-open-btn" aria-label="open menu" data-nav-toggler>
+        <span class="line line-1"></span>
+        <span class="line line-2"></span>
+        <span class="line line-3"></span>
+      </button>
+
+      <div class="overlay" data-nav-toggler data-overlay></div>
+    </div>
+  </header>
+
+  <main>
+    <article>
+      <!-- CONFIRMATION SECTION -->
+      <section class="section confirmation" aria-label="order confirmation">
+        <div class="container">
+          <div class="confirmation-container">
+            
+            <!-- Loading State -->
+            <div id="loadingState" class="loading">
+              <ion-icon name="hourglass-outline"></ion-icon>
+              <h3>Loading your order details...</h3>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="error-message" style="display: none;">
+              <ion-icon name="alert-circle-outline" style="font-size: 3rem; margin-bottom: 1rem;"></ion-icon>
+              <h3>Order Not Found</h3>
+              <p>We couldn't find your order. Please check your order number or contact us for assistance.</p>
+              <div class="action-buttons">
+                <a href="./menu.html" class="btn-action btn-primary">Order Again</a>
+                <a href="./contact.html" class="btn-action btn-secondary">Contact Us</a>
+              </div>
+            </div>
+
+            <!-- Success State -->
+            <div id="successState" style="display: none;">
+              <ion-icon name="checkmark-circle-outline" class="success-icon"></ion-icon>
+              <h2 class="headline-1">Order Confirmed!</h2>
+              <p class="body-2">Thank you for your order. We've received it and will start preparing it shortly.</p>
+
+              <div class="order-details" id="orderDetails">
+                <!-- Order details will be populated here -->
+              </div>
+
+              <div class="action-buttons">
+                <a href="./menu.html" class="btn-action btn-primary">Order Again</a>
+                <a href="#" id="trackOrderBtn" class="btn-action btn-secondary">Track Order</a>
+                <a href="./index.html" class="btn-action btn-secondary">Back to Home</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer section has-bg-image text-center"
+    style="background-image: url('./assets/images/footer-bg.jpg')">
+    <div class="container">
+      <div class="footer-top grid-list">
+        <div class="footer-brand">
+          <a href="./index.html" class="logo">
+            <img src="./assets/images/logo-1.png" width="160" height="50" alt="Peppino's - Home">
+          </a>
+
+          <address class="body-4">
+            434 Moody St, Waltham, MA 02453
+          </address>
+
+          <a href="mailto:Walthampeppinosdosa@gmail.com" class="body-4 contact-link">Walthampeppinosdosa@gmail.com</a>
+          <a href="tel:+17815476099" class="body-4 contact-link">Booking Request : (781) 547-6099</a>
+
+          <p class="body-4">
+            Lunch Buffet: Mon-Fri 11:30AM-3PM<br>
+            Dining: Mon-Thu 11:30AM-3PM, 5-10PM<br>
+            Fri-Sun 11:30AM-3:30PM, 4:30-10PM
+          </p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="copyright">
+          &copy; 2025 Peppinos. All Rights Reserved
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to top button -->
+  <a href="#top" class="back-top-btn active" aria-label="back to top" data-back-top-btn>
+    <ion-icon name="chevron-up" aria-hidden="true"></ion-icon>
+  </a>
+
+  <!-- Custom JS link -->
+  <script src="./assets/js/script.js"></script>
+
+  <!-- Order confirmation functionality -->
+  <script type="module">
+    import { formatCurrency } from './assets/js/ui.js';
+
+    class OrderConfirmation {
+      constructor() {
+        this.loadingState = document.getElementById('loadingState');
+        this.errorState = document.getElementById('errorState');
+        this.successState = document.getElementById('successState');
+        this.orderDetails = document.getElementById('orderDetails');
+        this.init();
+      }
+
+      async init() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('orderId');
+
+        if (!orderId) {
+          this.showError();
+          return;
+        }
+
+        try {
+          await this.loadOrderDetails(orderId);
+        } catch (error) {
+          console.error('Error loading order:', error);
+          this.showError();
+        }
+      }
+
+      async loadOrderDetails(orderId) {
+        const response = await fetch(`/api/shop/orders/track/${orderId}`);
+        
+        if (!response.ok) {
+          throw new Error('Order not found');
+        }
+
+        const data = await response.json();
+        if (!data.success) {
+          throw new Error(data.message);
+        }
+
+        this.displayOrder(data.order);
+      }
+
+      displayOrder(order) {
+        this.loadingState.style.display = 'none';
+        this.successState.style.display = 'block';
+
+        const estimatedTime = this.calculateEstimatedTime(order);
+
+        // Setup track order button
+        const trackOrderBtn = document.getElementById('trackOrderBtn');
+        trackOrderBtn.href = `./order-tracking.html?orderNumber=${order.orderNumber}`;
+        
+        this.orderDetails.innerHTML = `
+          <h3>Order Details</h3>
+          
+          <div class="detail-row">
+            <span>Order Number:</span>
+            <span><strong>${order.orderNumber}</strong></span>
+          </div>
+          
+          <div class="detail-row">
+            <span>Order Type:</span>
+            <span>${order.orderType === 'pickup' ? 'Pickup' : 'Delivery'}</span>
+          </div>
+          
+          <div class="detail-row">
+            <span>Estimated ${order.orderType === 'pickup' ? 'Pickup' : 'Delivery'} Time:</span>
+            <span><strong>${estimatedTime}</strong></span>
+          </div>
+          
+          ${order.deliveryAddress ? `
+            <div class="detail-row">
+              <span>Delivery Address:</span>
+              <span>${order.deliveryAddress.street}, ${order.deliveryAddress.city}, ${order.deliveryAddress.state} ${order.deliveryAddress.zipCode}</span>
+            </div>
+          ` : ''}
+          
+          <div class="order-items">
+            <h4 style="color: var(--gold-crayola); margin-bottom: 1rem;">Items Ordered:</h4>
+            ${order.items.map(item => this.renderOrderItem(item)).join('')}
+          </div>
+          
+          <div class="total-section">
+            <div class="total-row">
+              <span>Subtotal:</span>
+              <span>${formatCurrency(order.subtotal)}</span>
+            </div>
+            <div class="total-row">
+              <span>Tax:</span>
+              <span>${formatCurrency(order.tax)}</span>
+            </div>
+            <div class="total-row total-final">
+              <span>Total:</span>
+              <span>${formatCurrency(order.total)}</span>
+            </div>
+          </div>
+          
+          ${order.specialInstructions ? `
+            <div class="detail-row" style="margin-top: 1rem;">
+              <span>Special Instructions:</span>
+              <span>${order.specialInstructions}</span>
+            </div>
+          ` : ''}
+        `;
+      }
+
+      renderOrderItem(item) {
+        const menu = item.menu;
+        return `
+          <div class="order-item">
+            <div class="item-details">
+              <div class="item-name">${menu.name}</div>
+              <div class="item-info">
+                Qty: ${item.quantity} | Size: ${item.size}
+                ${item.addons && item.addons.length > 0 ? `<br>Add-ons: ${item.addons.map(addon => addon.name).join(', ')}` : ''}
+                ${item.specialInstructions ? `<br>Note: ${item.specialInstructions}` : ''}
+              </div>
+            </div>
+            <div class="item-price">${formatCurrency(item.itemTotal)}</div>
+          </div>
+        `;
+      }
+
+      calculateEstimatedTime(order) {
+        if (order.timing === 'scheduled' && order.scheduledDate && order.scheduledTime) {
+          const scheduledDate = new Date(order.scheduledDate);
+          const [hours, minutes] = order.scheduledTime.split(':');
+          scheduledDate.setHours(parseInt(hours), parseInt(minutes));
+          return scheduledDate.toLocaleString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          });
+        }
+
+        // For ASAP orders, calculate based on order time + preparation time
+        const orderTime = new Date(order.createdAt);
+        const prepTime = order.orderType === 'delivery' ? 45 : 20; // minutes
+        const estimatedTime = new Date(orderTime.getTime() + prepTime * 60 * 1000);
+        
+        return estimatedTime.toLocaleString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        });
+      }
+
+      showError() {
+        this.loadingState.style.display = 'none';
+        this.errorState.style.display = 'block';
+      }
+    }
+
+    // Initialize order confirmation when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      new OrderConfirmation();
+    });
+  </script>
+
+  <!-- Ionicon link -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+</body>
+
+</html>

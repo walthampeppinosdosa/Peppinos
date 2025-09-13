@@ -145,18 +145,147 @@
       text-align: center;
     }
 
+    /* Cart Summary Styles */
+    .cart-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--cultured);
+    }
+
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+
+    .cart-item-image {
+      width: 50px;
+      height: 50px;
+      border-radius: 4px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .cart-item-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .cart-item-details {
+      flex: 1;
+    }
+
+    .cart-item-name {
+      font-weight: 600;
+      color: var(--eerie-black-1);
+      margin-bottom: 0.25rem;
+    }
+
+    .cart-item-info {
+      font-size: 0.875rem;
+      color: var(--quick-silver);
+    }
+
+    .cart-item-price {
+      font-weight: 600;
+      color: var(--gold-crayola);
+    }
+
+    .cart-totals {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--cultured);
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .total-final {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--gold-crayola);
+      border-top: 1px solid var(--cultured);
+      padding-top: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 2rem;
+      color: var(--quick-silver);
+    }
+
+    .empty-cart ion-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
     @media (max-width: 768px) {
       .form-row {
         grid-template-columns: 1fr;
       }
-      
+
       .radio-group {
         flex-direction: column;
       }
-      
+
       .checkout-container {
         margin: 1rem;
         padding: 1rem;
+      }
+
+      .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .cart-item-details {
+        width: 100%;
+      }
+
+      /* Mobile form improvements */
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 1rem;
+      }
+
+      .radio-option {
+        padding: 0.75rem;
+        border: 1px solid var(--cultured);
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        transition: var(--transition-1);
+      }
+
+      .radio-option:hover,
+      .radio-option:has(input:checked) {
+        border-color: var(--gold-crayola);
+        background: var(--white-alpha-10);
+      }
+
+      .btn-checkout {
+        padding: 1.25rem;
+        font-size: 1.2rem;
+        border-radius: 8px;
+      }
+
+      /* Better touch targets */
+      .radio-option input[type="radio"] {
+        width: 20px;
+        height: 20px;
+      }
+
+      .radio-option label {
+        font-size: 1.1rem;
+        cursor: pointer;
       }
     }
   </style>
@@ -167,8 +296,18 @@
   <!-- HEADER -->
   <header class="header" data-header>
     <div class="container">
-      <a href="./index.html" class="logo">
-        <img src="./assets/images/logo-1.png" width="160" height="50" alt="Peppino's - Home">
+      <a href="index.html" class="logo">
+        <div class="logo-container">
+          <div class="logo-face logo-face-1">
+            <img src="./assets/images/logo-1.png" width="360" height="114" alt="Peppino's Dosa - Home">
+          </div>
+          <div class="logo-face logo-face-2">
+            <img src="./assets/images/logo-2.png" width="360" height="114" alt="Peppino's Dosa - Home">
+          </div>
+          <div class="logo-face logo-face-3">
+            <img src="./assets/images/logo-3.png" width="360" height="114" alt="Peppino's Dosa - Home">
+          </div>
+        </div>
       </a>
 
       <nav class="navbar" data-navbar>
@@ -176,34 +315,44 @@
           <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
         </button>
 
-        <a href="./index.html" class="logo">
-          <img src="./assets/images/logo-1.png" width="160" height="50" alt="Peppino's - Home">
-        </a>
-
         <ul class="navbar-list">
           <li class="navbar-item">
-            <a href="./index.html" class="navbar-link hover-underline">
+            <a href="index.html" class="navbar-link hover-underline">
               <div class="separator"></div>
               <span class="span">Home</span>
             </a>
           </li>
 
           <li class="navbar-item">
-            <a href="./menu.html" class="navbar-link hover-underline">
+            <a href="menu.html" class="navbar-link hover-underline">
               <div class="separator"></div>
               <span class="span">Menus</span>
             </a>
           </li>
 
           <li class="navbar-item">
-            <a href="./about.html" class="navbar-link hover-underline">
+            <a href="about.html" class="navbar-link hover-underline">
               <div class="separator"></div>
               <span class="span">About Us</span>
             </a>
           </li>
 
           <li class="navbar-item">
-            <a href="./contact.html" class="navbar-link hover-underline">
+            <a href="chefs.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Our Chefs</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="catering.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Catering</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="contact.html" class="navbar-link hover-underline">
               <div class="separator"></div>
               <span class="span">Contact</span>
             </a>
@@ -213,21 +362,47 @@
         <div class="text-center">
           <p class="headline-1 navbar-title">Visit Us</p>
           <address class="body-4">
-            Restaurant St, Delicious City, <br>
-            London 9578, UK
+            434 Moody St, <br>
+            Waltham, MA 02453
           </address>
 
-          <p class="body-4 navbar-text">Open: 9.30 am - 2.30pm</p>
-          <a href="mailto:booking@peppinos.com" class="body-4 sidebar-link">booking@peppinos.com</a>
+          <p class="body-4 navbar-text">Lunch Buffet: Mon-Fri 11:30AM-3PM</p>
+          <a href="mailto:walthampeppinosdosa@gmail.com" class="body-4 sidebar-link">walthampeppinosdosa@gmail.com</a>
 
           <div class="separator"></div>
 
           <p class="contact-label">Booking Request</p>
-          <a href="tel:+88123123456" class="body-1 contact-number hover-underline">
-            +88-123-123456
+          <a href="tel:+17815476099" class="body-1 contact-number hover-underline">
+            (781) 547-6099
           </a>
         </div>
+
+        <div class="navbar-actions">
+          <!-- Auth buttons will be populated by JavaScript -->
+          <div id="auth-buttons"></div>
+        </div>
       </nav>
+
+      <div class="header-actions">
+        <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google" rel="noopener">
+          <span class="text text-1">Google Reviews</span>
+          <span class="text text-2" aria-hidden="true">Google Reviews</span>
+        </a>
+
+        <a href="contact.html#reservation" class="btn btn-secondary">
+          <span class="text text-1">Find A Table</span>
+          <span class="text text-2" aria-hidden="true">Find A Table</span>
+        </a>
+
+        <!-- Auth buttons will be populated by JavaScript -->
+        <div id="auth-buttons"></div>
+
+        <!-- Cart Icon -->
+        <button class="cart-icon-btn" id="cartIcon" aria-label="Open cart">
+          <ion-icon name="bag-outline"></ion-icon>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+      </div>
 
       <button class="nav-open-btn" aria-label="open menu" data-nav-toggler>
         <span class="line line-1"></span>
@@ -250,6 +425,28 @@
             <div class="restaurant-status" id="restaurantStatus" style="display: none;">
               <p>Closed ⋅ Opens 11:30AM</p>
               <p>The restaurant is now closed, but you may schedule an order for later.</p>
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="form-section" id="cartSummary">
+              <h3>Order Summary</h3>
+              <div id="cartItems">
+                <!-- Cart items will be populated here -->
+              </div>
+              <div class="cart-totals">
+                <div class="total-row">
+                  <span>Subtotal:</span>
+                  <span id="cartSubtotal">$0.00</span>
+                </div>
+                <div class="total-row">
+                  <span>Tax (7%):</span>
+                  <span id="cartTax">$0.00</span>
+                </div>
+                <div class="total-row total-final">
+                  <span>Total:</span>
+                  <span id="cartTotal">$0.00</span>
+                </div>
+              </div>
             </div>
 
             <form id="guestCheckoutForm">
@@ -493,9 +690,408 @@
   <!-- Custom JS link -->
   <script src="./assets/js/script.js"></script>
 
+  <!-- Checkout functionality -->
+  <script type="module">
+    import { cartService } from './assets/js/services/cart-service.js';
+    import { cartUI } from './assets/js/components/cart-ui.js';
+    import { formatCurrency } from './assets/js/ui.js';
+    import { restaurantHours } from './assets/js/services/restaurant-hours.js';
+
+    class CheckoutManager {
+      constructor() {
+        this.form = document.getElementById('guestCheckoutForm');
+        this.cartSummary = document.getElementById('cartSummary');
+        this.cartItems = document.getElementById('cartItems');
+        this.submitBtn = document.getElementById('submitBtn');
+        this.init();
+      }
+
+      async init() {
+        await cartService.init();
+        this.setupEventListeners();
+        this.updateCartSummary();
+        this.setupFormValidation();
+        this.updateRestaurantStatus();
+        this.setupMobileEnhancements();
+
+        // Listen for cart updates
+        cartService.addEventListener((cart) => {
+          this.updateCartSummary();
+        });
+      }
+
+      setupEventListeners() {
+        // Order type change
+        document.querySelectorAll('input[name="orderType"]').forEach(radio => {
+          radio.addEventListener('change', this.handleOrderTypeChange.bind(this));
+        });
+
+        // Timing change
+        document.querySelectorAll('input[name="timing"]').forEach(radio => {
+          radio.addEventListener('change', this.handleTimingChange.bind(this));
+        });
+
+        // Form submission
+        this.form.addEventListener('submit', this.handleFormSubmit.bind(this));
+      }
+
+      handleOrderTypeChange(e) {
+        const deliverySection = document.getElementById('deliveryAddressSection');
+        if (e.target.value === 'delivery') {
+          deliverySection.style.display = 'block';
+          this.setDeliveryFieldsRequired(true);
+        } else {
+          deliverySection.style.display = 'none';
+          this.setDeliveryFieldsRequired(false);
+        }
+      }
+
+      handleTimingChange(e) {
+        const scheduledSection = document.getElementById('scheduledTimeSection');
+        if (e.target.value === 'scheduled') {
+          scheduledSection.style.display = 'block';
+          document.getElementById('scheduledDate').required = true;
+          document.getElementById('scheduledTime').required = true;
+        } else {
+          scheduledSection.style.display = 'none';
+          document.getElementById('scheduledDate').required = false;
+          document.getElementById('scheduledTime').required = false;
+        }
+      }
+
+      setDeliveryFieldsRequired(required) {
+        const fields = ['street', 'city', 'state', 'zipCode'];
+        fields.forEach(fieldId => {
+          document.getElementById(fieldId).required = required;
+        });
+      }
+
+      updateCartSummary() {
+        const cart = cartService.cart;
+
+        if (!cart || !cart.items || cart.items.length === 0) {
+          this.cartItems.innerHTML = `
+            <div class="empty-cart">
+              <ion-icon name="bag-outline"></ion-icon>
+              <p>Your cart is empty</p>
+              <a href="./menu.html" class="btn btn-primary" style="margin-top: 1rem;">Browse Menu</a>
+            </div>
+          `;
+          this.submitBtn.disabled = true;
+          return;
+        }
+
+        // Render cart items
+        this.cartItems.innerHTML = cart.items.map(item => this.renderCartItem(item)).join('');
+
+        // Update totals
+        const subtotal = cart.subtotal || 0;
+        const tax = cartService.calculateTax(subtotal);
+        const total = subtotal + tax;
+
+        document.getElementById('cartSubtotal').textContent = formatCurrency(subtotal);
+        document.getElementById('cartTax').textContent = formatCurrency(tax);
+        document.getElementById('cartTotal').textContent = formatCurrency(total);
+
+        this.submitBtn.disabled = false;
+      }
+
+      renderCartItem(item) {
+        const menu = item.menu || {};
+        const imageUrl = menu.images && menu.images.length > 0
+          ? menu.images[0].url
+          : './assets/images/menu-1.png';
+
+        return `
+          <div class="cart-item">
+            <div class="cart-item-image">
+              <img src="${imageUrl}" alt="${menu.name || 'Menu Item'}" loading="lazy">
+            </div>
+            <div class="cart-item-details">
+              <div class="cart-item-name">${menu.name || 'Menu Item'}</div>
+              <div class="cart-item-info">
+                Qty: ${item.quantity} | Size: ${item.size || 'Medium'}
+                ${item.addons && item.addons.length > 0 ? `<br>Add-ons: ${item.addons.map(addon => addon.name).join(', ')}` : ''}
+                ${item.specialInstructions ? `<br>Note: ${item.specialInstructions}` : ''}
+              </div>
+            </div>
+            <div class="cart-item-price">
+              ${formatCurrency(item.itemTotal || 0)}
+            </div>
+          </div>
+        `;
+      }
+
+      updateRestaurantStatus() {
+        const status = restaurantHours.getStatusMessage();
+        const statusElement = document.getElementById('restaurantStatus');
+
+        if (!status.isOpen) {
+          statusElement.style.display = 'block';
+          statusElement.innerHTML = `
+            <p>${status.message}</p>
+            <p>The restaurant is now closed, but you may schedule an order for later.</p>
+          `;
+
+          // Force scheduling if closed
+          document.getElementById('scheduled').checked = true;
+          this.handleTimingChange({ target: { value: 'scheduled' } });
+          document.getElementById('asap').disabled = true;
+        } else {
+          statusElement.style.display = 'none';
+          document.getElementById('asap').disabled = false;
+        }
+      }
+
+      setupFormValidation() {
+        // Set minimum date for scheduling (today if open, tomorrow if closed)
+        const today = new Date();
+        const isOpen = restaurantHours.isCurrentlyOpen();
+        const minDate = isOpen ? today : new Date(today.getTime() + 24 * 60 * 60 * 1000);
+
+        document.getElementById('scheduledDate').min = minDate.toISOString().split('T')[0];
+
+        // Set maximum date (30 days from now)
+        const maxDate = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+        document.getElementById('scheduledDate').max = maxDate.toISOString().split('T')[0];
+
+        // Initialize form state
+        this.handleOrderTypeChange({ target: { value: 'delivery' } });
+        this.handleTimingChange({ target: { value: 'asap' } });
+
+        // Setup date change listener for time slots
+        document.getElementById('scheduledDate').addEventListener('change', this.updateTimeSlots.bind(this));
+        document.querySelectorAll('input[name="orderType"]').forEach(radio => {
+          radio.addEventListener('change', this.updateTimeSlots.bind(this));
+        });
+      }
+
+      updateTimeSlots() {
+        const dateInput = document.getElementById('scheduledDate');
+        const timeInput = document.getElementById('scheduledTime');
+        const orderType = document.querySelector('input[name="orderType"]:checked')?.value || 'pickup';
+
+        if (!dateInput.value) {
+          timeInput.innerHTML = '<option value="">Select a date first</option>';
+          return;
+        }
+
+        const selectedDate = new Date(dateInput.value + 'T00:00:00');
+        const timeSlots = restaurantHours.getAvailableTimeSlots(selectedDate, orderType);
+
+        if (timeSlots.length === 0) {
+          timeInput.innerHTML = '<option value="">No available times</option>';
+          return;
+        }
+
+        // Convert time input to select dropdown
+        if (timeInput.tagName !== 'SELECT') {
+          const select = document.createElement('select');
+          select.id = 'scheduledTime';
+          select.name = 'scheduledTime';
+          select.required = timeInput.required;
+          timeInput.parentNode.replaceChild(select, timeInput);
+        }
+
+        const selectElement = document.getElementById('scheduledTime');
+        selectElement.innerHTML = '<option value="">Select a time</option>' +
+          timeSlots.map(slot => `<option value="${slot.time}">${slot.display}</option>`).join('');
+      }
+
+      async handleFormSubmit(e) {
+        e.preventDefault();
+
+        if (!cartService.cart || !cartService.cart.items || cartService.cart.items.length === 0) {
+          alert('Your cart is empty. Please add items before placing an order.');
+          return;
+        }
+
+        // Validate scheduled time if scheduling
+        const timing = new FormData(this.form).get('timing');
+        if (timing === 'scheduled') {
+          const scheduledDate = new FormData(this.form).get('scheduledDate');
+          const scheduledTime = new FormData(this.form).get('scheduledTime');
+          const orderType = new FormData(this.form).get('orderType');
+
+          if (!scheduledDate || !scheduledTime) {
+            alert('Please select a date and time for your scheduled order.');
+            return;
+          }
+
+          const selectedDate = new Date(scheduledDate + 'T00:00:00');
+          if (!restaurantHours.isTimeSlotAvailable(selectedDate, scheduledTime, orderType)) {
+            alert('The selected time slot is no longer available. Please choose another time.');
+            this.updateTimeSlots();
+            return;
+          }
+        }
+
+        try {
+          this.submitBtn.disabled = true;
+          this.submitBtn.textContent = 'Processing...';
+
+          const formData = new FormData(this.form);
+          const orderData = this.buildOrderData(formData);
+
+          // Submit order
+          const response = await fetch('/api/shop/orders', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(orderData)
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to place order');
+          }
+
+          const result = await response.json();
+
+          // Clear cart
+          await cartService.clearCart();
+
+          // Redirect to confirmation page
+          window.location.href = `./order-confirmation.html?orderId=${result.order._id}`;
+
+        } catch (error) {
+          console.error('Error placing order:', error);
+          alert('Failed to place order. Please try again.');
+          this.submitBtn.disabled = false;
+          this.submitBtn.textContent = 'Place Order';
+        }
+      }
+
+      buildOrderData(formData) {
+        const cart = cartService.cart;
+        const orderData = {
+          // Customer information
+          customerInfo: {
+            name: formData.get('customerName'),
+            phone: formData.get('customerPhone'),
+            email: formData.get('customerEmail')
+          },
+
+          // Order details
+          orderType: formData.get('orderType'),
+          timing: formData.get('timing'),
+          paymentMethod: formData.get('paymentMethod'),
+          specialInstructions: formData.get('specialInstructions'),
+
+          // Cart items
+          items: cart.items,
+          subtotal: cart.subtotal,
+          tax: cartService.calculateTax(cart.subtotal),
+          total: cart.subtotal + cartService.calculateTax(cart.subtotal),
+
+          // Session info for guest orders
+          sessionId: cartService.sessionId
+        };
+
+        // Add delivery address if delivery order
+        if (formData.get('orderType') === 'delivery') {
+          orderData.deliveryAddress = {
+            street: formData.get('street'),
+            city: formData.get('city'),
+            state: formData.get('state'),
+            zipCode: formData.get('zipCode'),
+            country: formData.get('country') || 'United States'
+          };
+        }
+
+        // Add scheduled time if scheduled
+        if (formData.get('timing') === 'scheduled') {
+          orderData.scheduledDate = formData.get('scheduledDate');
+          orderData.scheduledTime = formData.get('scheduledTime');
+        }
+
+        return orderData;
+      }
+
+      /**
+       * Setup mobile-specific enhancements
+       */
+      setupMobileEnhancements() {
+        // Improve form scrolling on mobile
+        if (window.innerWidth <= 768) {
+          // Smooth scroll to form sections when they become active
+          const formSections = document.querySelectorAll('.form-section');
+          formSections.forEach(section => {
+            const inputs = section.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+              input.addEventListener('focus', () => {
+                setTimeout(() => {
+                  section.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                  });
+                }, 300); // Wait for keyboard to appear
+              });
+            });
+          });
+
+          // Handle viewport changes for mobile keyboard
+          let initialHeight = window.innerHeight;
+          window.addEventListener('resize', () => {
+            const currentHeight = window.innerHeight;
+            const heightDiff = initialHeight - currentHeight;
+
+            if (heightDiff > 150) {
+              // Keyboard is likely open
+              document.body.style.paddingBottom = '0px';
+            } else {
+              // Keyboard is closed
+              document.body.style.paddingBottom = '';
+            }
+          });
+
+          // Add touch feedback for radio buttons
+          document.querySelectorAll('.radio-option').forEach(option => {
+            option.addEventListener('touchstart', () => {
+              option.style.transform = 'scale(0.98)';
+            });
+
+            option.addEventListener('touchend', () => {
+              setTimeout(() => {
+                option.style.transform = '';
+              }, 100);
+            });
+
+            // Make entire radio option clickable
+            option.addEventListener('click', () => {
+              const radio = option.querySelector('input[type="radio"]');
+              if (radio) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change'));
+              }
+            });
+          });
+
+          // Prevent double-tap zoom on form elements
+          document.addEventListener('touchend', (e) => {
+            if (e.target.closest('.form-section')) {
+              e.preventDefault();
+            }
+          });
+        }
+      }
+    }
+
+    // Initialize checkout manager when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      new CheckoutManager();
+    });
+  </script>
+
   <!-- Ionicon link -->
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+  <!--
+    - authentication integration
+  -->
+  <script type="module" src="./assets/js/navigation.js"></script>
+  <script type="module" src="./assets/js/auth.js"></script>
 
 </body>
 

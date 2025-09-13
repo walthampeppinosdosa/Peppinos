@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Primary meta tags -->
+  <title>Order Tracking - Peppino's Restaurant</title>
+  <meta name="title" content="Order Tracking - Peppino's Restaurant">
+  <meta name="description" content="Track your order at Peppino's Restaurant">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  <!-- Google font link -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap" rel="stylesheet">
+
+  <!-- Custom CSS link -->
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/components.css">
+
+  <!-- Preload images -->
+  <link rel="preload" as="image" href="./assets/images/hero-slider-1.png">
+  <link rel="preload" as="image" href="./assets/images/hero-slider-2.png">
+  <link rel="preload" as="image" href="./assets/images/hero-slider-3.png">
+
+  <style>
+    .tracking-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .tracking-form {
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: var(--shadow-1);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--eerie-black-1);
+      font-weight: 600;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--cultured);
+      border-radius: 4px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--gold-crayola);
+    }
+
+    .btn-track {
+      width: 100%;
+      padding: 1rem;
+      background: var(--gold-crayola);
+      color: var(--eerie-black-1);
+      border: none;
+      border-radius: 4px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-track:hover {
+      background: var(--golden-poppy);
+    }
+
+    .btn-track:disabled {
+      background: var(--cultured);
+      cursor: not-allowed;
+    }
+
+    .order-status {
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: var(--shadow-1);
+      padding: 2rem;
+      display: none;
+    }
+
+    .status-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .status-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .status-icon.pending { color: var(--orange); }
+    .status-icon.confirmed { color: var(--blue); }
+    .status-icon.preparing { color: var(--purple); }
+    .status-icon.ready { color: var(--green); }
+    .status-icon.out_for_delivery { color: var(--blue); }
+    .status-icon.delivered { color: var(--green); }
+    .status-icon.completed { color: var(--green); }
+    .status-icon.cancelled { color: var(--red-orange-crayola); }
+
+    .status-timeline {
+      position: relative;
+      margin: 2rem 0;
+    }
+
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .timeline-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 40px;
+      width: 2px;
+      height: calc(100% + 1.5rem);
+      background: var(--cultured);
+    }
+
+    .timeline-item:last-child::before {
+      display: none;
+    }
+
+    .timeline-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      font-size: 14px;
+      z-index: 1;
+      position: relative;
+    }
+
+    .timeline-icon.completed {
+      background: var(--green);
+      color: var(--white);
+    }
+
+    .timeline-icon.current {
+      background: var(--gold-crayola);
+      color: var(--eerie-black-1);
+    }
+
+    .timeline-icon.pending {
+      background: var(--cultured);
+      color: var(--quick-silver);
+    }
+
+    .timeline-content {
+      flex: 1;
+    }
+
+    .timeline-title {
+      font-weight: 600;
+      color: var(--eerie-black-1);
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-time {
+      font-size: 0.875rem;
+      color: var(--quick-silver);
+    }
+
+    .order-details {
+      background: var(--eerie-black-4);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .order-details h3 {
+      color: var(--gold-crayola);
+      margin-bottom: 1rem;
+      font-family: var(--ff-forum);
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      color: var(--white);
+    }
+
+    .error-message {
+      background: var(--red-orange-crayola);
+      color: var(--white);
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      display: none;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .loading ion-icon {
+      font-size: 3rem;
+      color: var(--gold-crayola);
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .tracking-container {
+        margin: 1rem;
+        padding: 1rem;
+      }
+      
+      .tracking-form,
+      .order-status {
+        padding: 1rem;
+      }
+      
+      .detail-row {
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+    }
+  </style>
+</head>
+
+<body id="top">
+
+  <!-- HEADER -->
+  <header class="header" data-header>
+    <div class="container">
+      <a href="./index.html" class="logo">
+        <img src="./assets/images/logo-1.png" width="160" height="50" alt="Peppino's - Home">
+      </a>
+
+      <nav class="navbar" data-navbar>
+        <button class="close-btn" aria-label="close menu" data-nav-toggler>
+          <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+        </button>
+
+        <a href="./index.html" class="logo">
+          <img src="./assets/images/logo-1.png" width="160" height="50" alt="Peppino's - Home">
+        </a>
+
+        <ul class="navbar-list">
+          <li class="navbar-item">
+            <a href="./index.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Home</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="./menu.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Menus</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="./about.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">About Us</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="./contact.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Contact</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="text-center">
+          <p class="headline-1 navbar-title">Visit Us</p>
+          <address class="body-4">
+            434 Moody St, Waltham, MA 02453
+          </address>
+
+          <p class="body-4 navbar-text">Open: 11:30AM - 10:00PM</p>
+          <a href="mailto:Walthampeppinosdosa@gmail.com" class="body-4 sidebar-link">Walthampeppinosdosa@gmail.com</a>
+
+          <div class="separator"></div>
+
+          <p class="contact-label">Booking Request</p>
+          <a href="tel:+17815476099" class="body-1 contact-number hover-underline">
+            (781) 547-6099
+          </a>
+        </div>
+      </nav>
+
+      <button class="nav-open-btn" aria-label="open menu" data-nav-toggler>
+        <span class="line line-1"></span>
+        <span class="line line-2"></span>
+        <span class="line line-3"></span>
+      </button>
+
+      <div class="overlay" data-nav-toggler data-overlay></div>
+    </div>
+  </header>
+
+  <main>
+    <article>
+      <!-- TRACKING SECTION -->
+      <section class="section tracking" aria-label="order tracking">
+        <div class="container">
+          <div class="tracking-container">
+            <h2 class="headline-1 section-title text-center">Track Your Order</h2>
+            <p class="body-2 text-center" style="margin-bottom: 2rem;">
+              Enter your order number to track the status of your order
+            </p>
+
+            <!-- Tracking Form -->
+            <div class="tracking-form">
+              <form id="trackingForm">
+                <div class="form-group">
+                  <label for="orderNumber">Order Number</label>
+                  <input type="text" id="orderNumber" name="orderNumber" 
+                         placeholder="e.g., PEP-20241215-0001" required>
+                </div>
+                
+                <button type="submit" class="btn-track" id="trackBtn">
+                  Track Order
+                </button>
+              </form>
+            </div>
+
+            <!-- Error Message -->
+            <div class="error-message" id="errorMessage">
+              <!-- Error content will be populated here -->
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading" id="loadingState" style="display: none;">
+              <ion-icon name="hourglass-outline"></ion-icon>
+              <h3>Tracking your order...</h3>
+            </div>
+
+            <!-- Order Status -->
+            <div class="order-status" id="orderStatus">
+              <!-- Order status content will be populated here -->
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer section has-bg-image text-center"
+    style="background-image: url('./assets/images/footer-bg.jpg')">
+    <div class="container">
+      <div class="footer-top grid-list">
+        <div class="footer-brand">
+          <a href="./index.html" class="logo">
+            <img src="./assets/images/logo-1.png" width="160" height="50" alt="Peppino's - Home">
+          </a>
+
+          <address class="body-4">
+            434 Moody St, Waltham, MA 02453
+          </address>
+
+          <a href="mailto:Walthampeppinosdosa@gmail.com" class="body-4 contact-link">Walthampeppinosdosa@gmail.com</a>
+          <a href="tel:+17815476099" class="body-4 contact-link">Booking Request : (781) 547-6099</a>
+
+          <p class="body-4">
+            Lunch Buffet: Mon-Fri 11:30AM-3PM<br>
+            Dining: Mon-Thu 11:30AM-3PM, 5-10PM<br>
+            Fri-Sun 11:30AM-3:30PM, 4:30-10PM
+          </p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="copyright">
+          &copy; 2025 Peppinos. All Rights Reserved
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to top button -->
+  <a href="#top" class="back-top-btn active" aria-label="back to top" data-back-top-btn>
+    <ion-icon name="chevron-up" aria-hidden="true"></ion-icon>
+  </a>
+
+  <!-- Custom JS link -->
+  <script src="./assets/js/script.js"></script>
+
+  <!-- Order tracking functionality -->
+  <script type="module">
+    import { formatCurrency } from './assets/js/ui.js';
+
+    class OrderTracker {
+      constructor() {
+        this.form = document.getElementById('trackingForm');
+        this.trackBtn = document.getElementById('trackBtn');
+        this.loadingState = document.getElementById('loadingState');
+        this.errorMessage = document.getElementById('errorMessage');
+        this.orderStatus = document.getElementById('orderStatus');
+        this.init();
+      }
+
+      init() {
+        this.form.addEventListener('submit', this.handleSubmit.bind(this));
+        
+        // Check URL for order number
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderNumber = urlParams.get('orderNumber');
+        if (orderNumber) {
+          document.getElementById('orderNumber').value = orderNumber;
+          this.trackOrder(orderNumber);
+        }
+      }
+
+      async handleSubmit(e) {
+        e.preventDefault();
+        const orderNumber = document.getElementById('orderNumber').value.trim();
+        
+        if (!orderNumber) {
+          this.showError('Please enter an order number');
+          return;
+        }
+
+        await this.trackOrder(orderNumber);
+      }
+
+      async trackOrder(orderNumber) {
+        try {
+          this.showLoading();
+          
+          const response = await fetch(`/api/shop/orders/track/${orderNumber}`);
+          const data = await response.json();
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.message || 'Order not found');
+          }
+
+          this.displayOrderStatus(data.order);
+
+        } catch (error) {
+          console.error('Error tracking order:', error);
+          this.showError(error.message || 'Failed to track order. Please try again.');
+        }
+      }
+
+      displayOrderStatus(order) {
+        this.hideLoading();
+        this.hideError();
+        
+        const statusDisplay = this.getStatusDisplay(order.status);
+        const timeline = this.generateTimeline(order);
+        
+        this.orderStatus.innerHTML = `
+          <div class="status-header">
+            <ion-icon name="${statusDisplay.icon}" class="status-icon ${order.status}"></ion-icon>
+            <h3 class="headline-2">${statusDisplay.title}</h3>
+            <p class="body-2">${statusDisplay.description}</p>
+          </div>
+
+          <div class="status-timeline">
+            ${timeline}
+          </div>
+
+          <div class="order-details">
+            <h3>Order Details</h3>
+            
+            <div class="detail-row">
+              <span>Order Number:</span>
+              <span><strong>${order.orderNumber}</strong></span>
+            </div>
+            
+            <div class="detail-row">
+              <span>Order Type:</span>
+              <span>${order.orderType === 'pickup' ? 'Pickup' : 'Delivery'}</span>
+            </div>
+            
+            <div class="detail-row">
+              <span>Order Date:</span>
+              <span>${new Date(order.createdAt).toLocaleDateString('en-US', {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+              })}</span>
+            </div>
+            
+            <div class="detail-row">
+              <span>Total Amount:</span>
+              <span><strong>${formatCurrency(order.total)}</strong></span>
+            </div>
+            
+            ${order.deliveryAddress ? `
+              <div class="detail-row">
+                <span>Delivery Address:</span>
+                <span>${order.deliveryAddress.street}, ${order.deliveryAddress.city}, ${order.deliveryAddress.state} ${order.deliveryAddress.zipCode}</span>
+              </div>
+            ` : ''}
+            
+            ${order.specialInstructions ? `
+              <div class="detail-row">
+                <span>Special Instructions:</span>
+                <span>${order.specialInstructions}</span>
+              </div>
+            ` : ''}
+          </div>
+        `;
+        
+        this.orderStatus.style.display = 'block';
+      }
+
+      getStatusDisplay(status) {
+        const statusMap = {
+          'pending': {
+            title: 'Order Received',
+            description: 'We have received your order and are processing it.',
+            icon: 'hourglass-outline'
+          },
+          'confirmed': {
+            title: 'Order Confirmed',
+            description: 'Your order has been confirmed and will be prepared shortly.',
+            icon: 'checkmark-circle-outline'
+          },
+          'preparing': {
+            title: 'Preparing Your Order',
+            description: 'Our chefs are preparing your delicious meal.',
+            icon: 'restaurant-outline'
+          },
+          'ready': {
+            title: 'Ready for Pickup',
+            description: 'Your order is ready! Please come pick it up.',
+            icon: 'bag-check-outline'
+          },
+          'out_for_delivery': {
+            title: 'Out for Delivery',
+            description: 'Your order is on its way to you.',
+            icon: 'car-outline'
+          },
+          'delivered': {
+            title: 'Delivered',
+            description: 'Your order has been delivered. Enjoy your meal!',
+            icon: 'checkmark-done-outline'
+          },
+          'completed': {
+            title: 'Order Completed',
+            description: 'Thank you for choosing Peppino\'s!',
+            icon: 'star-outline'
+          },
+          'cancelled': {
+            title: 'Order Cancelled',
+            description: 'This order has been cancelled.',
+            icon: 'close-circle-outline'
+          }
+        };
+
+        return statusMap[status] || statusMap['pending'];
+      }
+
+      generateTimeline(order) {
+        const statuses = [
+          { key: 'pending', title: 'Order Received', time: order.createdAt },
+          { key: 'confirmed', title: 'Order Confirmed', time: order.confirmedAt },
+          { key: 'preparing', title: 'Preparing', time: order.preparingAt },
+          { key: 'ready', title: order.orderType === 'pickup' ? 'Ready for Pickup' : 'Ready for Delivery', time: order.readyAt },
+          { key: 'out_for_delivery', title: 'Out for Delivery', time: order.outForDeliveryAt, showIf: order.orderType === 'delivery' },
+          { key: 'delivered', title: order.orderType === 'pickup' ? 'Picked Up' : 'Delivered', time: order.deliveredAt },
+          { key: 'completed', title: 'Completed', time: order.completedAt }
+        ];
+
+        const currentStatusIndex = statuses.findIndex(s => s.key === order.status);
+        
+        return statuses
+          .filter(status => status.showIf !== false)
+          .map((status, index) => {
+            let iconClass = 'pending';
+            let icon = 'ellipse-outline';
+            
+            if (index <= currentStatusIndex) {
+              iconClass = index === currentStatusIndex ? 'current' : 'completed';
+              icon = index === currentStatusIndex ? 'radio-button-on-outline' : 'checkmark-outline';
+            }
+
+            const timeDisplay = status.time ? 
+              new Date(status.time).toLocaleString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+              }) : '';
+
+            return `
+              <div class="timeline-item">
+                <div class="timeline-icon ${iconClass}">
+                  <ion-icon name="${icon}"></ion-icon>
+                </div>
+                <div class="timeline-content">
+                  <div class="timeline-title">${status.title}</div>
+                  ${timeDisplay ? `<div class="timeline-time">${timeDisplay}</div>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+      }
+
+      showLoading() {
+        this.trackBtn.disabled = true;
+        this.trackBtn.textContent = 'Tracking...';
+        this.loadingState.style.display = 'block';
+        this.hideError();
+        this.orderStatus.style.display = 'none';
+      }
+
+      hideLoading() {
+        this.trackBtn.disabled = false;
+        this.trackBtn.textContent = 'Track Order';
+        this.loadingState.style.display = 'none';
+      }
+
+      showError(message) {
+        this.hideLoading();
+        this.errorMessage.textContent = message;
+        this.errorMessage.style.display = 'block';
+        this.orderStatus.style.display = 'none';
+      }
+
+      hideError() {
+        this.errorMessage.style.display = 'none';
+      }
+    }
+
+    // Initialize order tracker when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      new OrderTracker();
+    });
+  </script>
+
+  <!-- Ionicon link -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+</body>
+
+</html>

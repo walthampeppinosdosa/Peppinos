@@ -1,0 +1,435 @@
+/**
+ * Cart Options Modal Styles
+ */
+
+/* Modal Overlay */
+.cart-options-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.cart-options-modal.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+/* Modal Content */
+.modal-content {
+  position: relative;
+  background: #ffffff !important;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow: hidden;
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.3s ease;
+  color: #333333 !important;
+}
+
+.cart-options-modal.show .modal-content {
+  transform: scale(1) translateY(0);
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--cultured);
+  background: var(--white);
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333333 !important;
+  margin: 0;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--davys-gray);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  background: var(--cultured);
+  color: var(--eerie-black);
+}
+
+/* Modal Body */
+.modal-body {
+  padding: 24px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Option Groups */
+.option-group {
+  margin-bottom: 24px;
+}
+
+.option-group:last-child {
+  margin-bottom: 0;
+}
+
+.option-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333333 !important;
+  margin-bottom: 12px;
+}
+
+.required {
+  color: #ef4444;
+  font-weight: 500;
+}
+
+/* Quantity Selector - Match existing style.css */
+.quantity-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--eerie-black-4);
+  border-radius: 20px;
+  padding: 4px;
+  max-width: 150px;
+}
+
+.quantity-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: var(--gold-crayola);
+  color: var(--eerie-black-1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition-1);
+  font-size: 14px;
+}
+
+.quantity-btn:hover {
+  background: var(--golden-poppy);
+}
+
+.quantity-input {
+  min-width: 20px;
+  width: 40px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--white);
+  font-size: 14px;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.quantity-input:focus {
+  outline: none;
+  border-color: var(--gold-crayola);
+}
+
+/* Radio Group */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 12px 16px;
+  border: 2px solid var(--cultured);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.radio-option:hover {
+  border-color: var(--gold-crayola);
+  background: rgba(218, 165, 32, 0.05);
+}
+
+.radio-option input[type="radio"] {
+  margin-right: 12px;
+  accent-color: var(--gold-crayola);
+}
+
+.radio-option input[type="radio"]:checked + .radio-label {
+  color: var(--gold-crayola);
+  font-weight: 600;
+}
+
+.radio-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-size: 14px;
+  color: #333333 !important;
+}
+
+.size-name {
+  font-weight: 500;
+  color: #333333 !important;
+}
+
+.size-price {
+  font-weight: 600;
+  color: var(--gold-crayola);
+}
+
+.spicy-name, .prep-name {
+  font-weight: 500;
+  color: #333333 !important;
+}
+
+.spicy-desc, .prep-desc {
+  font-size: 12px;
+  color: #666666 !important;
+  margin-top: 2px;
+}
+
+/* Checkbox Group */
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checkbox-option {
+  display: flex;
+  align-items: flex-start;
+  cursor: pointer;
+  padding: 12px 16px;
+  border: 2px solid var(--cultured);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  gap: 12px;
+}
+
+.checkbox-option:hover {
+  border-color: var(--gold-crayola);
+  background: rgba(218, 165, 32, 0.05);
+}
+
+.checkbox-option input[type="checkbox"] {
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--gold-crayola);
+  width: 18px;
+  height: 18px;
+}
+
+.checkbox-option input[type="checkbox"]:checked + .checkbox-label {
+  color: var(--gold-crayola);
+  font-weight: 600;
+}
+
+.checkbox-label {
+  font-size: 14px;
+  color: #333333 !important;
+  flex: 1;
+  line-height: 1.4;
+}
+
+/* Special Instructions */
+.special-instructions-input {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px 16px;
+  border: 2px solid var(--cultured);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--eerie-black);
+  resize: vertical;
+  font-family: inherit;
+}
+
+.special-instructions-input:focus {
+  outline: none;
+  border-color: var(--gold-crayola);
+}
+
+.special-instructions-input::placeholder {
+  color: var(--davys-gray);
+}
+
+/* Modal Footer */
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 20px 24px;
+  border-top: 1px solid var(--cultured);
+  background: var(--white);
+}
+
+/* Modal Footer Buttons - Match existing style.css */
+.modal-footer .btn {
+  position: relative;
+  color: var(--gold-crayola);
+  font-size: var(--fontSize-label-2);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letterSpacing-3);
+  border: 2px solid var(--gold-crayola);
+  padding: 12px 45px;
+  overflow: hidden;
+  z-index: 1;
+  transition: var(--transition-2);
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.modal-footer .btn::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200%;
+  height: 200%;
+  border-radius: 50%;
+  background-color: var(--gold-crayola);
+  transition: var(--transition-2);
+  z-index: -1;
+}
+
+.modal-footer .btn:is(:hover, :focus-visible)::before {
+  bottom: -50%;
+}
+
+.modal-footer .btn-secondary {
+  background-color: var(--gold-crayola);
+  color: var(--black);
+}
+
+.modal-footer .btn-secondary::before {
+  background-color: var(--smoky-black-1);
+}
+
+.modal-footer .btn-primary {
+  background-color: var(--eerie-black-1);
+  color: var(--white);
+  border-color: var(--gold-crayola);
+}
+
+.modal-footer .btn-primary:hover {
+  color: var(--eerie-black-1);
+}
+
+/* Add to Cart Button in Menu Cards */
+.card-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cultured);
+}
+
+.add-to-cart-btn {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--gold-crayola);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.add-to-cart-btn:hover {
+  background: var(--golden-poppy);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(218, 165, 32, 0.3);
+}
+
+.add-to-cart-btn ion-icon {
+  font-size: 18px;
+}
+
+/* Menu Card Color Classes */
+.menu-card-veg {
+  border-left: 4px solid var(--green);
+}
+
+.menu-card-nonveg {
+  border-left: 4px solid #ef4444;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: 16px;
+  }
+  
+  .modal-title {
+    font-size: 1.25rem;
+  }
+  
+  .radio-option,
+  .checkbox-option {
+    padding: 10px 12px;
+  }
+  
+  .quantity-selector {
+    max-width: 120px;
+  }
+  
+  .quantity-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+  
+  .quantity-input {
+    width: 50px;
+    height: 36px;
+    font-size: 14px;
+  }
+}
