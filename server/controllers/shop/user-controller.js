@@ -4,7 +4,6 @@ const Review = require('../../models/Review');
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const { cloudinary } = require('../../helpers/cloudinary');
-const fs = require('fs').promises;
 
 /**
  * Get user profile
@@ -182,15 +181,26 @@ const uploadAvatar = async (req, res) => {
       });
     }
 
-    // Upload to Cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: 'peppinos/avatars',
-      public_id: `avatar_${userId}`,
-      overwrite: true,
-      transformation: [
-        { width: 300, height: 300, crop: 'fill', gravity: 'face' },
-        { quality: 'auto', fetch_format: 'auto' }
-      ]
+    // Upload to Cloudinary using buffer (memory storage)
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        {
+          folder: 'peppinos/avatars',
+          public_id: `avatar_${userId}`,
+          overwrite: true,
+          transformation: [
+            { width: 300, height: 300, crop: 'fill', gravity: 'face' },
+            { quality: 'auto', fetch_format: 'auto' }
+          ]
+        },
+        (error, result) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        }
+      ).end(req.file.buffer);
     });
 
     // Delete old profile image from Cloudinary if it exists
@@ -207,12 +217,7 @@ const uploadAvatar = async (req, res) => {
     user.profileImage = result.secure_url;
     await user.save();
 
-    // Clean up uploaded file
-    try {
-      await fs.unlink(req.file.path);
-    } catch (unlinkError) {
-      console.warn('Failed to delete temporary file:', unlinkError);
-    }
+    // No file cleanup needed with memory storage
 
     res.status(200).json({
       success: true,
@@ -224,14 +229,7 @@ const uploadAvatar = async (req, res) => {
   } catch (error) {
     console.error('Upload avatar error:', error);
     
-    // Clean up uploaded file on error
-    if (req.file && req.file.path) {
-      try {
-        await fs.unlink(req.file.path);
-      } catch (unlinkError) {
-        console.warn('Failed to delete temporary file:', unlinkError);
-      }
-    }
+    // No file cleanup needed with memory storage
 
     res.status(500).json({
       success: false,
