@@ -19,7 +19,7 @@ const {
   validatePasswordChange,
   handleValidationErrors 
 } = require('../../middleware/validation-middleware');
-const { uploadSingle, handleMulterError } = require('../../helpers/upload-middleware');
+const { uploadAvatar: uploadAvatarMiddleware, handleMulterError } = require('../../helpers/upload-middleware');
 
 // Apply authentication to all routes
 router.use(authenticateToken);
@@ -43,7 +43,7 @@ router.put('/change-password',
 
 // POST /api/user/upload-avatar - Upload profile picture
 router.post('/upload-avatar',
-  uploadSingle,
+  uploadAvatarMiddleware,
   handleMulterError,
   uploadAvatar
 );

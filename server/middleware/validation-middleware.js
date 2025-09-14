@@ -433,7 +433,7 @@ const validateAddToCart = [
 
   body('size')
     .optional()
-    .isIn(['Small', 'Medium', 'Large'])
+    .isIn(['Small', 'Medium', 'Large', 'Regular'])
     .withMessage('Invalid size option'),
 
   body('addons')
@@ -530,8 +530,8 @@ const validateGuestAddToCart = [
     .withMessage('Quantity must be between 1 and 10'),
   body('size')
     .optional()
-    .isIn(['Small', 'Medium', 'Large'])
-    .withMessage('Size must be Small, Medium, or Large'),
+    .isIn(['Small', 'Medium', 'Large', 'Regular'])
+    .withMessage('Size must be Small, Medium, Large, or Regular'),
   body('addons')
     .optional()
     .isArray()

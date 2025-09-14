@@ -7,6 +7,47 @@ import { CONFIG, getApiUrl } from './config.js';
 import { getAuthToken, removeAuthData, isTokenExpired } from './auth.js';
 
 /**
+ * Request Rate Limiter
+ * Prevents excessive API requests
+ */
+class RequestLimiter {
+  constructor() {
+    this.requests = new Map(); // endpoint -> { count, resetTime }
+    this.maxRequestsPerMinute = 60; // Limit per endpoint
+    this.windowMs = 60000; // 1 minute
+  }
+
+  canMakeRequest(endpoint) {
+    const now = Date.now();
+    const key = endpoint.split('?')[0]; // Remove query params for grouping
+
+    if (!this.requests.has(key)) {
+      this.requests.set(key, { count: 1, resetTime: now + this.windowMs });
+      return true;
+    }
+
+    const requestData = this.requests.get(key);
+
+    // Reset if window has passed
+    if (now > requestData.resetTime) {
+      this.requests.set(key, { count: 1, resetTime: now + this.windowMs });
+      return true;
+    }
+
+    // Check if under limit
+    if (requestData.count < this.maxRequestsPerMinute) {
+      requestData.count++;
+      return true;
+    }
+
+    console.warn(`Rate limit exceeded for ${key}. Please wait.`);
+    return false;
+  }
+}
+
+const requestLimiter = new RequestLimiter();
+
+/**
  * HTTP Client Class
  * Handles all HTTP requests with authentication and error handling
  */
@@ -22,14 +63,18 @@ class HttpClient {
   /**
    * Get headers with authentication token
    */
-  getHeaders(customHeaders = {}) {
-    const headers = { ...this.defaultHeaders, ...customHeaders };
-    
+  getHeaders(customHeaders = {}, isFormData = false) {
+    // Don't set Content-Type for FormData - let browser set it with boundary
+    const headers = isFormData ? {} : { ...this.defaultHeaders };
+
+    // Add custom headers
+    Object.assign(headers, customHeaders);
+
     const token = getAuthToken();
     if (token && !isTokenExpired()) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-    
+
     return headers;
   }
 
@@ -76,15 +121,22 @@ class HttpClient {
    */
   async request(endpoint, options = {}) {
     const url = endpoint.startsWith('http') ? endpoint : getApiUrl(endpoint);
-    
+
+    const isFormData = options.body instanceof FormData;
+
     const config = {
       method: 'GET',
-      headers: this.getHeaders(options.headers),
+      headers: this.getHeaders(options.headers, isFormData),
       ...options
     };
 
-    if (config.body && typeof config.body === 'object' && !(config.body instanceof FormData)) {
+    if (config.body && typeof config.body === 'object' && !isFormData) {
       config.body = JSON.stringify(config.body);
+    }
+
+    // Check rate limit before making request
+    if (!requestLimiter.canMakeRequest(url)) {
+      throw new Error('Rate limit exceeded. Please wait before making more requests.');
     }
 
     try {

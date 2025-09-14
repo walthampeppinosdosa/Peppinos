@@ -8,12 +8,21 @@ import { formatCurrency } from '../ui.js';
 
 class CartUI {
   constructor() {
+    // Prevent duplicate instances
+    if (window.cartUIInstance) {
+      console.log('🔄 CartUI instance already exists, returning existing instance');
+      return window.cartUIInstance;
+    }
+
     this.isOpen = false;
     this.cartOverlay = null;
     this.cartSidebar = null;
     this.cartIcon = null;
     this.cartCount = null;
     this.init();
+
+    // Store instance globally to prevent duplicates
+    window.cartUIInstance = this;
   }
 
   /**
@@ -27,6 +36,10 @@ class CartUI {
 
     // Listen for cart updates
     cartService.addEventListener((cart) => {
+      // Ensure cart HTML exists before updating
+      if (!document.getElementById('cart-overlay')) {
+        this.createCartHTML();
+      }
       this.updateCartDisplay(cart);
       this.updateCartIcon();
     });
@@ -38,7 +51,15 @@ class CartUI {
   createCartHTML() {
     // Create cart icon in header if it doesn't exist
     this.createCartIcon();
-    
+
+    // Check if cart overlay already exists
+    if (document.getElementById('cart-overlay')) {
+      console.log('🔄 Cart overlay already exists, using existing one');
+      this.cartOverlay = document.getElementById('cart-overlay');
+      this.cartSidebar = this.cartOverlay.querySelector('.cart-sidebar');
+      return;
+    }
+
     // Create cart sidebar overlay
     const cartHTML = `
       <div id="cart-overlay" class="cart-overlay">
@@ -81,7 +102,7 @@ class CartUI {
               <ion-icon name="bag-outline" class="cart-empty-icon"></ion-icon>
               <h4>Your cart is empty</h4>
               <p>Add some delicious items to get started!</p>
-              <button class="btn btn-primary" onclick="cartUI.closeCart()">Continue Shopping</button>
+              <button class="btn btn-primary" onclick="cartUI.closeCart()">Browse menu</button>
             </div>
           </div>
         </div>
@@ -103,6 +124,8 @@ class CartUI {
     // Try to find existing cart icon first
     this.cartIcon = document.getElementById('cartIcon') || document.getElementById('cart-icon-btn');
     this.cartCount = document.getElementById('cartCount') || document.getElementById('cart-count');
+
+
 
     // If no existing cart icon found, create one
     if (!this.cartIcon) {
@@ -130,10 +153,14 @@ class CartUI {
    * Setup event listeners
    */
   setupEventListeners() {
-    // Cart icon click
-    if (this.cartIcon) {
-      this.cartIcon.addEventListener('click', () => this.openCart());
-    }
+    // Cart icon click - use event delegation to handle dynamically moved elements
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.cart-icon-btn, #cartIcon')) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.openCart();
+      }
+    });
 
     // Close cart button
     const closeBtn = document.querySelector('.cart-close-btn');
@@ -153,13 +180,35 @@ class CartUI {
     // Checkout button
     const checkoutBtn = document.getElementById('checkout-btn');
     if (checkoutBtn) {
-      checkoutBtn.addEventListener('click', () => this.goToCheckout());
+      checkoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.goToCheckout();
+      });
+
+      // Add touch event for mobile
+      checkoutBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.goToCheckout();
+      });
     }
 
     // View cart button
     const viewCartBtn = document.getElementById('view-cart-btn');
     if (viewCartBtn) {
-      viewCartBtn.addEventListener('click', () => this.goToCart());
+      viewCartBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.goToCart();
+      });
+
+      // Add touch event for mobile
+      viewCartBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.goToCart();
+      });
     }
 
     // ESC key to close
@@ -174,12 +223,24 @@ class CartUI {
    * Open cart sidebar
    */
   openCart() {
+    if (!this.cartOverlay) {
+      // Try to create cart HTML if it doesn't exist
+      this.createCartHTML();
+      if (!this.cartOverlay) {
+        console.error('🛒 CartUI: Failed to create cart overlay');
+        return;
+      }
+    }
+
     this.isOpen = true;
     this.cartOverlay.classList.add('active');
     document.body.classList.add('cart-open');
-    
-    // Load current cart
-    cartService.getCart();
+
+    // Update cart display with current cart data
+    const currentCart = cartService.cart;
+    if (currentCart) {
+      this.updateCartDisplay(currentCart);
+    }
   }
 
   /**
@@ -196,7 +257,9 @@ class CartUI {
    */
   updateCartIcon() {
     if (this.cartCount) {
-      const count = cartService.getItemCount();
+      const cart = cartService.cart;
+      // Use consistent count calculation: total quantity (sum of all item quantities)
+      const count = cart ? (cart.totalItems || cart.items?.reduce((sum, item) => sum + item.quantity, 0) || 0) : 0;
       this.cartCount.textContent = count;
       this.cartCount.style.display = count > 0 ? 'flex' : 'none';
     }
@@ -210,16 +273,22 @@ class CartUI {
     const cartEmpty = document.querySelector('.cart-empty');
     const cartContent = document.querySelector('.cart-content');
 
+    if (!cartItems) {
+      // Cart sidebar not created yet, try to create it
+      this.createCartHTML();
+      return;
+    }
+
     if (!cart || !cart.items || cart.items.length === 0) {
       // Show empty cart
-      cartContent.style.display = 'none';
-      cartEmpty.style.display = 'block';
+      if (cartContent) cartContent.style.display = 'none';
+      if (cartEmpty) cartEmpty.style.display = 'block';
       return;
     }
 
     // Show cart content
-    cartContent.style.display = 'block';
-    cartEmpty.style.display = 'none';
+    if (cartContent) cartContent.style.display = 'block';
+    if (cartEmpty) cartEmpty.style.display = 'none';
 
     // Render cart items
     cartItems.innerHTML = cart.items.map(item => this.renderCartItem(item)).join('');
@@ -229,6 +298,9 @@ class CartUI {
 
     // Setup item event listeners
     this.setupItemEventListeners();
+
+    // Re-setup cart action buttons (for mobile compatibility)
+    this.setupCartActionButtons();
   }
 
   /**
@@ -397,6 +469,56 @@ class CartUI {
 
     // Navigate to cart page
     window.location.href = './cart.html';
+  }
+
+  /**
+   * Setup cart action buttons (View Cart and Checkout)
+   * This method ensures buttons work on mobile devices
+   */
+  setupCartActionButtons() {
+    // Remove existing listeners to prevent duplicates
+    const checkoutBtn = document.getElementById('checkout-btn');
+    const viewCartBtn = document.getElementById('view-cart-btn');
+
+    if (checkoutBtn) {
+      // Clone button to remove all event listeners
+      const newCheckoutBtn = checkoutBtn.cloneNode(true);
+      checkoutBtn.parentNode.replaceChild(newCheckoutBtn, checkoutBtn);
+
+      // Add fresh event listeners
+      newCheckoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.goToCheckout();
+      });
+
+      // Add touch event for mobile
+      newCheckoutBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.goToCheckout();
+      });
+    }
+
+    if (viewCartBtn) {
+      // Clone button to remove all event listeners
+      const newViewCartBtn = viewCartBtn.cloneNode(true);
+      viewCartBtn.parentNode.replaceChild(newViewCartBtn, viewCartBtn);
+
+      // Add fresh event listeners
+      newViewCartBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.goToCart();
+      });
+
+      // Add touch event for mobile
+      newViewCartBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.goToCart();
+      });
+    }
   }
 
   /**

@@ -16,6 +16,8 @@ class NavigationManager {
     this.headerActions = document.querySelector('.header-actions');
     this.authButtons = document.getElementById('auth-buttons');
     this.navbarActions = document.querySelector('.navbar-actions');
+    this._cartUpdateTimeout = null; // For debouncing cart updates
+    this._lastCartCount = null; // Track last cart count to prevent unnecessary updates
 
     this.init();
   }
@@ -30,21 +32,11 @@ class NavigationManager {
     // Update navigation immediately
     this.updateNavigation();
 
-    // Initialize cart service and listen for cart updates
-    try {
-      await cartService.init();
-      cartService.addEventListener((cart) => {
-        const count = cart ? (cart.totalItems || cart.items?.length || 0) : 0;
-        this.updateCartCount(count);
-      });
+    // Setup mobile header layout
+    this.setupMobileHeaderLayout();
 
-      // Update cart count on initial load
-      const cart = await cartService.getCart();
-      const count = cart ? (cart.totalItems || cart.items?.length || 0) : 0;
-      this.updateCartCount(count);
-    } catch (error) {
-      console.error('Error initializing cart service in navigation:', error);
-    }
+    // Initialize cart system (centralized initialization)
+    await this.initializeCartSystem();
   }
 
   async waitForElements() {
@@ -149,41 +141,41 @@ class NavigationManager {
       // Add dropdown functionality
       this.setupUserDropdown();
 
-      // Update cart count after dropdown is created
-      this.updateCartCountAfterRender();
+      // Update cart count after dropdown is created (debounced)
+      this.debouncedUpdateCartCount();
     }
 
     // Update navbar actions for authenticated users (mobile)
     if (this.navbarActions) {
       this.navbarActions.innerHTML = `
-        <div style="text-align: center; padding: 1rem; border-top: 1px solid var(--white-alpha-10);">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1rem;">
-            <div class="user-avatar" style="width: 40px; height: 40px; background: var(--gold-crayola); color: var(--smoky-black-1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+        <div class="mobile-user-section">
+          <div class="mobile-user-info">
+            <div class="user-avatar-mobile">
               ${userInitials}
             </div>
-            <div style="text-align: left;">
-              <p style="color: var(--white); font-weight: 600; margin-bottom: 0.25rem;">${userName}</p>
-              <p style="color: var(--quick-silver); font-size: 0.85rem;">${user ? user.email : ''}</p>
+            <div class="user-details">
+              <p class="user-name">${userName}</p>
+              <p class="user-email">${user ? user.email : ''}</p>
             </div>
           </div>
-          
-          <div style="display: grid; gap: 0.5rem;">
-            <a href="./profile.html" class="btn btn-secondary navbar-btn" style="justify-content: center;">
-              <span class="text text-1">My Profile</span>
-              <span class="text text-2" aria-hidden="true">My Profile</span>
+
+          <div class="mobile-nav-buttons">
+            <a href="./profile.html" class="mobile-nav-btn profile-btn">
+              <ion-icon name="person-outline" class="btn-icon"></ion-icon>
+              <span class="btn-text">My Profile</span>
             </a>
-            <a href="./orders.html" class="btn btn-secondary navbar-btn" style="justify-content: center;">
-              <span class="text text-1">My Orders</span>
-              <span class="text text-2" aria-hidden="true">My Orders</span>
+            <a href="./orders.html" class="mobile-nav-btn orders-btn">
+              <ion-icon name="receipt-outline" class="btn-icon"></ion-icon>
+              <span class="btn-text">My Orders</span>
             </a>
-            <a href="./cart.html" class="btn btn-secondary navbar-btn" style="justify-content: center; position: relative;">
-              <span class="text text-1">Cart</span>
-              <span class="text text-2" aria-hidden="true">Cart</span>
-              <span class="mobile-cart-count" id="mobileCartCount" style="position: absolute; top: -5px; right: -5px; background: var(--gold-crayola); color: var(--eerie-black-1); font-size: 11px; font-weight: 600; min-width: 18px; height: 18px; border-radius: 50%; display: none; align-items: center; justify-content: center; line-height: 1;">0</span>
+            <a href="./cart.html" class="mobile-nav-btn cart-btn">
+              <ion-icon name="bag-outline" class="btn-icon"></ion-icon>
+              <span class="btn-text">Cart</span>
+              <span class="mobile-cart-badge" id="mobileCartCount">0</span>
             </a>
-            <button class="btn btn-secondary navbar-btn logout-btn-mobile" id="logoutBtnMobile" style="justify-content: center;">
-              <span class="text text-1">Sign Out</span>
-              <span class="text text-2" aria-hidden="true">Sign Out</span>
+            <button class="mobile-nav-btn logout-btn" id="logoutBtnMobile">
+              <ion-icon name="log-out-outline" class="btn-icon"></ion-icon>
+              <span class="btn-text">Sign Out</span>
             </button>
           </div>
         </div>
@@ -192,8 +184,8 @@ class NavigationManager {
       // Add mobile logout functionality
       this.setupMobileLogout();
 
-      // Update cart count after mobile navigation is created
-      this.updateCartCountAfterRender();
+      // Update cart count after mobile navigation is created (debounced)
+      this.debouncedUpdateCartCount();
     }
   }
 
@@ -281,11 +273,29 @@ class NavigationManager {
   }
 
   /**
-   * Update cart count after navigation elements are rendered
+   * Debounced cart count update to prevent excessive calls
    */
-  async updateCartCountAfterRender() {
+  debouncedUpdateCartCount() {
+    // Clear existing timeout
+    if (this._cartUpdateTimeout) {
+      clearTimeout(this._cartUpdateTimeout);
+    }
+
+    // Set new timeout with debounce
+    this._cartUpdateTimeout = setTimeout(() => {
+      this.updateCartCountAfterRender();
+      this._cartUpdateTimeout = null;
+    }, 100); // 100ms debounce
+  }
+
+  /**
+   * Update cart count after navigation elements are rendered
+   * Uses already loaded cart data to avoid excessive API calls
+   */
+  updateCartCountAfterRender() {
     try {
-      const cart = await cartService.getCart();
+      // Use already loaded cart data instead of making new API call
+      const cart = cartService.cart;
       const count = cart ? (cart.totalItems || cart.items?.length || 0) : 0;
       this.updateCartCount(count);
     } catch (error) {
@@ -298,6 +308,19 @@ class NavigationManager {
    * @param {number} count - Number of items in cart
    */
   updateCartCount(count) {
+    // Prevent unnecessary updates if count hasn't changed
+    if (this._lastCartCount === count) {
+      return;
+    }
+    this._lastCartCount = count;
+
+    // Update main cart icon count
+    const mainCartCount = document.getElementById('cartCount') || document.getElementById('cart-count');
+    if (mainCartCount) {
+      mainCartCount.textContent = count;
+      mainCartCount.style.display = count > 0 ? 'flex' : 'none';
+    }
+
     // Update dropdown cart count
     const dropdownCartCount = document.getElementById('dropdownCartCount');
     if (dropdownCartCount) {
@@ -309,7 +332,134 @@ class NavigationManager {
     const mobileCartCount = document.getElementById('mobileCartCount');
     if (mobileCartCount) {
       mobileCartCount.textContent = count;
-      mobileCartCount.style.display = count > 0 ? 'flex' : 'none';
+      if (count > 0) {
+        mobileCartCount.style.display = 'flex';
+        mobileCartCount.style.opacity = '1';
+        mobileCartCount.style.visibility = 'visible';
+      } else {
+        mobileCartCount.style.display = 'none';
+        mobileCartCount.style.opacity = '0';
+        mobileCartCount.style.visibility = 'hidden';
+      }
+    }
+  }
+
+  /**
+   * Setup mobile header layout: user avatar left, logo center, cart+hamburger right
+   */
+  setupMobileHeaderLayout() {
+    // Only apply on mobile devices
+    if (window.innerWidth > 768) return;
+
+    const header = document.querySelector('.header');
+    if (!header) return;
+
+    const container = header.querySelector('.container');
+    if (!container) return;
+
+    // Create mobile right controls container if it doesn't exist
+    let mobileRightControls = container.querySelector('.mobile-right-controls');
+    if (!mobileRightControls) {
+      mobileRightControls = document.createElement('div');
+      mobileRightControls.className = 'mobile-right-controls';
+      container.appendChild(mobileRightControls);
+    }
+
+    // Move cart icon to right controls
+    const cartIcon = container.querySelector('.cart-icon-btn');
+    const hamburger = container.querySelector('.nav-open-btn');
+
+    if (cartIcon && !mobileRightControls.contains(cartIcon)) {
+      mobileRightControls.appendChild(cartIcon);
+    }
+
+    if (hamburger && !mobileRightControls.contains(hamburger)) {
+      mobileRightControls.appendChild(hamburger);
+    }
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) {
+        // Desktop: move elements back to original positions
+        const headerActions = container.querySelector('.header-actions');
+        if (cartIcon && headerActions && !headerActions.contains(cartIcon)) {
+          headerActions.appendChild(cartIcon);
+        }
+      } else {
+        // Mobile: ensure elements are in mobile layout
+        if (cartIcon && !mobileRightControls.contains(cartIcon)) {
+          mobileRightControls.appendChild(cartIcon);
+        }
+        if (hamburger && !mobileRightControls.contains(hamburger)) {
+          mobileRightControls.appendChild(hamburger);
+        }
+      }
+    });
+  }
+
+  /**
+   * Centralized cart system initialization
+   * This prevents multiple initializations and infinite API calls
+   */
+  async initializeCartSystem() {
+    try {
+      // Prevent multiple initializations globally
+      if (window.cartSystemInitialized || window.cartSystemInitializing) {
+        console.log('🔄 Cart system already initialized or initializing, skipping...');
+        return;
+      }
+
+      // Mark as initializing to prevent race conditions
+      window.cartSystemInitializing = true;
+      console.log('🚀 Initializing cart system...');
+
+      // Initialize cart service ONCE
+      if (!cartService._initialized) {
+        await cartService.init();
+      }
+
+      // Initialize CartUI ONCE
+      if (!window.cartUIInstance) {
+        const { CartUI } = await import('./components/cart-ui.js');
+        window.cartUIInstance = new CartUI();
+
+        // Update cart display with current cart data
+        const currentCart = cartService.cart;
+        if (currentCart) {
+          window.cartUIInstance.updateCartDisplay(currentCart);
+        }
+      }
+
+      // Setup cart count listener ONCE (prevent multiple listeners)
+      if (!window.cartNavigationListenerAdded) {
+        cartService.addEventListener((cart) => {
+          // Use consistent count calculation: total quantity (sum of all item quantities)
+          const count = cart ? (cart.totalItems || cart.items?.reduce((sum, item) => sum + item.quantity, 0) || 0) : 0;
+          this.updateCartCount(count);
+        });
+        window.cartNavigationListenerAdded = true;
+      }
+
+      // Update cart count from already loaded cart (avoid duplicate API call)
+      const cart = cartService.cart; // Use already loaded cart from init()
+      const count = cart ? (cart.totalItems || cart.items?.reduce((sum, item) => sum + item.quantity, 0) || 0) : 0;
+      this.updateCartCount(count);
+
+      // Mark as initialized
+      window.cartSystemInitialized = true;
+      window.cartSystemInitializing = false;
+
+      // Clear Kinde callback flag if it was set
+      if (window.kindeCallbackInProgress) {
+        window.kindeCallbackInProgress = false;
+        console.log('🔄 Cleared Kinde callback flag - cart system ready');
+      }
+
+      console.log('✅ Cart system initialized successfully');
+
+    } catch (error) {
+      console.error('❌ Error initializing cart system:', error);
+      window.cartSystemInitializing = false; // Reset flag on error
     }
   }
 }

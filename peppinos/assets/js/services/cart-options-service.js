@@ -18,23 +18,20 @@ class CartOptionsService {
    * Setup global event listeners
    */
   setupEventListeners() {
-    // Handle add to cart button clicks
+    // NOTE: Add to cart button clicks are handled by specific menu loaders
+    // to prevent duplicate event listeners and double execution
+
+    // Handle modal close
     document.addEventListener('click', (e) => {
-      if (e.target.closest('.add-to-cart-btn')) {
-        e.preventDefault();
-        this.handleAddToCartClick(e.target.closest('.add-to-cart-btn'));
-      }
-      
-      // Handle modal close
       if (e.target.closest('[data-modal-close]')) {
         this.closeModal();
       }
-      
+
       // Handle quantity buttons
       if (e.target.closest('.quantity-btn')) {
         this.handleQuantityChange(e.target.closest('.quantity-btn'));
       }
-      
+
       // Handle confirm add to cart
       if (e.target.id && e.target.id.startsWith('confirmAddToCart-')) {
         const itemId = e.target.id.replace('confirmAddToCart-', '');
@@ -60,11 +57,11 @@ class CartOptionsService {
   /**
    * Handle add to cart button click
    */
-  async handleAddToCartClick(button) {
+  async handleAddToCartClick(button, quantity = 1) {
     const itemId = button.dataset.itemId;
-    const itemName = button.dataset.itemName;
-    const itemPrice = button.dataset.itemPrice;
-    const isVeg = button.dataset.isVeg === 'true';
+
+    // Use passed quantity or get from button dataset
+    const finalQuantity = quantity || parseInt(button.dataset.quantity) || 1;
 
     try {
       // Get full item data from backend
@@ -80,10 +77,10 @@ class CartOptionsService {
       // Check if item has options that require user selection
       if (this.hasCartOptions(itemData)) {
         // Show options modal directly
-        this.showOptionsModal(itemId);
+        this.showOptionsModal(itemId, finalQuantity);
       } else {
         // Add directly to cart with default values
-        const defaultOptions = this.getDefaultOptions(itemData);
+        const defaultOptions = this.getDefaultOptions(itemData, finalQuantity);
         await this.addToCartDirectly(itemData, defaultOptions);
         // Toast is already shown by cartService.addToCart
       }
@@ -109,9 +106,9 @@ class CartOptionsService {
   /**
    * Get default options for an item
    */
-  getDefaultOptions(item) {
+  getDefaultOptions(item, quantity = 1) {
     const options = {
-      quantity: 1,
+      quantity: quantity,
       size: 'Medium',
       spicyLevel: '',
       preparations: [],
@@ -191,7 +188,7 @@ class CartOptionsService {
   /**
    * Show options modal
    */
-  showOptionsModal(itemId) {
+  showOptionsModal(itemId, quantity = 1) {
     let modal = document.getElementById(`cartModal-${itemId}`);
 
     // Create modal if it doesn't exist
@@ -201,6 +198,12 @@ class CartOptionsService {
         showError('Failed to create options modal');
         return;
       }
+    }
+
+    // Set the quantity in the modal
+    const quantityInput = modal.querySelector('.quantity-input');
+    if (quantityInput) {
+      quantityInput.value = quantity;
     }
 
     this.currentModal = modal;
@@ -485,7 +488,9 @@ class CartOptionsService {
       <label class="radio-option">
         <input type="radio" name="size" value="${size.name}" data-price="${size.price}" ${size.isDefault ? 'checked' : ''}>
         <span class="radio-label">
-          <span class="size-name">${size.name}</span>
+          <div class="option-content">
+            <span class="size-name">${size.name}</span>
+          </div>
           <span class="size-price">$${size.price}</span>
         </span>
       </label>
@@ -516,8 +521,10 @@ class CartOptionsService {
         <label class="radio-option">
           <input type="radio" name="spicyLevel" value="${levelName}">
           <span class="radio-label">
-            <span class="spicy-name">${levelName}</span>
-            ${levelDesc ? `<span class="spicy-desc">${levelDesc}</span>` : ''}
+            <div class="option-content">
+              <span class="spicy-name">${levelName}</span>
+              ${levelDesc ? `<span class="spicy-desc">${levelDesc}</span>` : ''}
+            </div>
           </span>
         </label>
       `;
@@ -548,8 +555,10 @@ class CartOptionsService {
         <label class="checkbox-option">
           <input type="checkbox" name="preparations" value="${prepName}">
           <span class="checkbox-label">
-            <span class="prep-name">${prepName}</span>
-            ${prepDesc ? `<span class="prep-desc">${prepDesc}</span>` : ''}
+            <div class="option-content">
+              <span class="prep-name">${prepName}</span>
+              ${prepDesc ? `<span class="prep-desc">${prepDesc}</span>` : ''}
+            </div>
           </span>
         </label>
       `;

@@ -21,6 +21,7 @@
 
   <!-- Custom CSS link -->
   <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/cart.css">
   <link rel="stylesheet" href="./assets/css/components.css">
 
   <!-- Preload images -->
@@ -319,6 +320,17 @@
           </a>
         </div>
       </nav>
+
+      <div class="header-actions">
+        <!-- Auth buttons will be populated by JavaScript -->
+        <div id="auth-buttons"></div>
+
+        <!-- Cart Icon -->
+        <button class="cart-icon-btn" id="cartIcon" aria-label="Open cart">
+          <ion-icon name="bag-outline"></ion-icon>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+      </div>
 
       <button class="nav-open-btn" aria-label="open menu" data-nav-toggler>
         <span class="line line-1"></span>
@@ -671,6 +683,14 @@
   <!-- Ionicon link -->
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+  <!--
+    - authentication integration
+  -->
+  <script type="module" src="./assets/js/navigation.js"></script>
+  <script type="module" src="./assets/js/auth.js"></script>
+
+  <!-- Cart functionality is now handled by navigation.js -->
 
 </body>
 

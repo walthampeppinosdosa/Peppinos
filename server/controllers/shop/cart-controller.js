@@ -251,11 +251,12 @@ const addToCart = async (req, res) => {
             throw new Error('Cart not found during retry');
           }
 
-          // Re-apply the changes
+          // Re-apply the changes using same comparison logic as main flow
           const existingItemIndex = cart.items.findIndex(item =>
             item.menu.toString() === menuItemId &&
             item.size === actualSize &&
-            JSON.stringify(item.addons.sort()) === JSON.stringify(validAddons.sort())
+            (item.specialInstructions || '') === (specialInstructions || '') &&
+            compareAddons(item.addons || [], validAddons)
           );
 
           if (existingItemIndex > -1) {

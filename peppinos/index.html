@@ -30,6 +30,7 @@
     - custom css link
   -->
   <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/cart.css">
 
   <!--
     - custom overrides css
@@ -239,11 +240,6 @@
             <span class="text text-1">Google Reviews</span>
             <span class="text text-2" aria-hidden="true">Google Reviews</span>
           </a>
-
-          <a href="contact.html#reservation" class="btn btn-secondary navbar-btn">
-            <span class="text text-1">Find A Table</span>
-            <span class="text text-2" aria-hidden="true">Find A Table</span>
-          </a>
         </div>
 
       </nav>
@@ -252,11 +248,6 @@
         <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google" rel="noopener">
           <span class="text text-1">Google Reviews</span>
           <span class="text text-2" aria-hidden="true">Google Reviews</span>
-        </a>
-
-        <a href="contact.html#reservation" class="btn btn-secondary">
-          <span class="text text-1">Find A Table</span>
-          <span class="text text-2" aria-hidden="true">Find A Table</span>
         </a>
 
         <!-- Auth buttons will be populated by JavaScript -->
@@ -565,7 +556,7 @@
           <div class="about-video-section">
             <div class="about-video-container">
               <div class="about-video-wrapper">
-                <video class="about-video-player" poster="./assets/images/about-banner.jpg" preload="metadata" data-about-video="main">
+                <video class="about-video-player" preload="auto" data-about-video="main">
                   <source src="./assets/videos/about-video.mp4" type="video/mp4">
                   Your browser does not support the video tag.
                 </video>
@@ -1402,17 +1393,7 @@
   <script src="./assets/js/script.js"></script>
   <script type="module" src="./assets/js/navigation.js"></script>
 
-  <!-- Cart functionality -->
-  <script type="module">
-    import { cartService } from './assets/js/services/cart-service.js';
-    import { CartUI } from './assets/js/components/cart-ui.js';
-
-    // Initialize cart when page loads
-    document.addEventListener('DOMContentLoaded', async () => {
-      await cartService.init();
-      new CartUI();
-    });
-  </script>
+  <!-- Cart functionality is now handled by navigation.js -->
 
   <!--
     - authentication integration
@@ -1429,18 +1410,7 @@
     console.log('Featured menu loader imported');
   </script>
 
-  <!--
-    - cart functionality
-  -->
-  <script type="module">
-    import { cartService } from './assets/js/services/cart-service.js';
-    import { cartUI } from './assets/js/components/cart-ui.js';
 
-    // Initialize cart when page loads
-    document.addEventListener('DOMContentLoaded', async () => {
-      await cartService.init();
-    });
-  </script>
 
   <!--
     - ionicon link

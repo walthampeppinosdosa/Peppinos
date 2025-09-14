@@ -847,14 +847,49 @@ body.nav-active {
     pointer-events: auto;
   }
 
-  /* Position hamburger menu on the right */
-  .nav-open-btn {
-    padding: 8px !important;
-    padding-inline-end: 0 !important;
+  /* Mobile header redesign: user avatar left, logo center, cart+hamburger right */
+
+  /* User avatar on left corner */
+  .header-actions {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Hide auth buttons on mobile, show only user avatar */
+  .header-actions #auth-buttons {
+    display: none;
+  }
+
+  /* Cart icon and hamburger on right corner */
+  .mobile-right-controls {
     position: absolute;
     right: 15px;
     top: 50%;
     transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Move cart icon to right controls on mobile */
+  .header-actions .cart-icon-btn {
+    position: static;
+    transform: none;
+  }
+
+  /* Position hamburger menu on the right */
+  .nav-open-btn {
+    padding: 8px !important;
+    padding-inline-end: 0 !important;
+    position: static;
+    transform: none;
     z-index: 10;
   }
 
@@ -1051,6 +1086,7 @@ body.nav-active {
   align-items: center;
   justify-content: center;
   max-width: max-content;
+  white-space: nowrap;
   transition: var(--transition-1);
 }
 
@@ -1163,6 +1199,7 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
 .btn-google .text {
   position: relative !important;
   z-index: 1 !important;
+  white-space: nowrap !important;
 }
 
 /* Hide the second text element in Google button */
@@ -1173,6 +1210,60 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
 /* Ensure only first text shows */
 .btn-google .text-1 {
   display: inline !important;
+  white-space: nowrap !important;
+}
+
+/* Sign In button text should stay on one line */
+.btn-secondary .text,
+.btn-secondary .text-1,
+.btn-secondary .text-2 {
+  white-space: nowrap !important;
+}
+
+/* Ensure all navigation items stay on one line */
+.navbar-list {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+.navbar-item {
+  flex-shrink: 0 !important;
+}
+
+.navbar-link {
+  white-space: nowrap !important;
+  padding: 0.5rem 1rem !important;
+}
+
+.navbar-link .span {
+  white-space: nowrap !important;
+}
+
+/* Header actions layout improvements */
+.header-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  flex-wrap: nowrap !important;
+}
+
+.header-actions > * {
+  flex-shrink: 0 !important;
+}
+
+/* Auth buttons container styling */
+#auth-buttons {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  flex-shrink: 0 !important;
+}
+
+#auth-buttons .btn {
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
 }
 
 @media (max-width: 991px) {
@@ -1188,11 +1279,13 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
     text-align: center;
     padding: 14px 25px;
     font-size: var(--fontSize-label-1);
+    white-space: nowrap;
   }
 
   #auth-buttons {
     width: 100%;
     justify-content: center;
+    white-space: nowrap;
   }
 
   .user-dropdown {
@@ -1212,6 +1305,7 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
     padding: 12px 20px !important;
     font-size: var(--fontSize-label-1) !important;
     min-height: 48px;
+    white-space: nowrap !important;
   }
 
   #auth-buttons {
@@ -5810,12 +5904,170 @@ body.home-page .header.active .btn:hover {
     min-height: 140px !important;
   }
 
+  /* Enhanced Mobile User Section */
+  .mobile-user-section {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    border-top: 1px solid var(--white-alpha-10);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border-radius: 12px 12px 0 0;
+  }
+
+  .mobile-user-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid var(--white-alpha-10);
+  }
+
+  .user-avatar-mobile {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--gold-crayola) 0%, #e6c068 100%);
+    color: var(--smoky-black-1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .user-details {
+    text-align: left;
+    flex: 1;
+  }
+
+  .user-name {
+    color: var(--white);
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .user-email {
+    color: var(--quick-silver);
+    font-size: 0.85rem;
+    opacity: 0.9;
+  }
+
+  .mobile-nav-buttons {
+    display: grid;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .mobile-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--white-alpha-10);
+    border-radius: 12px;
+    color: var(--white);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mobile-nav-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .mobile-nav-btn:hover::before {
+    left: 100%;
+  }
+
+  .mobile-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--gold-crayola);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .mobile-nav-btn.cart-btn {
+    position: relative;
+  }
+
+  .btn-icon {
+    font-size: 1.2rem;
+    color: var(--gold-crayola);
+    flex-shrink: 0;
+  }
+
+  .btn-text {
+    flex: 1;
+    text-align: left;
+  }
+
+  .mobile-cart-badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.75rem;
+    background: var(--gold-crayola);
+    color: var(--eerie-black-1);
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--white);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+
+  .mobile-nav-btn.logout-btn {
+    background: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.3);
+    color: #ff6b7a;
+  }
+
+  .mobile-nav-btn.logout-btn:hover {
+    background: rgba(220, 53, 69, 0.2);
+    border-color: #dc3545;
+  }
+
+  .mobile-nav-btn.logout-btn .btn-icon {
+    color: #ff6b7a;
+  }
+
   .navbar-btn {
     width: 100% !important;
     max-width: 280px !important;
     text-align: center !important;
     padding: 16px 24px !important;
     font-size: var(--fontSize-label-1) !important;
+    white-space: nowrap !important;
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
@@ -5891,6 +6143,7 @@ body.home-page .header.active .btn:hover {
     min-height: 48px;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+    white-space: nowrap !important;
   }
 
   .header-actions .btn:active,
@@ -5959,6 +6212,20 @@ body.home-page .header.active .btn:hover {
   .container {
     max-width: 100% !important;
     padding-inline: 20px !important;
+  }
+
+  /* Fix headline visibility on mobile - use dark text on light backgrounds */
+  .headline {
+    color: var(--eerie-black-1) !important;
+  }
+
+  /* White text only on dark backgrounds */
+  .bg-black-10 .headline,
+  .hero .headline,
+  .section[style*="background: black"] .headline,
+  .section[style*="background-color: black"] .headline,
+  .section[style*="background: dark"] .headline {
+    color: var(--white) !important;
   }
 }
 
@@ -6145,20 +6412,57 @@ body.home-page .header.active .btn:hover {
   background-color: var(--white-alpha-10);
 }
 
+/* Cart icon hover effects following Google Reviews button pattern */
+body.home-page .header:not(.active) .cart-icon-btn:hover ion-icon {
+  color: var(--white) !important;
+}
+
+.header.active .cart-icon-btn:hover ion-icon,
+body:not(.home-page) .cart-icon-btn:hover ion-icon {
+  color: var(--gold-crayola) !important;
+}
+
+/* Legacy hover support for .cart-icon class */
+body.home-page .header:not(.active) .cart-icon-btn:hover .cart-icon {
+  color: var(--white) !important;
+}
+
+.header.active .cart-icon-btn:hover .cart-icon,
+body:not(.home-page) .cart-icon-btn:hover .cart-icon {
+  color: var(--gold-crayola) !important;
+}
+
+.cart-icon-btn ion-icon {
+  font-size: 24px;
+  color: var(--eerie-black-1);
+  transition: var(--transition-1);
+}
+
+/* Cart icon color for transparent header (home page) - GOLD OUTLINED */
+body.home-page .header:not(.active) .cart-icon-btn ion-icon {
+  color: var(--gold-crayola) !important;
+}
+
+/* Cart icon color for white header (sticky or other pages) - BLACK */
+.header.active .cart-icon-btn ion-icon,
+body:not(.home-page) .cart-icon-btn ion-icon {
+  color: var(--eerie-black-1) !important;
+}
+
+/* Legacy support for .cart-icon class */
 .cart-icon {
   font-size: 24px;
   color: var(--eerie-black-1);
+  transition: var(--transition-1);
 }
 
-/* Cart icon color for transparent header (home page) */
 body.home-page .header:not(.active) .cart-icon {
-  color: var(--white);
+  color: var(--gold-crayola) !important;
 }
 
-/* Cart icon color for white header (sticky or other pages) */
 .header.active .cart-icon,
 body:not(.home-page) .cart-icon {
-  color: var(--eerie-black-1);
+  color: var(--eerie-black-1) !important;
 }
 
 .cart-count {
@@ -6446,6 +6750,7 @@ body:not(.home-page) .cart-icon {
 
 .cart-actions .btn-primary:hover {
   background: var(--golden-poppy);
+  color: var(--eerie-black-1);
 }
 
 /* Empty Cart */
@@ -6506,6 +6811,16 @@ body.cart-open {
 
   .cart-actions {
     flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Ensure cart action buttons are properly clickable on mobile */
+  .cart-actions .btn {
+    min-height: 44px; /* iOS recommended touch target size */
+    padding: 12px 20px;
+    font-size: 16px; /* Prevent zoom on iOS */
+    touch-action: manipulation; /* Disable double-tap zoom */
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight */
   }
 }
 
@@ -6636,6 +6951,7 @@ body.cart-open {
 
 .btn-add-to-cart:hover {
   background: var(--golden-poppy);
+  color: var(--eerie-black-1);
   transform: translateY(-1px);
 }
 

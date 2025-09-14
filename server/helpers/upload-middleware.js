@@ -56,6 +56,15 @@ const uploadCategoryImage = multer({
   fileFilter: fileFilter,
 }).single('categoryImage');
 
+// Avatar upload (single)
+const uploadAvatar = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: fileFilter,
+}).single('avatar');
+
 // Error handling middleware for multer
 const handleMulterError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
@@ -94,5 +103,6 @@ module.exports = {
   uploadMultiple,
   uploadMenuItemImages,
   uploadCategoryImage,
+  uploadAvatar,
   handleMulterError
 };

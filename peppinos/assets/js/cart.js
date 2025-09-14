@@ -13,8 +13,11 @@ class CartPage {
       // Show loading state
       this.showLoading();
 
-      // Initialize cart service
-      await cartService.init();
+      // Cart service is already initialized by navigation.js
+      // Just wait for it to be ready
+      if (!cartService._initialized) {
+        await cartService.init();
+      }
 
       // Load cart
       await this.loadCart();
@@ -41,8 +44,8 @@ class CartPage {
 
   setupEventListeners() {
     // Listen for cart updates
-    cartService.addEventListener(() => {
-      this.updateCartDisplay();
+    cartService.addEventListener((cart) => {
+      this.renderCart(cart); // Use renderCart directly instead of updateCartDisplay
     });
   }
 
@@ -107,15 +110,17 @@ class CartPage {
             </button>
           </div>
         </div>
-        <button class="cart-checkout-btn" onclick="cartPage.proceedToCheckout()">
-          Proceed to Checkout
-        </button>
-        <button class="btn btn-outline" onclick="window.location.href='menu.html'" style="width: 100%; margin-top: 1rem;">
-          Continue Shopping
-        </button>
-        <button class="btn btn-secondary" onclick="cartPage.clearCart()" style="width: 100%; margin-top: 1rem;">
-          Clear Cart
-        </button>
+        <div class="cart-action-buttons" style="display: flex; flex-direction: column; align-items: center; gap: 1rem; margin-top: 1rem;">
+          <button class="cart-checkout-btn" onclick="cartPage.proceedToCheckout()" style="width: 100%; max-width: 300px;">
+            Proceed to Checkout
+          </button>
+          <button class="btn btn-outline" onclick="window.location.href='menu.html'" style="width: 100%; max-width: 300px;">
+           Browse menu
+          </button>
+          <button class="btn btn-secondary" onclick="cartPage.clearCart()" style="width: 100%; max-width: 300px;">
+            Clear Cart
+          </button>
+        </div>
       </div>
     `;
 
@@ -224,7 +229,7 @@ class CartPage {
       }
 
       await cartService.updateCartItem(itemId, newQuantity);
-      await this.loadCart(); // Refresh cart display
+      // Cart will be updated via event listener, no need to manually reload
     } catch (error) {
       console.error('Error updating quantity:', error);
       // Error toast is already shown by cart service
@@ -234,7 +239,7 @@ class CartPage {
   async removeItem(itemId) {
     try {
       await cartService.removeFromCart(itemId);
-      await this.loadCart(); // Refresh cart display
+      // Cart will be updated via event listener, no need to manually reload
     } catch (error) {
       console.error('Error removing item:', error);
       // Error toast is already shown by cart service
@@ -308,8 +313,11 @@ class CartPage {
     try {
       const result = await cartService.handleCheckout();
 
-      if (result.authenticated || result.continueAsGuest) {
-        // Proceed to checkout page
+      if (result.authenticated) {
+        // Authenticated user - go to authenticated checkout page
+        window.location.href = './checkout.html';
+      } else if (result.continueAsGuest) {
+        // Guest user - go to guest checkout page
         window.location.href = './guest-checkout.html';
       } else if (result.redirected) {
         // User will be redirected to login/signup

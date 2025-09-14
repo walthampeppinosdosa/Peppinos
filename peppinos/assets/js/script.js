@@ -637,6 +637,7 @@ chefVideoButtons.forEach((btn) => {
 
 /**
  * ABOUT VIDEO PLAYER
+ * Modified to show first frame with play button overlay
  */
 
 const aboutVideoButton = document.querySelector("[data-about-video-btn]");
@@ -719,6 +720,11 @@ if (aboutVideoButton && aboutVideo && aboutOverlay) {
     aboutVideo.setAttribute("data-paused", "true");
     aboutOverlay.style.opacity = "1";
     aboutOverlay.style.pointerEvents = "auto";
+  });
+
+  // Load the first frame when the video metadata is loaded
+  aboutVideo.addEventListener("loadedmetadata", function () {
+    aboutVideo.currentTime = 0.1; // Set to a small time to show first frame
   });
 
   // Initialize video as paused

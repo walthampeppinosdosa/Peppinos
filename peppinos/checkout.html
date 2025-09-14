@@ -21,6 +21,7 @@
 
   <!-- Custom CSS link -->
   <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/cart.css">
   <link rel="stylesheet" href="./assets/css/components.css">
 
   <!-- Preload images -->
@@ -67,10 +68,13 @@
     .form-group textarea {
       width: 100%;
       padding: 0.75rem;
-      border: 1px solid var(--cultured);
-      border-radius: 4px;
+      border: 2px solid #e5e5e5;
+      border-radius: 8px;
       font-size: 1rem;
-      transition: border-color 0.3s ease;
+      background-color: var(--white);
+      color: var(--eerie-black-1);
+      transition: all 0.3s ease;
+      box-sizing: border-box;
     }
 
     .form-group input:focus,
@@ -78,6 +82,13 @@
     .form-group textarea:focus {
       outline: none;
       border-color: var(--gold-crayola);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: var(--quick-silver);
+      opacity: 0.8;
     }
 
     .radio-group {
@@ -104,14 +115,22 @@
 
     .cart-item {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      gap: 1rem;
       padding: 1rem 0;
       border-bottom: 1px solid var(--cultured);
     }
 
     .cart-item:last-child {
       border-bottom: none;
+    }
+
+    .cart-item-image {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
     }
 
     .cart-item-details {
@@ -175,6 +194,30 @@
       background: var(--quick-silver);
       cursor: not-allowed;
       transform: none;
+      position: relative;
+    }
+
+    .btn-checkout.loading {
+      color: transparent;
+    }
+
+    .btn-checkout.loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ffffff;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
 
     .error-message {
@@ -256,6 +299,16 @@
         font-size: 16px; /* Prevent zoom on iOS */
         padding: 1rem;
       }
+    }
+
+    /* Desktop form improvements */
+    @media (min-width: 769px) {
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        font-size: 16px; /* Larger font size for better readability */
+        padding: 1rem;
+      }
 
       .radio-option {
         padding: 1rem;
@@ -291,12 +344,7 @@
   </style>
 </head>
 
-<body class="has-preloader">
-
-  <!-- Preloader -->
-  <div class="preloader" data-preloader>
-    <div class="circle" data-circle></div>
-  </div>
+<body id="top">
 
   <!-- Topbar -->
   <div class="topbar">
@@ -343,16 +391,14 @@
 
       <a href="index.html" class="logo">
         <div class="logo-container">
-          <div class="logo-spinner">
-            <div class="logo-face logo-face-1">
-              <img src="./assets/images/logo.svg" width="300" height="95" alt="Peppino's - home" class="logo-img">
-            </div>
-            <div class="logo-face logo-face-2">
-              <img src="./assets/images/logo-alt.svg" width="300" height="95" alt="Peppino's - home" class="logo-img">
-            </div>
-            <div class="logo-face logo-face-3">
-              <img src="./assets/images/logo-gold.svg" width="300" height="95" alt="Peppino's - home" class="logo-img">
-            </div>
+          <div class="logo-face logo-face-1">
+            <img src="./assets/images/logo-1.png" width="360" height="114" alt="Peppino's Dosa - Home">
+          </div>
+          <div class="logo-face logo-face-2">
+            <img src="./assets/images/logo-2.png" width="360" height="114" alt="Peppino's Dosa - Home">
+          </div>
+          <div class="logo-face logo-face-3">
+            <img src="./assets/images/logo-3.png" width="360" height="114" alt="Peppino's Dosa - Home">
           </div>
         </div>
       </a>
@@ -365,16 +411,14 @@
 
         <a href="index.html" class="logo">
           <div class="logo-container">
-            <div class="logo-spinner">
-              <div class="logo-face logo-face-1">
-                <img src="./assets/images/logo.svg" width="300" height="95" alt="Peppino's - home" class="logo-img">
-              </div>
-              <div class="logo-face logo-face-2">
-                <img src="./assets/images/logo-alt.svg" width="300" height="95" alt="Peppino's - home" class="logo-img">
-              </div>
-              <div class="logo-face logo-face-3">
-                <img src="./assets/images/logo-gold.svg" width="300" height="95" alt="Peppino's - home" class="logo-img">
-              </div>
+            <div class="logo-face logo-face-1">
+              <img src="./assets/images/logo-1.png" width="360" height="114" alt="Peppino's Dosa - Home">
+            </div>
+            <div class="logo-face logo-face-2">
+              <img src="./assets/images/logo-2.png" width="360" height="114" alt="Peppino's Dosa - Home">
+            </div>
+            <div class="logo-face logo-face-3">
+              <img src="./assets/images/logo-3.png" width="360" height="114" alt="Peppino's Dosa - Home">
             </div>
           </div>
         </a>
@@ -455,10 +499,7 @@
             <span class="text text-2" aria-hidden="true">Google Reviews</span>
           </a>
 
-          <a href="contact.html#reservation" class="btn btn-secondary navbar-btn">
-            <span class="text text-1">Find A Table</span>
-            <span class="text text-2" aria-hidden="true">Find A Table</span>
-          </a>
+      
         </div>
 
       </nav>
@@ -469,10 +510,7 @@
           <span class="text text-2" aria-hidden="true">Google Reviews</span>
         </a>
 
-        <a href="contact.html#reservation" class="btn btn-secondary">
-          <span class="text text-1">Find A Table</span>
-          <span class="text text-2" aria-hidden="true">Find A Table</span>
-        </a>
+  
 
         <!-- Auth buttons will be populated by JavaScript -->
         <div id="auth-buttons"></div>
@@ -775,6 +813,7 @@
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
   <!-- Navigation and Auth -->
+  <script type="module" src="./assets/js/config.js"></script>
   <script type="module" src="./assets/js/navigation.js"></script>
   <script type="module" src="./assets/js/auth.js"></script>
 
@@ -783,9 +822,10 @@
 
   <!-- Checkout functionality -->
   <script type="module">
+    import { CONFIG } from './assets/js/config.js';
     import { cartService } from './assets/js/services/cart-service.js';
     import { cartUI } from './assets/js/components/cart-ui.js';
-    import { formatCurrency } from './assets/js/ui.js';
+    import { formatCurrency, showError, showSuccess } from './assets/js/ui.js';
     import { restaurantHours } from './assets/js/services/restaurant-hours.js';
     import { getCurrentUser, isAuthenticated } from './assets/js/auth.js';
 
@@ -796,6 +836,7 @@
         this.cartItems = document.getElementById('cartItems');
         this.submitBtn = document.getElementById('submitBtn');
         this.userInfoDisplay = document.getElementById('userInfoDisplay');
+        this.isUpdatingCart = false; // Flag to prevent multiple simultaneous cart updates
         this.init();
       }
 
@@ -806,7 +847,23 @@
           return;
         }
 
-        await cartService.init();
+        // Debug user data
+        const user = getCurrentUser();
+        console.log('🔍 Current user data in checkout:', user);
+        console.log('🔍 User properties:', Object.keys(user || {}));
+
+        // Wait for cart system to be ready (initialized by navigation.js) with timeout
+        let waitTime = 0;
+        const maxWaitTime = 10000; // 10 seconds max wait
+        while (!window.cartSystemInitialized && waitTime < maxWaitTime) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          waitTime += 100;
+        }
+
+        if (!window.cartSystemInitialized) {
+          console.warn('Cart system not initialized after 10 seconds, proceeding anyway');
+        }
+
         this.setupEventListeners();
         this.updateCartSummary();
         this.setupFormValidation();
@@ -814,9 +871,17 @@
         this.setupMobileEnhancements();
         this.displayUserInfo();
 
-        // Listen for cart updates
+        // Cart will be loaded by updateCartSummary() call below
+
+        // Listen for cart updates (with debouncing to prevent infinite loops)
+        let cartUpdateTimeout;
         cartService.addEventListener((cart) => {
-          this.updateCartSummary();
+          clearTimeout(cartUpdateTimeout);
+          cartUpdateTimeout = setTimeout(() => {
+            if (!this.isUpdatingCart) {
+              this.updateCartSummary();
+            }
+          }, 100);
         });
       }
 
@@ -881,12 +946,28 @@
       }
 
       async updateCartSummary() {
-        const cart = await cartService.getCart();
+        // Prevent multiple simultaneous calls
+        if (this.isUpdatingCart) {
+          return;
+        }
+        this.isUpdatingCart = true;
 
-        if (!cart || !cart.items || cart.items.length === 0) {
-          this.cartItems.innerHTML = '<p>Your cart is empty.</p>';
+        try {
+          // Use cached cart data to prevent excessive API calls
+          const cart = cartService.cart;
+
+          if (!cart || !cart.items || cart.items.length === 0) {
+            this.cartItems.innerHTML = '<p>Your cart is empty.</p>';
+            this.submitBtn.disabled = true;
+            return;
+          }
+        } catch (error) {
+          console.error('Error updating cart summary:', error);
+          this.cartItems.innerHTML = '<p>Error loading cart. Please refresh the page.</p>';
           this.submitBtn.disabled = true;
           return;
+        } finally {
+          this.isUpdatingCart = false;
         }
 
         // Render cart items
@@ -905,8 +986,13 @@
       }
 
       renderCartItem(item) {
+        const imageUrl = item.menu?.images && item.menu.images.length > 0
+          ? item.menu.images[0].url
+          : './assets/images/menu-1.png';
+
         return `
           <div class="cart-item">
+            <img src="${imageUrl}" alt="${item.menu?.name || 'Menu Item'}" class="cart-item-image">
             <div class="cart-item-details">
               <div class="cart-item-name">${item.menu?.name || 'Unknown Item'}</div>
               <div class="cart-item-info">
@@ -994,9 +1080,10 @@
 
       async handleFormSubmit(e) {
         e.preventDefault();
+        console.log('🚀 Form submission started');
 
         if (!cartService.cart || !cartService.cart.items || cartService.cart.items.length === 0) {
-          alert('Your cart is empty. Please add items before placing an order.');
+          showError('Your cart is empty. Please add items before placing an order.');
           return;
         }
 
@@ -1008,13 +1095,13 @@
           const orderType = new FormData(this.form).get('orderType');
 
           if (!scheduledDate || !scheduledTime) {
-            alert('Please select a date and time for your scheduled order.');
+            showError('Please select a date and time for your scheduled order.');
             return;
           }
 
           const selectedDate = new Date(scheduledDate + 'T00:00:00');
           if (!restaurantHours.isTimeSlotAvailable(selectedDate, scheduledTime, orderType)) {
-            alert('The selected time slot is no longer available. Please choose another time.');
+            showError('The selected time slot is no longer available. Please choose another time.');
             this.updateTimeSlots();
             return;
           }
@@ -1022,13 +1109,14 @@
 
         try {
           this.submitBtn.disabled = true;
+          this.submitBtn.classList.add('loading');
           this.submitBtn.textContent = 'Processing...';
 
           const formData = new FormData(this.form);
           const orderData = this.buildOrderData(formData);
 
-          // Submit order
-          const response = await fetch('/api/shop/orders', {
+          // Submit order using the API service
+          const response = await fetch(`${CONFIG.API.BASE_URL}/api/shop/orders`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -1037,23 +1125,62 @@
             body: JSON.stringify(orderData)
           });
 
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
           const result = await response.json();
 
-          if (result.success) {
-            // Clear cart
-            await cartService.clearCart();
+          console.log('📦 Order creation result:', result);
+          console.log('📦 Response status:', response.status);
+          console.log('📦 Response ok:', response.ok);
 
-            // Redirect to success page or show success message
-            alert('Order placed successfully! You will receive a confirmation email shortly.');
-            window.location.href = './orders.html';
+          if (result.success) {
+            console.log('✅ Order created successfully, clearing cart...');
+
+            // Clear cart (don't let this fail the order)
+            try {
+              await cartService.clearCart();
+              console.log('✅ Cart cleared successfully');
+            } catch (cartError) {
+              console.warn('⚠️ Cart clearing failed, but order was successful:', cartError);
+              // Cart clearing failure shouldn't affect the successful order
+            }
+
+            // Show success message
+            console.log('🎉 Showing success toast...');
+            const order = result.data?.order || result.order;
+            console.log('🎉 Order object:', order);
+            const successMessage = `Order placed successfully! Order #${order.orderNumber}. Confirmation emails have been sent.`;
+            console.log('🎉 Success message:', successMessage);
+            showSuccess(successMessage);
+
+            // Redirect to orders page after a short delay
+            setTimeout(() => {
+              console.log('🔄 Redirecting to orders page...');
+              window.location.href = './orders.html';
+            }, 2000);
           } else {
             throw new Error(result.message || 'Failed to place order');
           }
         } catch (error) {
           console.error('Error placing order:', error);
-          alert('Failed to place order. Please try again.');
+
+          // Show user-friendly error message
+          let errorMessage = 'Failed to place order. Please try again.';
+
+          // Handle network errors
+          if (error.message.includes('fetch')) {
+            errorMessage = 'Network error. Please check your connection and try again.';
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+
+          console.log('🚨 Showing error toast:', errorMessage);
+          showError(errorMessage);
         } finally {
           this.submitBtn.disabled = false;
+          this.submitBtn.classList.remove('loading');
           this.submitBtn.textContent = 'Place Order';
         }
       }
@@ -1062,13 +1189,43 @@
         const cart = cartService.cart;
         const user = getCurrentUser();
 
+        console.log('🔍 Building order data with user:', user);
+
+        // Ensure user data is properly structured
+        const customerInfo = {
+          name: user?.name || user?.username || user?.displayName || 'Guest User',
+          phone: user?.phone || user?.phoneNumber || user?.mobile || '',
+          email: user?.email || ''
+        };
+
+        console.log('📋 Customer info built:', customerInfo);
+
+        // Validate required fields
+        if (!customerInfo.name || !customerInfo.email) {
+          console.error('❌ Missing required customer info:', customerInfo);
+          throw new Error('Missing required customer information. Please update your profile.');
+        }
+
+        // Transform cart items to match order schema
+        const transformedItems = cart.items.map(item => ({
+          menu: item.menu || item._id,
+          menuName: item.name || item.menuName,
+          menuImage: item.image || item.menuImage || '/assets/images/default-menu.jpg',
+          quantity: item.quantity,
+          size: item.size || 'Medium',
+          price: item.price,
+          addons: item.addons || [],
+          specialInstructions: item.specialInstructions || '',
+          itemTotal: item.price * item.quantity + (item.addons?.reduce((sum, addon) => sum + addon.price, 0) || 0)
+        }));
+
+        const subtotal = cart.subtotal || cart.total || transformedItems.reduce((sum, item) => sum + item.itemTotal, 0);
+        const tax = cartService.calculateTax(subtotal);
+        const totalPrice = subtotal + tax;
+
         const orderData = {
           // Customer information from user account
-          customerInfo: {
-            name: user.name,
-            phone: user.phone,
-            email: user.email
-          },
+          customerInfo: customerInfo,
 
           // Order details
           orderType: formData.get('orderType'),
@@ -1076,14 +1233,11 @@
           paymentMethod: formData.get('paymentMethod'),
           specialInstructions: formData.get('specialInstructions'),
 
-          // Cart items
-          items: cart.items,
-          subtotal: cart.subtotal,
-          tax: cartService.calculateTax(cart.subtotal),
-          total: cart.subtotal + cartService.calculateTax(cart.subtotal),
-
-          // User ID for authenticated orders
-          userId: user._id || user.id
+          // Cart items (transformed)
+          items: transformedItems,
+          subtotal: subtotal,
+          tax: tax,
+          total: totalPrice
         };
 
         // Add delivery address if delivery order
@@ -1093,7 +1247,8 @@
             city: formData.get('city'),
             state: formData.get('state'),
             zipCode: formData.get('zipCode'),
-            country: formData.get('country') || 'United States'
+            country: formData.get('country') || 'United States',
+            phoneNumber: customerInfo.phone || formData.get('phone') || '(000) 000-0000'
           };
         }
 

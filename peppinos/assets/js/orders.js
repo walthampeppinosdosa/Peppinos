@@ -1,4 +1,4 @@
-import { isUserAuthenticated } from './auth.js';
+import { isAuthenticated } from './auth.js';
 import { httpClient } from './api.js';
 
 class OrdersPage {
@@ -16,7 +16,7 @@ class OrdersPage {
   async init() {
     try {
       // Check if user is authenticated
-      if (!isUserAuthenticated()) {
+      if (!isAuthenticated()) {
         window.location.href = './login.html';
         return;
       }

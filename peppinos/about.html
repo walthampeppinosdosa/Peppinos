@@ -29,6 +29,7 @@
     - custom css link
   -->
   <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/cart.css">
 
   <!--
     - tailwind css cdn
@@ -230,10 +231,7 @@
             <span class="text text-2" aria-hidden="true">Google Reviews</span>
           </a>
 
-          <a href="contact.html#reservation" class="btn btn-secondary navbar-btn">
-            <span class="text text-1">Find A Table</span>
-            <span class="text text-2" aria-hidden="true">Find A Table</span>
-          </a>
+         
         </div>
 
       </nav>
@@ -244,10 +242,7 @@
           <span class="text text-2" aria-hidden="true">Google Reviews</span>
         </a>
 
-        <a href="contact.html#reservation" class="btn btn-secondary">
-          <span class="text text-1">Find A Table</span>
-          <span class="text text-2" aria-hidden="true">Find A Table</span>
-        </a>
+        
 
         <!-- Auth buttons will be populated by JavaScript -->
         <div id="auth-buttons"></div>
@@ -310,7 +305,7 @@
           <div class="about-video-section">
             <div class="about-video-container">
               <div class="about-video-wrapper">
-                <video class="about-video-player" poster="./assets/images/about-banner.jpg" preload="metadata" data-about-video="main">
+                <video class="about-video-player" preload="auto" data-about-video="main">
                   <source src="./assets/videos/about-video.mp4" type="video/mp4">
                   Your browser does not support the video tag.
                 </video>
@@ -677,17 +672,7 @@
   <script src="./assets/js/script.js"></script>
   <script src="./assets/js/custom.js"></script>
 
-  <!-- Cart functionality -->
-  <script type="module">
-    import { cartService } from './assets/js/services/cart-service.js';
-    import { CartUI } from './assets/js/components/cart-ui.js';
-
-    // Initialize cart when page loads
-    document.addEventListener('DOMContentLoaded', async () => {
-      await cartService.init();
-      new CartUI();
-    });
-  </script>
+  <!-- Cart functionality is now handled by navigation.js -->
 
   <!--
     - ionicon link

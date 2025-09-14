@@ -249,11 +249,15 @@ class ProfilePage {
     }
 
     try {
+      // Show loading state
+      this.showAvatarLoading(true);
+      this.showInfo('Uploading profile picture...');
+
       const formData = new FormData();
       formData.append('avatar', file);
 
       const response = await httpClient.post('/api/user/upload-avatar', formData);
-      
+
       if (response.success) {
         this.showSuccess('Profile picture updated successfully');
         document.getElementById('profileAvatar').src = response.data.profileImage;
@@ -263,6 +267,9 @@ class ProfilePage {
     } catch (error) {
       console.error('Error uploading avatar:', error);
       this.showError(error.message || 'Failed to upload profile picture');
+    } finally {
+      // Hide loading state
+      this.showAvatarLoading(false);
     }
   }
 
@@ -277,6 +284,31 @@ class ProfilePage {
     this.showSection('overview');
   }
 
+  showAvatarLoading(isLoading) {
+    const avatarContainer = document.querySelector('.avatar-upload');
+    const uploadBtn = document.querySelector('.avatar-upload-btn');
+
+    if (isLoading) {
+      // Add loading overlay
+      if (!avatarContainer.querySelector('.avatar-loading-overlay')) {
+        const overlay = document.createElement('div');
+        overlay.className = 'avatar-loading-overlay';
+        overlay.innerHTML = `
+          <div class="avatar-spinner"></div>
+        `;
+        avatarContainer.appendChild(overlay);
+      }
+      uploadBtn.style.display = 'none';
+    } else {
+      // Remove loading overlay
+      const overlay = avatarContainer.querySelector('.avatar-loading-overlay');
+      if (overlay) {
+        overlay.remove();
+      }
+      uploadBtn.style.display = 'flex';
+    }
+  }
+
   showSuccess(message) {
     // You can implement a toast notification system here
     alert(message);
@@ -285,6 +317,11 @@ class ProfilePage {
   showError(message) {
     // You can implement a toast notification system here
     alert('Error: ' + message);
+  }
+
+  showInfo(message) {
+    // Use alert for info messages to match existing style
+    alert(message);
   }
 }
 

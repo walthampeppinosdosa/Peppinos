@@ -7,7 +7,9 @@
 export const CONFIG = {
   // API Configuration
   API: {
-    BASE_URL: 'http://localhost:5000',
+    // BASE_URL: 'http://localhost:5000',
+    BASE_URL: 'https://peppinos-backend.vercel.app',
+
     ENDPOINTS: {
       // Authentication endpoints
       AUTH: {
@@ -149,8 +151,8 @@ if (typeof window !== 'undefined') {
   const hostname = window.location.hostname;
   
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    // Development environment
-    CONFIG.API.BASE_URL = 'http://localhost:5000';
+    // Development environment - COMMENTED OUT TO USE PRODUCTION API
+    // CONFIG.API.BASE_URL = 'http://localhost:5000';
     CONFIG.KINDE.REDIRECT_URI = 'http://localhost:5500/peppinos/auth-callback.html';
     CONFIG.KINDE.LOGOUT_URI = 'http://localhost:5500/peppinos';
     CONFIG.DEV.ENABLE_LOGGING = true;

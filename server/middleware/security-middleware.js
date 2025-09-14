@@ -102,8 +102,6 @@ const corsOptions = {
       'http://localhost:3001',
       'http://localhost:5173',
       'http://localhost:8081',
-      'https://peppinos-admin.vercel.app',
-      'https://peppinos-client.vercel.app',
       // Firebase hosting URLs
       'https://walthampeppinos.web.app',
       'https://peppinos-admin.web.app'

@@ -22,7 +22,7 @@ const orderItemSchema = new mongoose.Schema({
   },
   size: {
     type: String,
-    enum: ['Small', 'Medium', 'Large'],
+    enum: ['Small', 'Medium', 'Large', 'Regular'],
     default: 'Medium'
   },
   price: {

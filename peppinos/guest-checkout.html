@@ -21,6 +21,7 @@
 
   <!-- Custom CSS link -->
   <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/cart.css">
   <link rel="stylesheet" href="./assets/css/components.css">
 
   <!-- Preload images -->
@@ -67,10 +68,13 @@
     .form-group textarea {
       width: 100%;
       padding: 0.75rem;
-      border: 1px solid var(--cultured);
-      border-radius: 4px;
-      font-size: 1rem;
-      transition: border-color 0.3s ease;
+      border: 2px solid #e5e5e5;
+      border-radius: 8px;
+      font-size: 16px;
+      background-color: var(--white);
+      color: var(--eerie-black-1);
+      transition: all 0.3s ease;
+      box-sizing: border-box;
     }
 
     .form-group input:focus,
@@ -78,6 +82,13 @@
     .form-group textarea:focus {
       outline: none;
       border-color: var(--gold-crayola);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: var(--quick-silver);
+      opacity: 0.8;
     }
 
     .radio-group {
@@ -122,6 +133,30 @@
     .btn-checkout:disabled {
       background: var(--cultured);
       cursor: not-allowed;
+      position: relative;
+    }
+
+    .btn-checkout.loading {
+      color: transparent;
+    }
+
+    .btn-checkout.loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ffffff;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
 
     .error-message {
@@ -253,6 +288,16 @@
       .form-group select,
       .form-group textarea {
         font-size: 16px; /* Prevent zoom on iOS */
+        padding: 1rem;
+      }
+    }
+
+    /* Desktop form improvements */
+    @media (min-width: 769px) {
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        font-size: 16px; /* Larger font size for better readability */
         padding: 1rem;
       }
 
@@ -389,10 +434,7 @@
           <span class="text text-2" aria-hidden="true">Google Reviews</span>
         </a>
 
-        <a href="contact.html#reservation" class="btn btn-secondary">
-          <span class="text text-1">Find A Table</span>
-          <span class="text text-2" aria-hidden="true">Find A Table</span>
-        </a>
+  
 
         <!-- Auth buttons will be populated by JavaScript -->
         <div id="auth-buttons"></div>
@@ -692,9 +734,10 @@
 
   <!-- Checkout functionality -->
   <script type="module">
+    import { CONFIG } from './assets/js/config.js';
     import { cartService } from './assets/js/services/cart-service.js';
     import { cartUI } from './assets/js/components/cart-ui.js';
-    import { formatCurrency } from './assets/js/ui.js';
+    import { formatCurrency, showError, showSuccess } from './assets/js/ui.js';
     import { restaurantHours } from './assets/js/services/restaurant-hours.js';
 
     class CheckoutManager {
@@ -707,16 +750,30 @@
       }
 
       async init() {
-        await cartService.init();
+        // Wait for cart system to be ready (initialized by navigation.js) with timeout
+        let waitTime = 0;
+        const maxWaitTime = 10000; // 10 seconds max wait
+        while (!window.cartSystemInitialized && waitTime < maxWaitTime) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          waitTime += 100;
+        }
+
+        if (!window.cartSystemInitialized) {
+          console.warn('Cart system not initialized after 10 seconds, proceeding anyway');
+        }
         this.setupEventListeners();
         this.updateCartSummary();
         this.setupFormValidation();
         this.updateRestaurantStatus();
         this.setupMobileEnhancements();
 
-        // Listen for cart updates
+        // Listen for cart updates (with debouncing to prevent infinite loops)
+        let cartUpdateTimeout;
         cartService.addEventListener((cart) => {
-          this.updateCartSummary();
+          clearTimeout(cartUpdateTimeout);
+          cartUpdateTimeout = setTimeout(() => {
+            this.updateCartSummary();
+          }, 100);
         });
       }
 
@@ -900,9 +957,10 @@
 
       async handleFormSubmit(e) {
         e.preventDefault();
+        console.log('🚀 Guest form submission started');
 
         if (!cartService.cart || !cartService.cart.items || cartService.cart.items.length === 0) {
-          alert('Your cart is empty. Please add items before placing an order.');
+          showError('Your cart is empty. Please add items before placing an order.');
           return;
         }
 
@@ -914,13 +972,13 @@
           const orderType = new FormData(this.form).get('orderType');
 
           if (!scheduledDate || !scheduledTime) {
-            alert('Please select a date and time for your scheduled order.');
+            showError('Please select a date and time for your scheduled order.');
             return;
           }
 
           const selectedDate = new Date(scheduledDate + 'T00:00:00');
           if (!restaurantHours.isTimeSlotAvailable(selectedDate, scheduledTime, orderType)) {
-            alert('The selected time slot is no longer available. Please choose another time.');
+            showError('The selected time slot is no longer available. Please choose another time.');
             this.updateTimeSlots();
             return;
           }
@@ -928,13 +986,14 @@
 
         try {
           this.submitBtn.disabled = true;
+          this.submitBtn.classList.add('loading');
           this.submitBtn.textContent = 'Processing...';
 
           const formData = new FormData(this.form);
           const orderData = this.buildOrderData(formData);
 
-          // Submit order
-          const response = await fetch('/api/shop/orders', {
+          // Submit order using the guest checkout API endpoint
+          const response = await fetch(`${CONFIG.API.BASE_URL}/api/shop/guest/checkout`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -943,21 +1002,83 @@
           });
 
           if (!response.ok) {
-            throw new Error('Failed to place order');
+            throw new Error(`HTTP error! status: ${response.status}`);
           }
 
           const result = await response.json();
 
-          // Clear cart
-          await cartService.clearCart();
+          console.log('📦 Guest order creation result:', result);
+          console.log('📦 Response status:', response.status);
+          console.log('📦 Response ok:', response.ok);
 
-          // Redirect to confirmation page
-          window.location.href = `./order-confirmation.html?orderId=${result.order._id}`;
+          if (!result.success) {
+            // Show detailed error message in toast
+            let errorMessage = result.message || 'Failed to place order';
+
+            // If there's a specific validation error, show it
+            if (result.error) {
+              if (result.error.includes('duplicate key error') && result.error.includes('email')) {
+                errorMessage = 'This email is already registered. Please use a different email or sign in to your account.';
+              } else if (result.error.includes('validation failed')) {
+                // Extract validation error details
+                const validationMatch = result.error.match(/validation failed: (.+)/);
+                if (validationMatch) {
+                  errorMessage = `Validation Error: ${validationMatch[1]}`;
+                }
+              } else if (result.error.includes('Phone number is required')) {
+                errorMessage = 'Phone number is required for delivery address.';
+              }
+            }
+
+            showError(errorMessage);
+            this.submitBtn.disabled = false;
+            this.submitBtn.classList.remove('loading');
+            this.submitBtn.textContent = 'Place Order';
+            return;
+          }
+
+          console.log('📦 Guest order creation result:', result);
+          console.log('✅ Guest order created successfully, clearing cart...');
+
+          // Clear cart (don't let this fail the order)
+          try {
+            await cartService.clearCart();
+            console.log('✅ Guest cart cleared successfully');
+          } catch (cartError) {
+            console.warn('⚠️ Guest cart clearing failed, but order was successful:', cartError);
+            // Cart clearing failure shouldn't affect the successful order
+          }
+
+          // Show success message
+          console.log('🎉 Showing guest success toast...');
+          const order = result.data?.order || result.order;
+          console.log('🎉 Guest order object:', order);
+          const successMessage = `Order placed successfully! Order #${order.orderNumber}. Confirmation emails have been sent.`;
+          console.log('🎉 Guest success message:', successMessage);
+          showSuccess(successMessage);
+
+          // Redirect to confirmation page after a short delay
+          setTimeout(() => {
+            console.log('🔄 Redirecting to order confirmation page...');
+            window.location.href = `./order-confirmation.html?orderId=${order._id}`;
+          }, 2000);
 
         } catch (error) {
           console.error('Error placing order:', error);
-          alert('Failed to place order. Please try again.');
+
+          // Show user-friendly error message
+          let errorMessage = 'Failed to place order. Please try again.';
+
+          // Handle network errors
+          if (error.message.includes('fetch')) {
+            errorMessage = 'Network error. Please check your connection and try again.';
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+
+          showError(errorMessage);
           this.submitBtn.disabled = false;
+          this.submitBtn.classList.remove('loading');
           this.submitBtn.textContent = 'Place Order';
         }
       }
@@ -965,10 +1086,10 @@
       buildOrderData(formData) {
         const cart = cartService.cart;
         const orderData = {
-          // Customer information
-          customerInfo: {
+          // Customer information (guest checkout format)
+          customer: {
             name: formData.get('customerName'),
-            phone: formData.get('customerPhone'),
+            phoneNumber: formData.get('customerPhone'),
             email: formData.get('customerEmail')
           },
 
@@ -977,12 +1098,6 @@
           timing: formData.get('timing'),
           paymentMethod: formData.get('paymentMethod'),
           specialInstructions: formData.get('specialInstructions'),
-
-          // Cart items
-          items: cart.items,
-          subtotal: cart.subtotal,
-          tax: cartService.calculateTax(cart.subtotal),
-          total: cart.subtotal + cartService.calculateTax(cart.subtotal),
 
           // Session info for guest orders
           sessionId: cartService.sessionId
@@ -995,7 +1110,8 @@
             city: formData.get('city'),
             state: formData.get('state'),
             zipCode: formData.get('zipCode'),
-            country: formData.get('country') || 'United States'
+            country: formData.get('country') || 'United States',
+            phoneNumber: formData.get('customerPhone') // Required by Order model
           };
         }
 
@@ -1090,6 +1206,7 @@
   <!--
     - authentication integration
   -->
+  <script type="module" src="./assets/js/config.js"></script>
   <script type="module" src="./assets/js/navigation.js"></script>
   <script type="module" src="./assets/js/auth.js"></script>
 

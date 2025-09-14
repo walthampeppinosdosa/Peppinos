@@ -29,6 +29,7 @@
     - custom css link
   -->
   <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/cart.css">
   <link rel="stylesheet" href="./assets/css/toast.css">
   <link rel="stylesheet" href="./assets/css/cart-modal.css">
 
@@ -232,10 +233,7 @@
             <span class="text text-2" aria-hidden="true">Google Reviews</span>
           </a>
 
-          <a href="contact.html#reservation" class="btn btn-secondary navbar-btn">
-            <span class="text text-1">Find A Table</span>
-            <span class="text text-2" aria-hidden="true">Find A Table</span>
-          </a>
+ 
         </div>
 
       </nav>
@@ -246,10 +244,7 @@
           <span class="text text-2" aria-hidden="true">Google Reviews</span>
         </a>
 
-        <a href="contact.html#reservation" class="btn btn-secondary">
-          <span class="text text-1">Find A Table</span>
-          <span class="text text-2" aria-hidden="true">Find A Table</span>
-        </a>
+
 
         <!-- Auth buttons will be populated by JavaScript -->
         <div id="auth-buttons"></div>
@@ -561,15 +556,15 @@
     - cart functionality
   -->
   <script type="module">
-    import { cartService } from './assets/js/services/cart-service.js';
-    import { CartUI } from './assets/js/components/cart-ui.js';
     import { CartOptionsService } from './assets/js/services/cart-options-service.js';
     import { restaurantHours } from './assets/js/services/restaurant-hours.js';
 
-    // Initialize cart when page loads
+    // Initialize menu-specific services (cart is handled by navigation.js)
     document.addEventListener('DOMContentLoaded', async () => {
-      await cartService.init();
-      new CartUI();
+      // Wait for cart system to be ready
+      while (!window.cartSystemInitialized) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
 
       // Initialize cart options service
       window.cartOptionsService = new CartOptionsService();

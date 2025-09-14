@@ -21,6 +21,14 @@ const getOrCreateGuestUser = async (sessionId, guestInfo = {}) => {
     });
 
     if (!guestUser) {
+      // Check if email already exists for any user (guest or regular)
+      if (guestInfo.email) {
+        const existingUser = await User.findOne({ email: guestInfo.email });
+        if (existingUser) {
+          throw new Error(`Email ${guestInfo.email} is already registered. Please use a different email or sign in to your account.`);
+        }
+      }
+
       // Create new guest user
       guestUser = new User({
         name: guestInfo.name || `Guest_${Date.now()}`,
@@ -36,9 +44,21 @@ const getOrCreateGuestUser = async (sessionId, guestInfo = {}) => {
     } else if (guestInfo.name || guestInfo.email || guestInfo.phoneNumber) {
       // Update guest user info if provided
       if (guestInfo.name) guestUser.name = guestInfo.name;
-      if (guestInfo.email) guestUser.email = guestInfo.email;
+
+      // Check if email already exists before updating
+      if (guestInfo.email && guestInfo.email !== guestUser.email) {
+        const existingUser = await User.findOne({
+          email: guestInfo.email,
+          _id: { $ne: guestUser._id }
+        });
+        if (existingUser) {
+          throw new Error(`Email ${guestInfo.email} is already registered. Please use a different email or sign in to your account.`);
+        }
+        guestUser.email = guestInfo.email;
+      }
+
       if (guestInfo.phoneNumber) guestUser.phoneNumber = guestInfo.phoneNumber;
-      
+
       await guestUser.save();
     }
 

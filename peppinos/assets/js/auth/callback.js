@@ -91,9 +91,20 @@ class AuthCallbackHandler {
         throw new Error(data.message || 'Failed to sync user data');
       }
 
+      // Set flag to indicate we're in Kinde callback flow
+      window.kindeCallbackInProgress = true;
+
+      // Auto-clear flag after 10 seconds as safety measure
+      setTimeout(() => {
+        if (window.kindeCallbackInProgress) {
+          window.kindeCallbackInProgress = false;
+          console.log('🔄 Auto-cleared Kinde callback flag after timeout');
+        }
+      }, 10000);
+
       // Store authentication data
       const user = loginUser(data.data);
-      
+
       // Show success and redirect
       this.showSuccess(user);
 

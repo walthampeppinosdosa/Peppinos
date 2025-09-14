@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "walthampeppinos"
-  }
+    "default": "walthampeppinos",
+    "production": "walthampeppinos"
+  },
+  "targets": {},
+  "etags": {}
 }

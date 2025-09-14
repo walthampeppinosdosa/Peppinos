@@ -26,7 +26,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/peppinos')
+mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('MongoDB connected successfully'))
 .catch((err) => console.error('MongoDB connection error:', err));
 
@@ -38,6 +38,35 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   });
+});
+
+// Test email endpoint (for debugging)
+app.get('/test-email', async (req, res) => {
+  try {
+    const { sendEmail } = require('./helpers/send-email');
+
+    await sendEmail({
+      to: 'walthampeppinosdosa@gmail.com',
+      subject: 'Test Email - Peppinos System',
+      html: `
+        <h2>Email Test</h2>
+        <p>This is a test email to verify the email service is working.</p>
+        <p>Timestamp: ${new Date().toISOString()}</p>
+      `
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Test email sent successfully'
+    });
+  } catch (error) {
+    console.error('Test email error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send test email',
+      error: error.message
+    });
+  }
 });
 
 // Routes

@@ -3,7 +3,7 @@
  * Loads menu items organized by categories with dropdown structure
  */
 
-import { menuAPI } from './api.js';
+import { menuAPI, categoriesAPI } from './api.js';
 
 class CategoryMenuLoader {
   constructor() {
@@ -44,7 +44,7 @@ class CategoryMenuLoader {
       // Load menu items and categories (including hierarchical structure)
       const [menuResponse, categoriesResponse] = await Promise.all([
         menuAPI.getAll({ limit: 100 }),
-        fetch('http://localhost:5000/api/shop/categories?hierarchical=false').then(r => r.json())
+        categoriesAPI.getAll({ hierarchical: false })
       ]);
 
       if (!menuResponse.success || !categoriesResponse.success) {
@@ -248,10 +248,10 @@ class CategoryMenuLoader {
     let dropdownHTML = `
       <div class="category-dropdown">
         <div class="dropdown-header" data-dropdown="${dropdownId}">
-          <h3 class="category-title">${categoryName} (${vegLabel}) ▼</h3>
+          <h3 class="category-title">${categoryName} (${vegLabel}) ▲</h3>
           <span class="item-count">${items.length} items</span>
         </div>
-        <ul class="dropdown-content grid-list" id="${dropdownId}" style="display: none;">
+        <ul class="dropdown-content grid-list" id="${dropdownId}" style="display: block;">
     `;
 
     // Render items in this category
@@ -419,9 +419,10 @@ class CategoryMenuLoader {
           button.dataset.itemName = menuName;
           button.dataset.itemPrice = menuPrice;
           button.dataset.isVeg = this.menuData.find(item => item._id === menuId)?.isVegetarian || 'true';
+          button.dataset.quantity = quantity; // Pass the quantity from UI
 
           // Handle add to cart with options checking
-          await window.cartOptionsService.handleAddToCartClick(button);
+          await window.cartOptionsService.handleAddToCartClick(button, quantity);
 
           // Reset button state (success feedback is handled by cart service)
           button.disabled = false;
@@ -618,17 +619,28 @@ class CategoryMenuLoader {
   }
 }
 
-// Create and export instance
-export const categoryMenuLoader = new CategoryMenuLoader();
-
-// Make it globally accessible for button callbacks
-window.categoryMenuLoader = categoryMenuLoader;
-
-// Auto-initialize when DOM is loaded
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    categoryMenuLoader.init();
-  });
+// Create and export singleton instance with duplicate prevention
+let categoryMenuLoader;
+if (typeof window !== 'undefined' && window.categoryMenuLoader) {
+  // Use existing instance if already created
+  categoryMenuLoader = window.categoryMenuLoader;
+  console.log('🔄 Using existing menu loader instance');
 } else {
-  categoryMenuLoader.init();
+  // Create new instance
+  categoryMenuLoader = new CategoryMenuLoader();
+  if (typeof window !== 'undefined') {
+    window.categoryMenuLoader = categoryMenuLoader;
+  }
+  console.log('✅ Created new menu loader instance');
+
+  // Auto-initialize when DOM is loaded (only for new instances)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      categoryMenuLoader.init();
+    });
+  } else {
+    categoryMenuLoader.init();
+  }
 }
+
+export { categoryMenuLoader };

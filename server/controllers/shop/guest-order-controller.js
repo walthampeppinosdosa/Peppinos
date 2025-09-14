@@ -3,6 +3,7 @@ const Order = require('../../models/Order');
 const Cart = require('../../models/Cart');
 const Menu = require('../../models/Menu');
 const { getOrCreateGuestUser, getGuestUserBySession } = require('../../services/guest-service');
+const { sendEmail } = require('../../helpers/send-email');
 
 /**
  * Create guest order (checkout)
@@ -121,6 +122,16 @@ const createGuestOrder = async (req, res) => {
       { path: 'items.menu', select: 'name images category' },
       { path: 'user', select: 'name email phoneNumber role' }
     ]);
+
+    // Send confirmation emails
+    try {
+      console.log('📧 Attempting to send guest order confirmation emails for order:', guestOrder.orderNumber);
+      await sendGuestOrderConfirmationEmails(guestOrder);
+      console.log('✅ Guest order confirmation emails sent successfully');
+    } catch (emailError) {
+      console.error('❌ Failed to send guest order confirmation emails:', emailError);
+      // Don't fail the order creation if email fails
+    }
 
     res.status(201).json({
       success: true,
@@ -325,6 +336,205 @@ const trackGuestOrder = async (req, res) => {
       error: error.message
     });
   }
+};
+
+/**
+ * Send guest order confirmation emails to customer and admin
+ */
+const sendGuestOrderConfirmationEmails = async (order) => {
+  const customerEmail = order.user.email;
+  const customerName = order.user.name;
+  const adminEmail = process.env.ADMIN_EMAIL || 'walthampeppinosdosa@gmail.com';
+
+  console.log('📧 Preparing guest order confirmation emails:', {
+    customerEmail,
+    customerName,
+    adminEmail,
+    orderNumber: order.orderNumber
+  });
+
+  // Format order items for email
+  const itemsHtml = order.items.map(item => `
+    <tr style="border-bottom: 1px solid #eee;">
+      <td style="padding: 10px; text-align: left;">${item.menu.name}</td>
+      <td style="padding: 10px; text-align: center;">${item.quantity}</td>
+      <td style="padding: 10px; text-align: center;">${item.size || 'Regular'}</td>
+      <td style="padding: 10px; text-align: right;">$${item.itemTotal.toFixed(2)}</td>
+    </tr>
+  `).join('');
+
+  // Customer confirmation email
+  const customerSubject = `Order Confirmation - #${order.orderNumber}`;
+  const customerHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+      <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #d4af37; margin: 0; font-size: 28px;">Peppino's Dosa</h1>
+          <div style="width: 50px; height: 3px; background-color: #d4af37; margin: 10px auto;"></div>
+          <h2 style="color: #333; margin: 10px 0;">Order Confirmation</h2>
+        </div>
+
+        <div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+          <h3 style="color: #2e7d32; margin: 0;">Thank you for your order, ${customerName}!</h3>
+          <p style="color: #2e7d32; margin: 10px 0;">Order #${order.orderNumber}</p>
+        </div>
+
+        <div style="margin: 20px 0;">
+          <h3 style="color: #333; border-bottom: 2px solid #d4af37; padding-bottom: 10px;">Order Details</h3>
+          <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+            <thead>
+              <tr style="background-color: #f8f9fa;">
+                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6;">Item</th>
+                <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6;">Qty</th>
+                <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6;">Size</th>
+                <th style="padding: 12px; text-align: right; border-bottom: 2px solid #dee2e6;">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+        </div>
+
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+            <span><strong>Order Type:</strong></span>
+            <span style="text-transform: capitalize;">${order.orderType}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+            <span><strong>Timing:</strong></span>
+            <span style="text-transform: capitalize;">${order.timing}</span>
+          </div>
+          ${order.deliveryAddress ? `
+            <div style="margin: 15px 0;">
+              <strong>Delivery Address:</strong><br>
+              ${order.deliveryAddress.street}<br>
+              ${order.deliveryAddress.city}, ${order.deliveryAddress.state} ${order.deliveryAddress.zipCode}
+            </div>
+          ` : ''}
+          <hr style="margin: 15px 0;">
+          <div style="display: flex; justify-content: space-between; margin: 10px 0; font-size: 18px; font-weight: bold; color: #d4af37;">
+            <span>Total:</span>
+            <span>$${order.totalPrice.toFixed(2)}</span>
+          </div>
+        </div>
+
+        ${order.specialInstructions ? `
+          <div style="background-color: #e7f3ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #007bff;">
+            <strong>Special Instructions:</strong><br>
+            <em>${order.specialInstructions}</em>
+          </div>
+        ` : ''}
+
+        <div style="text-align: center; margin: 30px 0; padding: 20px; background-color: #d1ecf1; border-radius: 8px;">
+          <p style="color: #0c5460; margin: 0; font-weight: bold;">We're preparing your order with care!</p>
+          <p style="color: #0c5460; margin: 10px 0;">Estimated preparation time: 25-35 minutes</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+          <p style="color: #999; font-size: 14px;">
+            Questions about your order? Contact us at:<br>
+            <strong>Phone:</strong> (781) 547-6099<br>
+            <strong>Email:</strong> walthampeppinosdosa@gmail.com<br>
+            <strong>Address:</strong> 434 Moody St, Waltham, MA 02453
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Admin notification email
+  const adminSubject = `New Guest Order Received - #${order.orderNumber}`;
+  const adminHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+      <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #d4af37; margin: 0; font-size: 28px;">Peppino's Dosa</h1>
+          <div style="width: 50px; height: 3px; background-color: #d4af37; margin: 10px auto;"></div>
+          <h2 style="color: #333; margin: 10px 0;">New Guest Order Alert</h2>
+        </div>
+
+        <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; border-left: 4px solid #ffc107;">
+          <h3 style="color: #856404; margin: 0;">Order #${order.orderNumber}</h3>
+          <p style="color: #856404; margin: 10px 0;"><strong>Guest Customer:</strong> ${customerName}</p>
+          <p style="color: #856404; margin: 5px 0;"><strong>Email:</strong> ${customerEmail}</p>
+          <p style="color: #856404; margin: 5px 0;"><strong>Phone:</strong> ${order.user.phoneNumber || 'Not provided'}</p>
+        </div>
+
+        <div style="margin: 20px 0;">
+          <h3 style="color: #333; border-bottom: 2px solid #d4af37; padding-bottom: 10px;">Order Details</h3>
+          <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+            <thead>
+              <tr style="background-color: #f8f9fa;">
+                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6;">Item</th>
+                <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6;">Qty</th>
+                <th style="padding: 12px; text-align: center; border-bottom: 2px solid #dee2e6;">Size</th>
+                <th style="padding: 12px; text-align: right; border-bottom: 2px solid #dee2e6;">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+        </div>
+
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+            <span><strong>Order Type:</strong></span>
+            <span style="text-transform: capitalize;">${order.orderType}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+            <span><strong>Timing:</strong></span>
+            <span style="text-transform: capitalize;">${order.timing}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+            <span><strong>Payment Method:</strong></span>
+            <span style="text-transform: capitalize;">${order.paymentMethod.replace('_', ' ')}</span>
+          </div>
+          ${order.deliveryAddress ? `
+            <div style="margin: 15px 0;">
+              <strong>Delivery Address:</strong><br>
+              ${order.deliveryAddress.street}<br>
+              ${order.deliveryAddress.city}, ${order.deliveryAddress.state} ${order.deliveryAddress.zipCode}<br>
+              <strong>Phone:</strong> ${order.deliveryAddress.phoneNumber}
+            </div>
+          ` : ''}
+          <hr style="margin: 15px 0;">
+          <div style="display: flex; justify-content: space-between; margin: 10px 0; font-size: 18px; font-weight: bold; color: #d4af37;">
+            <span>Total:</span>
+            <span>$${order.totalPrice.toFixed(2)}</span>
+          </div>
+        </div>
+
+        ${order.specialInstructions ? `
+          <div style="background-color: #e7f3ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #007bff;">
+            <strong>Special Instructions:</strong><br>
+            <em>${order.specialInstructions}</em>
+          </div>
+        ` : ''}
+
+        <div style="text-align: center; margin: 30px 0; padding: 20px; background-color: #d1ecf1; border-radius: 8px;">
+          <p style="color: #0c5460; margin: 0; font-weight: bold;">Please process this guest order promptly!</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Send emails
+  const emailPromises = [
+    sendEmail({
+      to: customerEmail,
+      subject: customerSubject,
+      html: customerHtml
+    }),
+    sendEmail({
+      to: adminEmail,
+      subject: adminSubject,
+      html: adminHtml
+    })
+  ];
+
+  await Promise.all(emailPromises);
 };
 
 module.exports = {
