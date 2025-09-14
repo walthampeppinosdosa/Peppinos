@@ -106,9 +106,18 @@ const corsOptions = {
       'https://walthampeppinos.web.app',
       'https://peppinos-admin.web.app'
     ];
+
+    // Debug logging for CORS issues
+    console.log('🔍 CORS Debug:', {
+      origin,
+      allowedOrigins,
+      CLIENT_URL: process.env.CLIENT_URL,
+      ADMIN_URL: process.env.ADMIN_URL,
+      NODE_ENV: process.env.NODE_ENV
+    });
     
-    // Allow requests with no origin (like mobile apps or curl requests) in development
-    if (!origin && process.env.NODE_ENV === 'development') {
+    // Allow requests with no origin (like mobile apps, curl requests, or direct API access)
+    if (!origin) {
       return callback(null, true);
     }
     
