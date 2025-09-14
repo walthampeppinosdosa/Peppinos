@@ -1,263 +1,383 @@
-# Peppino's Restaurant Backend - Deployment Guide
+# Peppinos Restaurant System - Complete Deployment Guide
 
-## Overview
-This guide covers the deployment of Peppino's Restaurant backend to Vercel with production-ready security configurations.
+## 📋 System Overview
 
-## Prerequisites
+The Peppinos restaurant system consists of three main components:
+- **Frontend Website** (`peppinos/`) - Customer-facing website (Firebase Hosting)
+- **Admin Panel** (`admin/`) - Restaurant management dashboard (Firebase Hosting)
+- **Backend API** (`server/`) - Node.js/Express API server (Vercel)
 
-### 1. Accounts Required
-- [Vercel Account](https://vercel.com)
-- [MongoDB Atlas Account](https://www.mongodb.com/cloud/atlas)
-- [Cloudinary Account](https://cloudinary.com)
-- [Stripe Account](https://stripe.com)
-- [Kinde Account](https://kinde.com)
-- [Gmail Account](https://gmail.com) (for email services)
+## 🏗️ Architecture
 
-### 2. Development Tools
-- Node.js 18+ installed
-- Git installed
-- Vercel CLI installed (`npm i -g vercel`)
-
-## Pre-Deployment Setup
-
-### 1. Environment Variables
-Copy `.env.production` to `.env` and update all values:
-
-```bash
-cp server/.env.production server/.env
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   Admin Panel   │    │   Backend API   │
+│   (Firebase)    │◄──►│   (Firebase)    │◄──►│   (Vercel)      │
+│                 │    │                 │    │                 │
+│ walthampeppinos │    │ peppinos-admin  │    │ peppinos-backend│
+│ .web.app        │    │ .web.app        │    │ .vercel.app     │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-**Critical Variables to Update:**
-- `MONGODB_URI`: Your MongoDB Atlas connection string
-- `JWT_SECRET`: Generate a strong 32+ character secret
-- `JWT_REFRESH_SECRET`: Generate another strong secret
-- `KINDE_*`: Your Kinde OAuth credentials
-- `CLOUDINARY_*`: Your Cloudinary credentials
-- `STRIPE_*`: Your Stripe production keys
-- `EMAIL_*`: Your email service credentials
-- `CLIENT_URL`: Your frontend domain
-- `ADMIN_URL`: Your admin frontend domain
+## 🔧 Prerequisites
 
-### 2. Database Setup
-1. Create MongoDB Atlas cluster
-2. Whitelist Vercel IP ranges (0.0.0.0/0 for serverless)
-3. Create database user with read/write permissions
-4. Test connection string locally
+### Required Tools
+- Node.js (v18 or higher)
+- npm or yarn
+- Git
+- Firebase CLI: `npm install -g firebase-tools`
+- Vercel CLI: `npm install -g vercel`
 
-### 3. Third-Party Service Configuration
+### Required Accounts
+- **Firebase** account with two projects:
+  - `walthampeppinos` (for frontend website)
+  - `peppinos-admin` (for admin panel)
+- **Vercel** account (for backend API)
+- **MongoDB Atlas** account (database)
+- **Cloudinary** account (image storage)
+- **Gmail** account (SMTP email service)
 
-#### Kinde OAuth
-1. Create production application
-2. Set redirect URI: `https://your-api-domain.vercel.app/api/auth/kinde/callback`
-3. Set logout URI: `https://your-frontend-domain.vercel.app`
+## 📁 Project Structure
 
-#### Stripe
-1. Switch to live mode
-2. Configure webhooks endpoint: `https://your-api-domain.vercel.app/api/webhooks/stripe`
-3. Enable required events: `payment_intent.succeeded`, `payment_intent.payment_failed`
-
-#### Cloudinary
-1. Create production environment
-2. Configure upload presets
-3. Set folder structure for organization
-
-## Deployment Steps
-
-### 1. Prepare Repository
-```bash
-# Ensure all changes are committed
-git add .
-git commit -m "Prepare for production deployment"
-git push origin main
+```
+peppinos-admin/
+├── peppinos/                 # Frontend website
+│   ├── assets/
+│   │   ├── js/
+│   │   │   └── config.js     # API configuration
+│   │   └── css/
+│   ├── index.html
+│   └── ...
+├── admin/                    # Admin panel (React/Vite)
+│   ├── src/
+│   ├── dist/                 # Build output
+│   ├── .env                  # Environment variables
+│   ├── firebase.json         # Firebase config
+│   └── package.json
+├── server/                   # Backend API (Node.js/Express)
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   ├── middleware/
+│   ├── .env                  # Environment variables
+│   ├── vercel.json           # Vercel config
+│   └── server.js
+├── firebase.json             # Frontend Firebase config
+└── .firebaserc              # Firebase projects config
 ```
 
-### 2. Deploy to Vercel
+## 🚀 Deployment Process
 
-#### Option A: Vercel CLI
-```bash
-# Login to Vercel
-vercel login
+### 1. Backend Deployment (Vercel)
 
-# Deploy
-vercel --prod
+#### Step 1: Configure Environment Variables
+Navigate to `server/` directory and ensure `.env` file contains:
 
-# Set environment variables
-vercel env add MONGODB_URI
-vercel env add JWT_SECRET
-# ... add all other environment variables
-```
-
-#### Option B: Vercel Dashboard
-1. Connect GitHub repository
-2. Import project
-3. Configure build settings:
-   - Framework Preset: Other
-   - Build Command: `cd server && npm install`
-   - Output Directory: `server`
-   - Install Command: `npm install`
-
-### 3. Configure Environment Variables in Vercel
-Add all environment variables from `.env.production` in Vercel dashboard:
-1. Go to Project Settings
-2. Navigate to Environment Variables
-3. Add each variable for Production environment
-
-### 4. Configure Custom Domain (Optional)
-1. Add custom domain in Vercel dashboard
-2. Update DNS records as instructed
-3. Update environment variables with new domain
-
-## Post-Deployment Configuration
-
-### 1. Test API Endpoints
-```bash
-# Test health check
-curl https://your-api-domain.vercel.app/api/health
-
-# Test authentication
-curl -X POST https://your-api-domain.vercel.app/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Test","email":"test@example.com","password":"Test123"}'
-```
-
-### 2. Configure Frontend
-Update frontend environment variables:
 ```env
-NEXT_PUBLIC_API_URL=https://your-api-domain.vercel.app
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
+# Database
+MONGODB_URI=mongodb+srv://your-connection-string
+
+# JWT
+JWT_SECRET=your-jwt-secret
+JWT_EXPIRES_IN=7d
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+
+# Email Configuration
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+FROM_EMAIL=your-email@gmail.com
+ADMIN_EMAIL=admin@yourdomain.com
+
+# URLs
+CLIENT_URL=https://walthampeppinos.web.app
+ADMIN_URL=https://peppinos-admin.web.app
+
+# Server
+PORT=5000
+NODE_ENV=production
 ```
 
-### 3. Set Up Monitoring
-
-#### Error Tracking (Sentry)
+#### Step 2: Deploy to Vercel
 ```bash
-npm install @sentry/node
+cd server
+npx vercel --prod
 ```
 
-#### Performance Monitoring
-- Enable Vercel Analytics
-- Configure New Relic (optional)
-- Set up custom logging
-
-## Security Checklist
-
-### ✅ Pre-Deployment Security
-- [ ] All secrets are environment variables
-- [ ] No hardcoded credentials in code
-- [ ] Strong JWT secrets (32+ characters)
-- [ ] CORS configured for specific domains
-- [ ] Rate limiting enabled
-- [ ] Input validation implemented
-- [ ] SQL injection protection (MongoDB sanitization)
-- [ ] XSS protection enabled
-
-### ✅ Production Security
-- [ ] HTTPS enforced
-- [ ] Security headers configured
-- [ ] IP whitelisting for admin routes (optional)
-- [ ] API key authentication for sensitive endpoints
-- [ ] File upload restrictions
-- [ ] Request logging enabled
-- [ ] Error handling doesn't expose sensitive info
-
-## Monitoring and Maintenance
-
-### 1. Health Checks
-Set up monitoring for:
-- API availability
-- Database connectivity
-- Third-party service status
-- Error rates
-- Response times
-
-### 2. Backup Strategy
-- MongoDB Atlas automatic backups
-- Environment variables backup
-- Code repository backup
-
-### 3. Update Process
+#### Step 3: Verify Deployment
+Test the health endpoint:
 ```bash
-# For updates
-git pull origin main
-vercel --prod
+curl https://peppinos-backend.vercel.app/api/health
 ```
 
-## Troubleshooting
+Expected response:
+```json
+{
+  "status": "OK",
+  "message": "Peppino's Restaurant API is running",
+  "timestamp": "2025-09-14T18:57:23.409Z"
+}
+```
+
+### 2. Admin Panel Deployment (Firebase)
+
+#### Step 1: Configure Environment Variables
+Navigate to `admin/` directory and ensure `.env` file contains:
+
+```env
+# API Configuration
+VITE_API_URL=https://peppinos-backend.vercel.app
+
+# App Configuration
+VITE_APP_NAME=Peppino's Restaurant Admin
+VITE_APP_VERSION=1.0.0
+
+# Environment
+VITE_NODE_ENV=production
+```
+
+#### Step 2: Build the Application
+```bash
+cd admin
+npm install
+npm run build
+```
+
+#### Step 3: Deploy to Firebase
+```bash
+firebase deploy --only hosting
+```
+
+#### Step 4: Verify Deployment
+Visit: https://peppinos-admin.web.app
+
+### 3. Frontend Website Deployment (Firebase)
+
+#### Step 1: Configure API Endpoint
+Update `peppinos/assets/js/config.js`:
+
+```javascript
+export const CONFIG = {
+  API: {
+    BASE_URL: 'https://peppinos-backend.vercel.app',
+    // ... rest of configuration
+  }
+};
+```
+
+#### Step 2: Deploy to Firebase
+From the root directory:
+```bash
+firebase use production  # Switch to walthampeppinos project
+firebase deploy --only hosting
+```
+
+#### Step 3: Verify Deployment
+Visit: https://walthampeppinos.web.app
+
+## 🔄 Update Deployment Process
+
+### For Backend Updates:
+```bash
+cd server
+# Make your changes
+git add .
+git commit -m "Your changes"
+git push origin master
+npx vercel --prod
+```
+
+### For Admin Panel Updates:
+```bash
+cd admin
+# Make your changes
+npm run build
+firebase deploy --only hosting
+git add .
+git commit -m "Your changes"
+git push origin master
+```
+
+### For Frontend Updates:
+```bash
+# Make your changes in peppinos/
+firebase use production
+firebase deploy --only hosting
+git add .
+git commit -m "Your changes"
+git push origin master
+```
+
+## 🔍 Environment Configuration
+
+### Development vs Production
+
+| Component | Development | Production |
+|-----------|-------------|------------|
+| Backend | `http://localhost:5000` | `https://peppinos-backend.vercel.app` |
+| Frontend | `http://localhost:3000` | `https://walthampeppinos.web.app` |
+| Admin | `http://localhost:8081` | `https://peppinos-admin.web.app` |
+
+### Configuration Files to Update:
+
+1. **Backend** (`server/.env`):
+   - `NODE_ENV=production`
+   - `CLIENT_URL=https://walthampeppinos.web.app`
+   - `ADMIN_URL=https://peppinos-admin.web.app`
+
+2. **Frontend** (`peppinos/assets/js/config.js`):
+   - `BASE_URL: 'https://peppinos-backend.vercel.app'`
+
+3. **Admin** (`admin/.env`):
+   - `VITE_API_URL=https://peppinos-backend.vercel.app`
+   - `VITE_NODE_ENV=production`
+
+## 🔧 Firebase Setup
+
+### Initial Firebase Configuration
+
+1. **Install Firebase CLI:**
+```bash
+npm install -g firebase-tools
+```
+
+2. **Login to Firebase:**
+```bash
+firebase login
+```
+
+3. **Initialize Projects:**
+```bash
+# For frontend (from root directory)
+firebase init hosting
+# Select walthampeppinos project
+# Set public directory to: peppinos
+# Configure as single-page app: No
+# Set up automatic builds: No
+
+# For admin panel (from admin directory)
+cd admin
+firebase init hosting
+# Select peppinos-admin project
+# Set public directory to: dist
+# Configure as single-page app: Yes
+# Set up automatic builds: No
+```
+
+### Firebase Project Configuration
+
+The repository includes two Firebase configurations:
+
+1. **Root `firebase.json`** (for frontend):
+```json
+{
+  "hosting": {
+    "public": "peppinos",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "destination": "https://peppinos-backend.vercel.app/api/**"
+      }
+    ]
+  }
+}
+```
+
+2. **Admin `firebase.json`** (for admin panel):
+```json
+{
+  "hosting": {
+    "public": "dist",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
+```
+
+## 🛠️ Troubleshooting
 
 ### Common Issues
 
-#### 1. Function Timeout
-- Increase `maxDuration` in `vercel.json`
-- Optimize database queries
-- Implement caching
+1. **CORS Errors**
+   - Verify `CLIENT_URL` and `ADMIN_URL` in backend `.env`
+   - Check CORS configuration in `server/middleware/security-middleware.js`
 
-#### 2. Cold Start Issues
-- Implement connection pooling
-- Use Vercel Edge Functions for critical paths
-- Optimize bundle size
+2. **Build Failures**
+   - Ensure all dependencies are installed: `npm install`
+   - Check for TypeScript errors in admin panel
+   - Verify environment variables are set correctly
 
-#### 3. CORS Errors
-- Verify allowed origins in environment variables
-- Check Vercel headers configuration
-- Ensure credentials are properly configured
+3. **Deployment Failures**
+   - Check Firebase CLI is logged in: `firebase login`
+   - Verify project selection: `firebase use --add`
+   - Ensure build directory exists before deployment
 
-#### 4. Database Connection Issues
-- Verify MongoDB Atlas IP whitelist
-- Check connection string format
-- Ensure database user permissions
+4. **API Connection Issues**
+   - Verify backend is deployed and accessible
+   - Check network requests in browser developer tools
+   - Ensure API endpoints are correctly configured
 
-### Logs and Debugging
+### Useful Commands
+
 ```bash
-# View function logs
+# Check Firebase projects
+firebase projects:list
+
+# Check current Firebase project
+firebase use
+
+# Switch Firebase project
+firebase use [project-id]
+
+# View deployment history
+firebase hosting:sites:list
+
+# Check Vercel deployments
+vercel ls
+
+# View Vercel logs
 vercel logs
-
-# View real-time logs
-vercel logs --follow
 ```
 
-## Performance Optimization
+## 📊 Production URLs
 
-### 1. Database Optimization
-- Create proper indexes
-- Implement connection pooling
-- Use aggregation pipelines efficiently
+After successful deployment, your system will be available at:
 
-### 2. Caching Strategy
-- Implement Redis for session storage
-- Cache frequently accessed data
-- Use CDN for static assets
+- **Main Website**: https://walthampeppinos.web.app
+- **Admin Panel**: https://peppinos-admin.web.app
+- **Backend API**: https://peppinos-backend.vercel.app
 
-### 3. Bundle Optimization
-- Remove unused dependencies
-- Implement tree shaking
-- Optimize images and assets
+## 🔐 Security Considerations
 
-## Support and Resources
+1. **Environment Variables**: Never commit `.env` files to version control
+2. **API Keys**: Use environment-specific keys for each deployment
+3. **CORS**: Ensure only authorized domains can access your API
+4. **HTTPS**: All production URLs use HTTPS by default
+5. **Authentication**: Verify all authentication flows work in production
 
-### Documentation
-- [Vercel Documentation](https://vercel.com/docs)
-- [MongoDB Atlas Documentation](https://docs.atlas.mongodb.com)
-- [Stripe Documentation](https://stripe.com/docs)
+## 📝 Maintenance
 
-### Community
-- [Vercel Discord](https://discord.gg/vercel)
-- [MongoDB Community](https://community.mongodb.com)
+### Regular Tasks
+- Monitor application performance and errors
+- Update dependencies regularly
+- Backup database periodically
+- Review and rotate API keys/secrets
+- Monitor usage and costs
 
-## Emergency Procedures
+### Emergency Procedures
+- **Rollback**: Use Vercel dashboard or `vercel rollback` command
+- **Hotfix**: Deploy critical fixes immediately using `--prod` flag
+- **Monitoring**: Set up alerts for downtime or errors
 
-### 1. Rollback
-```bash
-# Rollback to previous deployment
-vercel rollback
-```
-
-### 2. Emergency Maintenance
-- Enable maintenance mode
-- Redirect traffic to status page
-- Communicate with users
-
-### 3. Security Incident Response
-- Rotate compromised secrets immediately
-- Review access logs
-- Update security measures
-- Notify affected users if required
+For additional support, refer to the official documentation of each platform or create an issue in the GitHub repository.
