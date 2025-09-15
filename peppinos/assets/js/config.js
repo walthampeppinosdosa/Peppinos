@@ -1,6 +1,7 @@
 /**
  * Configuration Management
  * Centralized configuration for the Peppino's Dosa frontend application
+ * Version: 1.0.1 - Cache Bust
  */
 
 // Environment Configuration
@@ -176,7 +177,25 @@ if (typeof window !== 'undefined') {
 
 // Utility functions for configuration
 export const getApiUrl = (endpoint) => {
-  return `${CONFIG.API.BASE_URL}${endpoint}`;
+  // Fallback to hardcoded URL if CONFIG is not available
+  const baseUrl = CONFIG?.API?.BASE_URL || 'https://peppinos-backend.vercel.app';
+
+  if (!baseUrl || baseUrl === 'undefined' || baseUrl === 'null') {
+    console.error('🚨 CONFIG.API.BASE_URL is not properly defined:', {
+      CONFIG_API: CONFIG?.API,
+      BASE_URL: CONFIG?.API?.BASE_URL,
+      endpoint: endpoint
+    });
+    // Use fallback URL
+    const fallbackUrl = 'https://peppinos-backend.vercel.app';
+    const fullUrl = `${fallbackUrl}${endpoint}`;
+    console.warn('🔄 Using fallback API URL:', fullUrl);
+    return fullUrl;
+  }
+
+  const fullUrl = `${baseUrl}${endpoint}`;
+  console.log('🔗 Constructing API URL:', { baseUrl, endpoint, fullUrl });
+  return fullUrl;
 };
 
 export const isFeatureEnabled = (feature) => {

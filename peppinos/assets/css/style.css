@@ -917,6 +917,32 @@ body.nav-active {
   .navbar-list {
     margin-top: 140px !important; /* Space for logo area */
     padding-top: 20px !important;
+    /* Reset desktop flex styles for mobile */
+    display: block !important;
+    flex-wrap: unset !important;
+    align-items: unset !important;
+    gap: unset !important;
+  }
+
+  /* Reset mobile navbar items to stack vertically */
+  .navbar-item {
+    flex-shrink: unset !important;
+    display: block !important;
+  }
+
+  .navbar-link {
+    white-space: unset !important;
+  }
+
+  /* Fix mobile user section positioning to prevent logo overlap */
+  .mobile-user-section {
+    margin-top: 20px !important;
+    padding-top: 20px !important;
+  }
+
+  /* Ensure proper spacing for mobile navbar actions */
+  .navbar-actions {
+    margin-top: 30px !important;
   }
 
   /* Hide hamburger menu when sidebar is open */
@@ -1220,21 +1246,23 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
   white-space: nowrap !important;
 }
 
-/* Ensure all navigation items stay on one line */
-.navbar-list {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-}
+/* Ensure all navigation items stay on one line - DESKTOP ONLY */
+@media (min-width: 1200px) {
+  .navbar-list {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+  }
 
-.navbar-item {
-  flex-shrink: 0 !important;
-}
+  .navbar-item {
+    flex-shrink: 0 !important;
+  }
 
-.navbar-link {
-  white-space: nowrap !important;
+  .navbar-link {
+    white-space: nowrap !important;
   padding: 0.5rem 1rem !important;
+  }
 }
 
 .navbar-link .span {
@@ -6406,6 +6434,12 @@ body.home-page .header.active .btn:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 4; /* Lower than navbar sidebar */
+}
+
+/* Lower cart icon z-index when navbar is open */
+.nav-open .cart-icon-btn {
+  z-index: 2 !important;
 }
 
 .cart-icon-btn:hover {
