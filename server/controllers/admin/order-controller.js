@@ -152,7 +152,7 @@ const updateOrderStatus = async (req, res) => {
     }
 
     const order = req.order; // Loaded by middleware
-    const { status, deliveryStatus, notes } = req.body;
+    const { status, deliveryStatus, paymentStatus, notes } = req.body;
 
     // Update order status
     if (status !== undefined) {
@@ -161,11 +161,15 @@ const updateOrderStatus = async (req, res) => {
     if (deliveryStatus !== undefined) {
       order.deliveryStatus = deliveryStatus;
     }
+    if (paymentStatus !== undefined) {
+      order.paymentStatus = paymentStatus;
+    }
 
     // Add status update to history
     const statusUpdate = {
       status: status || order.status,
       deliveryStatus: deliveryStatus || order.deliveryStatus,
+      paymentStatus: paymentStatus || order.paymentStatus,
       updatedBy: req.user._id,
       notes: notes || '',
       timestamp: new Date()

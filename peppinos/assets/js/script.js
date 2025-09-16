@@ -37,7 +37,23 @@ const navbar = document.querySelector("[data-navbar]");
 const navTogglers = document.querySelectorAll("[data-nav-toggler]");
 const overlay = document.querySelector("[data-overlay]");
 
-const toggleNavbar = function () {
+const toggleNavbar = function (event) {
+  // Don't toggle navbar if the click is on a cart icon or its children
+  if (event.target.closest('.cart-icon-btn, #cartIcon')) {
+    console.log('🚫 Navigation toggle blocked - cart icon clicked');
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    return false;
+  }
+
+  // Only toggle if the click is specifically on nav toggle elements
+  if (!event.target.closest('.nav-open-btn, [data-nav-toggler]')) {
+    console.log('🚫 Navigation toggle blocked - not a nav toggle element');
+    return false;
+  }
+
+  console.log('✅ Navigation toggle activated');
   navbar.classList.toggle("active");
   overlay.classList.toggle("active");
   document.body.classList.toggle("nav-active");

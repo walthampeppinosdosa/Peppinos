@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Callback URL - Peppino's Dosa</title>
+  <link rel="stylesheet" href="./peppinos/assets/css/style.css">
+  <link rel="stylesheet" href="./peppinos/assets/css/auth.css">
+</head>
+<body>
+  <main class="auth-page">
+    <div class="auth-container">
+      <div class="auth-header">
+        <h1 class="auth-title">Callback URL Test</h1>
+        <p class="auth-subtitle">Testing if callback URL is accessible</p>
+      </div>
+
+      <div class="test-section">
+        <h3>Current URL</h3>
+        <div class="status-display">
+          <p id="currentUrl">Loading...</p>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>Expected vs Actual</h3>
+        <div class="status-display">
+          <p><strong>Expected:</strong> http://localhost:5500/auth-callback.html</p>
+          <p><strong>Actual:</strong> <span id="actualUrl">Loading...</span></p>
+          <p><strong>Match:</strong> <span id="urlMatch">Checking...</span></p>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>Kinde Configuration</h3>
+        <div class="status-display">
+          <p><strong>Configured Redirect URI:</strong> <span id="configuredUri">Loading...</span></p>
+          <p><strong>Status:</strong> <span id="configStatus">Checking...</span></p>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>Test Actions</h3>
+        <div class="test-buttons">
+          <button id="testCallbackBtn" class="auth-btn">Test Callback Access</button>
+          <button id="testConfigBtn" class="auth-btn secondary">Test Configuration</button>
+          <a href="./peppinos/login.html" class="auth-btn secondary">Go to Login</a>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>Test Results</h3>
+        <div id="testResults" class="test-results">
+          <p>Click test buttons to see results...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { CONFIG } from './peppinos/assets/js/config.js';
+
+    class CallbackTester {
+      constructor() {
+        this.currentUrl = document.getElementById('currentUrl');
+        this.actualUrl = document.getElementById('actualUrl');
+        this.urlMatch = document.getElementById('urlMatch');
+        this.configuredUri = document.getElementById('configuredUri');
+        this.configStatus = document.getElementById('configStatus');
+        this.testResults = document.getElementById('testResults');
+        this.init();
+      }
+
+      init() {
+        this.checkCurrentUrl();
+        this.checkConfiguration();
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        document.getElementById('testCallbackBtn').addEventListener('click', () => this.testCallbackAccess());
+        document.getElementById('testConfigBtn').addEventListener('click', () => this.testConfiguration());
+      }
+
+      checkCurrentUrl() {
+        const currentUrl = window.location.href;
+        const expectedUrl = 'http://localhost:5500/auth-callback.html';
+        
+        this.currentUrl.textContent = currentUrl;
+        this.actualUrl.textContent = currentUrl;
+        
+        const matches = currentUrl === expectedUrl;
+        this.urlMatch.textContent = matches ? '✅ Match' : '❌ No Match';
+        this.urlMatch.style.color = matches ? '#10b981' : '#ef4444';
+      }
+
+      checkConfiguration() {
+        try {
+          const configuredUri = CONFIG.KINDE.REDIRECT_URI;
+          this.configuredUri.textContent = configuredUri;
+          
+          const currentUrl = window.location.href;
+          const matches = currentUrl === configuredUri;
+          
+          this.configStatus.textContent = matches ? '✅ Configuration matches current URL' : '❌ Configuration mismatch';
+          this.configStatus.style.color = matches ? '#10b981' : '#ef4444';
+          
+        } catch (error) {
+          this.configStatus.textContent = '❌ Error loading configuration';
+          this.configStatus.style.color = '#ef4444';
+        }
+      }
+
+      async testCallbackAccess() {
+        this.addTestResult('🔄 Testing callback URL accessibility...');
+        
+        try {
+          const response = await fetch('/auth-callback.html');
+          if (response.ok) {
+            this.addTestResult('✅ Callback URL is accessible');
+          } else {
+            this.addTestResult(`❌ Callback URL returned status: ${response.status}`);
+          }
+        } catch (error) {
+          this.addTestResult(`❌ Error accessing callback URL: ${error.message}`);
+        }
+      }
+
+      testConfiguration() {
+        this.addTestResult('🔄 Testing Kinde configuration...');
+        
+        try {
+          const config = CONFIG.KINDE;
+          
+          this.addTestResult(`📋 Configuration check:
+            - Domain: ${config.DOMAIN}
+            - Client ID: ${config.CLIENT_ID}
+            - Redirect URI: ${config.REDIRECT_URI}
+            - Auth URL: ${config.AUTH_URL}
+            - Token URL: ${config.TOKEN_URL}`);
+          
+          // Check if all required fields are present
+          const required = ['DOMAIN', 'CLIENT_ID', 'REDIRECT_URI', 'AUTH_URL', 'TOKEN_URL'];
+          const missing = required.filter(field => !config[field]);
+          
+          if (missing.length === 0) {
+            this.addTestResult('✅ All required configuration fields are present');
+          } else {
+            this.addTestResult(`❌ Missing configuration fields: ${missing.join(', ')}`);
+          }
+          
+        } catch (error) {
+          this.addTestResult(`❌ Configuration test failed: ${error.message}`);
+        }
+      }
+
+      addTestResult(result) {
+        const timestamp = new Date().toLocaleTimeString();
+        const resultElement = document.createElement('div');
+        resultElement.className = 'test-result-item';
+        resultElement.innerHTML = `<strong>[${timestamp}]</strong> ${result}`;
+        
+        this.testResults.appendChild(resultElement);
+        this.testResults.scrollTop = this.testResults.scrollHeight;
+      }
+    }
+
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      new CallbackTester();
+    });
+  </script>
+
+  <style>
+    .test-section {
+      margin: 2rem 0;
+      padding: 1.5rem;
+      background: var(--smoky-black-3);
+      border-radius: 8px;
+      border: 1px solid var(--white-alpha-10);
+    }
+
+    .test-section h3 {
+      color: var(--gold-crayola);
+      margin-bottom: 1rem;
+      font-family: var(--fontFamily-forum);
+    }
+
+    .status-display {
+      background: var(--smoky-black-2);
+      padding: 1rem;
+      border-radius: 6px;
+      border-left: 4px solid var(--gold-crayola);
+    }
+
+    .status-display p {
+      margin: 0.5rem 0;
+      color: var(--quick-silver);
+    }
+
+    .test-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .test-buttons .auth-btn {
+      flex: 1;
+      min-width: 150px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .auth-btn.secondary {
+      background: transparent;
+      border: 1px solid var(--gold-crayola);
+      color: var(--gold-crayola);
+    }
+
+    .test-results {
+      background: var(--smoky-black-2);
+      padding: 1rem;
+      border-radius: 6px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+
+    .test-result-item {
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      background: var(--smoky-black-1);
+      border-radius: 4px;
+      color: var(--white);
+      white-space: pre-wrap;
+    }
+  </style>
+</body>
+</html>

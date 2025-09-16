@@ -1,6 +1,7 @@
 const User = require('../../models/User');
 const Order = require('../../models/Order');
 const Review = require('../../models/Review');
+const Cart = require('../../models/Cart');
 const { validationResult } = require('express-validator');
 
 /**
@@ -66,15 +67,24 @@ const getAllUsers = async (req, res) => {
         const reviewCount = await Review.countDocuments({ user: user._id });
         const totalSpent = await Order.aggregate([
           { $match: { user: user._id, paymentStatus: 'paid' } },
-          { $group: { _id: null, total: { $sum: '$totalAmount' } } }
+          { $group: { _id: null, total: { $sum: '$totalPrice' } } }
         ]);
+
+        // Get cart information
+        const cart = await Cart.findOne({ user: user._id, isActive: true });
+        const currentCartValue = cart?.subtotal || 0;
+
+        // Calculate average cart value from orders
+        const avgCartValue = orderCount > 0 ? (totalSpent[0]?.total || 0) / orderCount : 0;
 
         return {
           ...user,
           stats: {
             orderCount,
             reviewCount,
-            totalSpent: totalSpent[0]?.total || 0
+            totalSpent: totalSpent[0]?.total || 0,
+            currentCartValue,
+            avgCartValue
           }
         };
       })
@@ -119,14 +129,21 @@ const getUserById = async (req, res) => {
     const reviewCount = await Review.countDocuments({ user: user._id });
     const totalSpent = await Order.aggregate([
       { $match: { user: user._id, paymentStatus: 'paid' } },
-      { $group: { _id: null, total: { $sum: '$totalAmount' } } }
+      { $group: { _id: null, total: { $sum: '$totalPrice' } } }
     ]);
+
+    // Get cart information
+    const cart = await Cart.findOne({ user: user._id, isActive: true });
+    const currentCartValue = cart?.subtotal || 0;
+
+    // Calculate average cart value from orders
+    const avgCartValue = orderCount > 0 ? (totalSpent[0]?.total || 0) / orderCount : 0;
 
     // Get recent orders
     const recentOrders = await Order.find({ user: user._id })
       .sort({ createdAt: -1 })
       .limit(5)
-      .select('orderNumber totalAmount status createdAt')
+      .select('orderNumber totalPrice status createdAt')
       .lean();
 
     // Get recent reviews
@@ -145,7 +162,9 @@ const getUserById = async (req, res) => {
           stats: {
             orderCount,
             reviewCount,
-            totalSpent: totalSpent[0]?.total || 0
+            totalSpent: totalSpent[0]?.total || 0,
+            currentCartValue,
+            avgCartValue
           },
           recentOrders,
           recentReviews
@@ -386,7 +405,7 @@ const getUserStats = async (req, res) => {
                   }
                 },
                 as: 'order',
-                in: '$$order.totalAmount'
+                in: '$$order.totalPrice'
               }
             }
           },

@@ -847,55 +847,325 @@ body.nav-active {
     pointer-events: auto;
   }
 
-  /* Mobile header redesign: user avatar left, logo center, cart+hamburger right */
+  /* Mobile header layout: logo center, right-side controls grouped */
 
-  /* User avatar on left corner */
-  .header-actions {
-    position: absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  /* Hide Google Business button on mobile - will be in navbar sidebar instead */
+  .header-actions .btn-google {
+    display: none !important;
   }
 
-  /* Hide auth buttons on mobile, show only user avatar */
-  .header-actions #auth-buttons {
-    display: none;
+  /* Mobile header container layout */
+  .header .container {
+    display: grid !important;
+    grid-template-columns: auto 1fr auto !important;
+    grid-template-areas: "left logo right" !important;
+    align-items: center !important;
+    width: 100% !important;
+    position: relative !important;
   }
 
-  /* Cart icon and hamburger on right corner */
+  /* Logo in center - ensure it stays centered */
+  .header .logo {
+    grid-area: logo !important;
+    justify-self: center !important;
+    position: relative !important;
+    z-index: 5 !important;
+    margin: 0 auto !important;
+  }
+
+  /* Left side controls */
+  .mobile-left-controls {
+    grid-area: left !important;
+    justify-self: start !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    z-index: 10 !important;
+    position: relative !important;
+  }
+
+  /* Right side controls */
   .mobile-right-controls {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    grid-area: right !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    z-index: 10 !important;
+    flex-wrap: nowrap !important;
+    position: relative !important;
+    width: 100%;
+    margin-right: -43px;
   }
 
-  /* Move cart icon to right controls on mobile */
-  .header-actions .cart-icon-btn {
-    position: static;
-    transform: none;
+  /* Hide original header-actions on mobile */
+  .header-actions {
+    display: none !important;
   }
 
-  /* Position hamburger menu on the right */
+  /* Hide original hamburger when it's moved to mobile controls */
+  .header .container > .nav-open-btn {
+    display: none !important;
+  }
+
+  /* Mobile right controls should only show for guests */
+  .mobile-right-controls:empty {
+    display: none !important;
+  }
+
+  /* Mobile left controls styling (hamburger for guests) */
+  .mobile-left-controls {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important;
+    min-width: fit-content !important;
+    max-width: none !important; /* Remove width restriction */
+    position: fixed !important; /* Fixed positioning to overlay logo */
+    left: 10px !important;
+    top: 15px !important; /* Fixed top position */
+    z-index: 100 !important; /* Lower z-index so navbar can overlay */
+    background: transparent !important; /* Remove white background */
+    border-radius: 0 !important; /* Remove border radius */
+    padding: 0 !important; /* Remove padding */
+    backdrop-filter: none !important; /* Remove blur effect */
+  }
+
+  /* Mobile right controls styling (cart for guests, user+hamburger for authenticated) */
+  .mobile-right-controls {
+    display: flex !important;
+    align-items: center !important;
+    gap: 25px !important; /* Increased gap to prevent overlap between cart and hamburger */
+    flex-wrap: nowrap !important;
+    min-width: fit-content !important;
+    max-width: none !important; /* Remove width restriction */
+    position: fixed !important; /* Fixed positioning to overlay logo */
+    right: 10px !important;
+    top: 15px !important; /* Fixed top position instead of center */
+    z-index: 100 !important; /* Lower z-index so navbar can overlay */
+    background: transparent !important; /* Remove white background */
+    border-radius: 0 !important; /* Remove border radius */
+    padding: 0 !important; /* Remove padding */
+    backdrop-filter: none !important; /* Remove blur effect */
+  }
+
+  /* Hamburger menu styling */
   .nav-open-btn {
     padding: 8px !important;
-    padding-inline-end: 0 !important;
-    position: static;
-    transform: none;
-    z-index: 10;
+    position: relative !important;
+    z-index: 10 !important; /* Lower z-index than cart icon */
+    flex-shrink: 0 !important;
+    margin-left: 5px !important; /* Add margin to create more space from cart */
+    min-width: 40px !important; /* Ensure minimum clickable area */
+    min-height: 40px !important;
   }
 
-  /* Hamburger icon color - black by default on mobile */
+  /* Cart icon styling */
+  .mobile-right-controls .cart-icon-btn,
+  .mobile-left-controls .cart-icon-btn {
+    position: relative !important;
+    z-index: 15 !important; /* Higher z-index than hamburger to ensure it's on top */
+    flex-shrink: 0 !important;
+    background: none !important; /* Remove any background conflicts */
+    display: flex !important; /* Ensure visibility */
+    visibility: visible !important;
+    opacity: 1 !important;
+    padding: 8px !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    margin-right: 5px !important; /* Add margin to create more space from hamburger */
+    min-width: 40px !important; /* Ensure minimum clickable area */
+    min-height: 40px !important;
+    padding-top: 22px !important;
+  }
+
+  /* Ensure cart icon content is visible */
+  .mobile-right-controls .cart-icon-btn ion-icon,
+  .mobile-left-controls .cart-icon-btn ion-icon {
+    font-size: 24px !important;
+    color: var(--gold-crayola) !important;
+    display: block !important;
+    visibility: visible !important;
+  }
+
+  /* Cart count badge */
+  .mobile-right-controls .cart-count,
+  .mobile-left-controls .cart-count {
+    position: absolute !important;
+    top: -2px !important;
+    right: -2px !important;
+    background: var(--gold-crayola) !important;
+    color: var(--eerie-black-1) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    min-width: 18px !important;
+    height: 18px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    margin-top: 5px !important;
+  }
+
+  /* User avatar styling in left controls */
+  .mobile-left-controls .user-menu {
+    flex-shrink: 0 !important;
+  }
+
+  /* User avatar styling in right controls (for authenticated users) */
+  .mobile-right-controls .user-menu {
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    padding-top: 22px !important;
+    position: relative !important;
+    z-index: 60 !important; /* Lower z-index so sidebar can overlay it */
+  }
+
+  /* User menu toggle button - ensure it captures clicks properly */
+  .mobile-right-controls .user-menu .user-menu-toggle {
+    position: relative !important;
+    z-index: 61 !important; /* Slightly higher for click capture but still lower than sidebar */
+    pointer-events: auto !important; /* Ensure it can receive clicks */
+  }
+
+  /* Hamburger in right controls (for authenticated users) */
+  .mobile-right-controls .nav-open-btn {
+    flex-shrink: 0 !important;
+    margin-top: 60px !important; /* Add top margin for positioning */
+    margin-left: 30px !important;
+    position: relative !important;
+    z-index: 59 !important; /* Lower z-index than user avatar but still functional */
+    pointer-events: auto !important; /* Ensure it can receive clicks */
+  }
+
+  /* Extra small screens adjustments */
+  @media (max-width: 400px) {
+    .mobile-left-controls,
+    .mobile-right-controls {
+      gap: 12px !important; /* Maintain good spacing on small screens */
+    }
+
+    .mobile-right-controls {
+      right: 5px !important;
+    }
+
+    .mobile-left-controls {
+      left: 5px !important;
+    }
+
+    /* Reduce hamburger margin on very small screens */
+    .mobile-right-controls .nav-open-btn {
+      margin-left: 10px !important;
+    }
+  }
+
+  /* Hamburger icon color based on header state */
   .nav-open-btn .line {
     background-color: var(--eerie-black-1) !important;
+  }
+
+  /* Gold hamburger on transparent header (home page) */
+  body.home-page .header:not(.active) .nav-open-btn .line {
+    background-color: var(--gold-crayola) !important;
+  }
+
+  /* Black hamburger on sticky header or other pages */
+  body.home-page .header.active .nav-open-btn .line,
+  body:not(.home-page) .nav-open-btn .line {
+    background-color: var(--eerie-black-1) !important;
+  }
+
+  /* Ensure proper spacing and alignment */
+  .mobile-right-controls > * {
+    flex-shrink: 0;
+  }
+
+  /* Mobile header responsive adjustments */
+  .header .container {
+    min-height: 80px !important;
+  }
+
+  /* Ensure logo stays centered and visible */
+  .header .logo {
+    max-width: none !important;
+  }
+
+  /* Adjust grid gaps for better spacing */
+  .header .container {
+    column-gap: 10px !important;
+  }
+
+  /* Ensure proper grid sizing */
+  .header .container {
+    grid-template-columns: minmax(60px, auto) 1fr minmax(60px, auto) !important;
+  }
+
+  /* Ensure mobile layout doesn't break on very small screens */
+  @media (max-width: 480px) {
+    .header .container {
+      grid-template-columns: minmax(50px, auto) 1fr minmax(50px, auto) !important;
+      padding-inline: 8px !important;
+    }
+
+    .mobile-left-controls,
+    .mobile-right-controls {
+      gap: 6px !important;
+      max-width: 100px !important;
+    }
+
+    .logo-container {
+      transform: scale(0.7) !important;
+    }
+
+    /* Smaller user avatar on very small screens */
+    .mobile-left-controls .user-avatar {
+      width: 32px !important;
+      height: 32px !important;
+      font-size: 0.8rem !important;
+    }
+  }
+
+  /* Ensure elements don't overlap */
+  .header-actions,
+  .mobile-right-controls {
+    min-width: fit-content;
+  }
+
+  /* Hide any remaining desktop-only elements on mobile */
+  .header .btn:not(.cart-icon-btn):not(.nav-open-btn) {
+    display: none !important;
+  }
+
+  /* Guest users: hamburger on left, cart on right */
+  .mobile-left-controls:not(:empty) {
+    /* Authenticated user: ensure left controls are visible */
+    display: flex !important;
+  }
+
+  /* Ensure proper alignment for different user states */
+  .mobile-left-controls:not(:empty) {
+    /* Authenticated user: avatar + hamburger on left */
+    min-width: auto;
+  }
+
+  .mobile-left-controls:empty {
+    /* Guest user: only hamburger, positioned on left */
+    min-width: auto;
+  }
+
+  /* Force no wrapping and proper sizing */
+  .mobile-left-controls,
+  .mobile-right-controls {
+    white-space: nowrap;
+    overflow: visible;
+  }
+
+  .mobile-left-controls > *,
+  .mobile-right-controls > * {
+    flex-shrink: 0;
+    flex-grow: 0;
   }
 
   /* Index.html specific - white hamburger initially */
@@ -1092,7 +1362,7 @@ body.nav-active {
   line-height: 1;
 }
 
-/* Google Reviews Button - Exact same behavior as Find a Table */
+/* Google Business Button - Exact same behavior as Find a Table */
 .btn-google {
   background-color: var(--eerie-black-1) !important;
   color: var(--white) !important;
@@ -1446,7 +1716,7 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
   padding-block-end: 50px;
   overflow-y: auto;
   visibility: hidden;
-  z-index: 2;
+  z-index: 1000; /* High z-index to overlay everything including mobile controls */
   transition: var(--transition-2);
 }
 
@@ -1462,6 +1732,9 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
   border-radius: var(--radius-circle);
   margin-inline-start: auto;
   margin-block: 30px 20px;
+  position: relative;
+  z-index: 1001; /* Higher than navbar to ensure clicks work */
+  pointer-events: auto; /* Ensure it can receive clicks */
 }
 
 .navbar .close-btn ion-icon {
@@ -1751,6 +2024,7 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
 
 .service .section-text {
   margin-block-end: 40px;
+  color: var(--eerie-black-2);
 }
 
 .service-card {
@@ -1885,6 +2159,7 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
 
 .special-dish .section-text {
   margin-block: 16px 40px;
+  color: var(--eerie-black-2);
 }
 
 .special-dish-content .wrapper {
@@ -3574,6 +3849,7 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
     font-size: var(--fontSize-body-3);
     padding: 0 10px;
     text-align: center;
+    color: var(--eerie-black-2);
   }
 
   .navbar-text {
@@ -5590,6 +5866,87 @@ body.home-page main {
   }
 }
 
+/* --- Blog/Event section mobile responsiveness --- */
+@media (max-width: 767px) {
+  .event .grid-list {
+    grid-template-columns: 1fr !important;
+    gap: 30px !important;
+  }
+
+  .event .grid-list li:last-child {
+    grid-column: auto !important;
+    width: 100% !important;
+    margin-inline: 0 !important;
+  }
+
+  .event .event-card {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .event .card-banner {
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  /* Cart sidebar mobile responsiveness */
+  .cart-sidebar {
+    width: 100% !important;
+    max-width: 400px;
+  }
+
+  .cart-close-btn {
+    padding: 12px !important;
+    font-size: 20px !important;
+    touch-action: manipulation;
+    min-width: 48px !important;
+    min-height: 48px !important;
+  }
+
+  .cart-overlay {
+    z-index: 99999 !important;
+  }
+
+  /* Ensure cart overlay is above mobile navigation */
+  body.cart-open .cart-overlay {
+    z-index: 999999 !important; /* Much higher z-index for mobile */
+  }
+
+  body.cart-open .navbar {
+    z-index: 9998 !important;
+  }
+
+  /* Cart empty state mobile */
+  .cart-empty {
+    padding: 30px 15px !important;
+    min-height: 250px !important;
+  }
+
+  .cart-empty-content {
+    max-width: 280px !important;
+  }
+
+  .cart-empty-icon {
+    font-size: 48px !important;
+    margin-bottom: 15px !important;
+  }
+
+  .cart-empty h4 {
+    font-size: 18px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .cart-empty p {
+    font-size: 14px !important;
+    margin-bottom: 20px !important;
+  }
+
+  .cart-empty .btn {
+    padding: 12px 24px !important;
+    font-size: 14px !important;
+  }
+}
+
 /* --- Service section (from custom.css) --- */
 .service {
   background-color: var(--white) !important;
@@ -6251,12 +6608,10 @@ body.home-page .header.active .btn:hover {
   .bg-black-10 .headline,
   .hero .headline,
   .section[style*="background: black"] .headline,
-  .section[style*="background-color: black"] .headline,
-  .section[style*="background: dark"] .headline {
-    color: var(--white) !important;
+  .section[style*="background-color: black"] .headline {
+    color: var(--eerie-black-2) !important;
   }
 }
-
 @media (min-width: 769px) and (max-width: 1024px) {
   .container {
     max-width: 900px !important;
@@ -6446,7 +6801,7 @@ body.home-page .header.active .btn:hover {
   background-color: var(--white-alpha-10);
 }
 
-/* Cart icon hover effects following Google Reviews button pattern */
+/* Cart icon hover effects following Google Business button pattern */
 body.home-page .header:not(.active) .cart-icon-btn:hover ion-icon {
   color: var(--white) !important;
 }
@@ -6472,7 +6827,7 @@ body:not(.home-page) .cart-icon-btn:hover .cart-icon {
   transition: var(--transition-1);
 }
 
-/* Cart icon color for transparent header (home page) - GOLD OUTLINED */
+/* Cart icon color for transparent header (home page) - GOLD */
 body.home-page .header:not(.active) .cart-icon-btn ion-icon {
   color: var(--gold-crayola) !important;
 }
@@ -6481,6 +6836,38 @@ body.home-page .header:not(.active) .cart-icon-btn ion-icon {
 .header.active .cart-icon-btn ion-icon,
 body:not(.home-page) .cart-icon-btn ion-icon {
   color: var(--eerie-black-1) !important;
+}
+
+/* Desktop-specific cart icon color rules for better specificity */
+@media (min-width: 769px) {
+  /* Gold color when header is transparent on home page (desktop) */
+  body.home-page .header:not(.active) .cart-icon-btn ion-icon,
+  body.home-page .header:not(.active) #cartIcon ion-icon {
+    color: var(--gold-crayola) !important;
+  }
+
+  /* Black color when header is sticky on home page (desktop) */
+  body.home-page .header.active .cart-icon-btn ion-icon,
+  body.home-page .header.active #cartIcon ion-icon {
+    color: var(--eerie-black-1) !important;
+  }
+
+  /* Black color on non-home pages (desktop) */
+  body:not(.home-page) .cart-icon-btn ion-icon,
+  body:not(.home-page) #cartIcon ion-icon {
+    color: var(--eerie-black-1) !important;
+  }
+
+  /* Additional specificity for cart icon button itself */
+  body.home-page .header:not(.active) .header-actions .cart-icon-btn ion-icon,
+  body.home-page .header:not(.active) .header-actions #cartIcon ion-icon {
+    color: var(--gold-crayola) !important;
+  }
+
+  body.home-page .header.active .header-actions .cart-icon-btn ion-icon,
+  body.home-page .header.active .header-actions #cartIcon ion-icon {
+    color: var(--eerie-black-1) !important;
+  }
 }
 
 /* Legacy support for .cart-icon class */
@@ -6497,6 +6884,40 @@ body.home-page .header:not(.active) .cart-icon {
 .header.active .cart-icon,
 body:not(.home-page) .cart-icon {
   color: var(--eerie-black-1) !important;
+}
+
+/* Desktop-specific legacy cart icon color rules */
+@media (min-width: 769px) {
+  /* Gold color when header is transparent on home page (desktop) */
+  body.home-page .header:not(.active) .cart-icon,
+  body.home-page .header:not(.active) .header-actions .cart-icon {
+    color: var(--gold-crayola) !important;
+  }
+
+  /* Black color when header is sticky on home page (desktop) */
+  body.home-page .header.active .cart-icon,
+  body.home-page .header.active .header-actions .cart-icon {
+    color: var(--eerie-black-1) !important;
+  }
+
+  /* Black color on non-home pages (desktop) */
+  body:not(.home-page) .cart-icon,
+  body:not(.home-page) .header-actions .cart-icon {
+    color: var(--eerie-black-1) !important;
+  }
+
+  /* Comprehensive cart icon color rules for all possible selectors */
+  body.home-page .header:not(.active) [id*="cart"] ion-icon,
+  body.home-page .header:not(.active) [class*="cart"] ion-icon {
+    color: var(--gold-crayola) !important;
+  }
+
+  body.home-page .header.active [id*="cart"] ion-icon,
+  body.home-page .header.active [class*="cart"] ion-icon,
+  body:not(.home-page) [id*="cart"] ion-icon,
+  body:not(.home-page) [class*="cart"] ion-icon {
+    color: var(--eerie-black-1) !important;
+  }
 }
 
 .cart-count {
@@ -6583,10 +7004,18 @@ body:not(.home-page) .cart-icon {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .cart-close-btn:hover {
   background: var(--white-alpha-10);
+}
+
+.cart-close-btn:active {
+  transform: scale(0.95);
 }
 
 /* Cart Content */
@@ -6794,17 +7223,25 @@ body:not(.home-page) .cart-icon {
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
+  min-height: 300px;
 }
 
 .cart-empty-content {
   text-align: center;
   max-width: 300px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .cart-empty-icon {
   font-size: 64px;
   color: var(--quick-silver);
   margin-bottom: 20px;
+  display: block;
+  width: 100%;
 }
 
 .cart-empty h4 {
@@ -6812,12 +7249,24 @@ body:not(.home-page) .cart-icon {
   font-size: var(--fontSize-4);
   color: var(--eerie-black-1);
   margin-bottom: 10px;
+  margin-top: 0;
+  text-align: center;
+  width: 100%;
 }
 
 .cart-empty p {
   color: var(--quick-silver);
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   line-height: 1.5;
+  text-align: center;
+  width: 100%;
+}
+
+.cart-empty .btn {
+  margin: 0 auto;
+  display: block;
+  width: auto;
+  min-width: 150px;
 }
 
 /* Body class when cart is open */

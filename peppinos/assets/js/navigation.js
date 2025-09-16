@@ -32,11 +32,13 @@ class NavigationManager {
     // Update navigation immediately
     this.updateNavigation();
 
-    // Setup mobile header layout
-    this.setupMobileHeaderLayout();
-
     // Initialize cart system (centralized initialization)
     await this.initializeCartSystem();
+
+    // Setup mobile header layout after everything is ready
+    setTimeout(() => {
+      this.setupMobileHeaderLayout();
+    }, 200);
   }
 
   async waitForElements() {
@@ -65,6 +67,13 @@ class NavigationManager {
     } else {
       this.showGuestNav();
     }
+
+    // Re-setup mobile layout after navigation update
+    if (window.innerWidth <= 768) {
+      setTimeout(() => {
+        this.setupMobileHeaderLayout();
+      }, 100);
+    }
   }
 
   showGuestNav() {
@@ -82,8 +91,8 @@ class NavigationManager {
     if (this.navbarActions) {
       this.navbarActions.innerHTML = `
         <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google navbar-btn" rel="noopener">
-          <span class="text text-1">Google Reviews</span>
-          <span class="text text-2" aria-hidden="true">Google Reviews</span>
+          <span class="text text-1">Google Business</span>
+          <span class="text text-2" aria-hidden="true">Google Business</span>
         </a>
 
         <a href="./login.html" class="btn btn-secondary navbar-btn">
@@ -148,6 +157,11 @@ class NavigationManager {
     // Update navbar actions for authenticated users (mobile)
     if (this.navbarActions) {
       this.navbarActions.innerHTML = `
+        <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google navbar-btn" rel="noopener">
+          <span class="text text-1">Google Business</span>
+          <span class="text text-2" aria-hidden="true">Google Business</span>
+        </a>
+
         <div class="mobile-user-section">
           <div class="mobile-user-info">
             <div class="user-avatar-mobile">
@@ -197,7 +211,9 @@ class NavigationManager {
     if (userMenuToggle && userDropdown) {
       // Toggle dropdown
       userMenuToggle.addEventListener('click', (e) => {
+        e.preventDefault();
         e.stopPropagation();
+        e.stopImmediatePropagation(); // Prevent any other click handlers
         const isVisible = userDropdown.style.display === 'block';
         userDropdown.style.display = isVisible ? 'none' : 'block';
       });
@@ -208,6 +224,15 @@ class NavigationManager {
           userDropdown.style.display = 'none';
         }
       });
+
+      // Prevent nav toggle from interfering with user menu
+      const userMenuContainer = userMenuToggle.closest('.user-menu');
+      if (userMenuContainer) {
+        userMenuContainer.addEventListener('click', (e) => {
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+        });
+      }
 
       // Add hover effects to dropdown items
       const dropdownItems = userDropdown.querySelectorAll('.dropdown-item');
@@ -345,11 +370,14 @@ class NavigationManager {
   }
 
   /**
-   * Setup mobile header layout: user avatar left, logo center, cart+hamburger right
+   * Setup mobile header layout: logo left, controls right (avatar+hamburger for authenticated, cart+hamburger for guest)
    */
   setupMobileHeaderLayout() {
     // Only apply on mobile devices
-    if (window.innerWidth > 768) return;
+    if (window.innerWidth > 768) {
+      this.cleanupMobileLayout();
+      return;
+    }
 
     const header = document.querySelector('.header');
     if (!header) return;
@@ -357,45 +385,198 @@ class NavigationManager {
     const container = header.querySelector('.container');
     if (!container) return;
 
-    // Create mobile right controls container if it doesn't exist
-    let mobileRightControls = container.querySelector('.mobile-right-controls');
-    if (!mobileRightControls) {
-      mobileRightControls = document.createElement('div');
-      mobileRightControls.className = 'mobile-right-controls';
-      container.appendChild(mobileRightControls);
-    }
+    // Clean up any existing mobile controls first
+    this.cleanupMobileLayout();
 
-    // Move cart icon to right controls
+    // Create mobile right controls container
+    const mobileRightControls = document.createElement('div');
+    mobileRightControls.className = 'mobile-right-controls';
+
+    // Get elements
     const cartIcon = container.querySelector('.cart-icon-btn');
     const hamburger = container.querySelector('.nav-open-btn');
+    const headerActions = container.querySelector('.header-actions');
+    const isAuthenticated = headerActions && headerActions.querySelector('.user-menu');
 
-    if (cartIcon && !mobileRightControls.contains(cartIcon)) {
-      mobileRightControls.appendChild(cartIcon);
+    if (isAuthenticated) {
+      // For authenticated users: user avatar + hamburger together on RIGHT
+      const userMenu = headerActions.querySelector('.user-menu');
+      if (userMenu) {
+        // Move the original user menu to right controls
+        mobileRightControls.appendChild(userMenu);
+      }
+
+      // Add hamburger next to user avatar on right
+      if (hamburger) {
+        mobileRightControls.appendChild(hamburger);
+      }
+
+      // Hide cart icon for authenticated users on mobile
+      if (cartIcon) {
+        cartIcon.style.display = 'none';
+      }
+    } else {
+      // For guest users: cart + hamburger together on RIGHT (same layout as authenticated)
+      if (cartIcon) {
+        console.log('📱 Setting up cart icon for guest mobile layout');
+        cartIcon.style.display = 'flex';
+        cartIcon.style.visibility = 'visible';
+        cartIcon.style.opacity = '1';
+        mobileRightControls.appendChild(cartIcon);
+
+        // Ensure cart icon click works properly in mobile layout
+        this.ensureCartIconFunctionality(cartIcon);
+
+        console.log('📱 Cart icon added to mobile controls:', cartIcon);
+      } else {
+        console.warn('📱 Cart icon not found for guest mobile layout');
+      }
+
+      // Add hamburger next to cart on right
+      if (hamburger) {
+        mobileRightControls.appendChild(hamburger);
+      }
     }
 
-    if (hamburger && !mobileRightControls.contains(hamburger)) {
-      mobileRightControls.appendChild(hamburger);
-    }
+    // Add right controls to container
+    container.appendChild(mobileRightControls);
 
     // Handle window resize
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 768) {
-        // Desktop: move elements back to original positions
-        const headerActions = container.querySelector('.header-actions');
-        if (cartIcon && headerActions && !headerActions.contains(cartIcon)) {
-          headerActions.appendChild(cartIcon);
+    if (!this._resizeHandlerAdded) {
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+          this.cleanupMobileLayout();
+        } else {
+          // Delay to ensure DOM is ready
+          setTimeout(() => this.setupMobileHeaderLayout(), 100);
         }
-      } else {
-        // Mobile: ensure elements are in mobile layout
-        if (cartIcon && !mobileRightControls.contains(cartIcon)) {
-          mobileRightControls.appendChild(cartIcon);
-        }
-        if (hamburger && !mobileRightControls.contains(hamburger)) {
-          mobileRightControls.appendChild(hamburger);
-        }
-      }
-    });
+      });
+      this._resizeHandlerAdded = true;
+    }
   }
+
+  /**
+   * Ensure cart icon functionality when moved to mobile controls
+   * Uses the same approach as user avatar fix
+   */
+  ensureCartIconFunctionality(cartIcon) {
+    // Remove any existing navigation toggle attributes that might interfere
+    cartIcon.removeAttribute('data-nav-toggler');
+
+    // Add a direct click handler for cart functionality - same pattern as user avatar
+    // Use a unique identifier to prevent duplicate listeners
+    if (!cartIcon.dataset.cartHandlerAdded) {
+      // Add multiple event listeners to ensure cart click is captured
+      // Use capture phase to handle before any other listeners
+      cartIcon.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation(); // Prevent any other click handlers - same as user avatar
+        console.log('🛒 Mobile cart icon clicked directly (capture phase)');
+
+        // Trigger cart opening directly
+        if (window.cartUIInstance) {
+          window.cartUIInstance.openCart();
+        } else {
+          console.error('Cart UI instance not found');
+        }
+      }, { capture: true }); // Capture phase - handles before bubble phase
+
+      // Also add bubble phase handler as backup
+      cartIcon.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        console.log('🛒 Mobile cart icon clicked directly (bubble phase backup)');
+
+        if (window.cartUIInstance) {
+          window.cartUIInstance.openCart();
+        }
+      }, { capture: false });
+
+      // Add mousedown event as additional protection
+      cartIcon.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        console.log('🛒 Cart icon mousedown - preventing nav toggle');
+      }, { capture: true });
+
+      // Prevent nav toggle from interfering with cart icon - same pattern as user menu container
+      const cartIconContainer = cartIcon.closest('.mobile-right-controls');
+      if (cartIconContainer) {
+        // Add container-level protection to prevent event bubbling
+        cartIconContainer.addEventListener('click', (e) => {
+          // Only stop propagation if the click is on the cart icon
+          if (e.target.closest('.cart-icon-btn, #cartIcon')) {
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            console.log('🛒 Container-level cart click protection activated');
+          }
+        }, { capture: true });
+      }
+
+      // Mark as having handler to prevent duplicates
+      cartIcon.dataset.cartHandlerAdded = 'true';
+    }
+
+    // Ensure cart icon is visible
+    cartIcon.style.display = 'flex';
+    cartIcon.style.visibility = 'visible';
+
+    return cartIcon;
+  }
+
+  /**
+   * Clean up mobile layout elements
+   */
+  cleanupMobileLayout() {
+    const container = document.querySelector('.header .container');
+    if (!container) return;
+
+    // Remove mobile control containers
+    const mobileLeftControls = container.querySelector('.mobile-left-controls');
+    const mobileRightControls = container.querySelector('.mobile-right-controls');
+
+    if (mobileLeftControls) {
+      // Move hamburger back to original position (legacy cleanup)
+      const hamburger = mobileLeftControls.querySelector('.nav-open-btn');
+      if (hamburger) {
+        container.appendChild(hamburger);
+      }
+      mobileLeftControls.remove();
+    }
+
+    if (mobileRightControls) {
+      // Move user menu back to header-actions
+      const userMenu = mobileRightControls.querySelector('.user-menu');
+      const headerActions = container.querySelector('.header-actions');
+      if (userMenu && headerActions) {
+        headerActions.appendChild(userMenu);
+      }
+
+      // Move hamburger back to original position (for both authenticated and guest users)
+      const hamburger = mobileRightControls.querySelector('.nav-open-btn');
+      if (hamburger) {
+        container.appendChild(hamburger);
+      }
+
+      // Move cart back to header-actions (for guest users)
+      const cartIcon = mobileRightControls.querySelector('.cart-icon-btn');
+      if (cartIcon && headerActions) {
+        cartIcon.style.display = 'flex';
+        headerActions.appendChild(cartIcon);
+      }
+      mobileRightControls.remove();
+    }
+
+    // Ensure cart icon is visible on desktop
+    const cartIcon = container.querySelector('.cart-icon-btn');
+    if (cartIcon) {
+      cartIcon.style.display = 'flex';
+    }
+  }
+
+
 
   /**
    * Centralized cart system initialization

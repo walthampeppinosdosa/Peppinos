@@ -8,8 +8,8 @@
 export const CONFIG = {
   // API Configuration
   API: {
-    // BASE_URL: 'http://localhost:5000',
-    BASE_URL: 'https://peppinos-backend.vercel.app',
+    BASE_URL: 'http://localhost:5000',
+    // BASE_URL: 'https://peppinos-backend.vercel.app',
 
     ENDPOINTS: {
       // Authentication endpoints

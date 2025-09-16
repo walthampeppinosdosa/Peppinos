@@ -154,28 +154,70 @@ class CartUI {
    */
   setupEventListeners() {
     // Cart icon click - use event delegation to handle dynamically moved elements
+    // Use capture phase to handle before other listeners
     document.addEventListener('click', (e) => {
       if (e.target.closest('.cart-icon-btn, #cartIcon')) {
         e.preventDefault();
         e.stopPropagation();
+        e.stopImmediatePropagation(); // Prevent other event listeners from firing
+        console.log('🛒 Cart icon clicked, opening cart...');
         this.openCart();
+      }
+    }, { capture: true });
+
+    // Use event delegation for close button since it's created dynamically
+    // Use multiple event handlers to ensure it works on mobile
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.cart-close-btn')) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        console.log('🛒 Cart close button clicked (capture phase)');
+        this.closeCart();
+      }
+    }, { capture: true }); // Capture phase for priority
+
+    // Backup bubble phase handler
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.cart-close-btn')) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        console.log('🛒 Cart close button clicked (bubble phase)');
+        this.closeCart();
+      }
+    }, { capture: false });
+
+    // Add touch events for mobile
+    document.addEventListener('touchend', (e) => {
+      if (e.target.closest('.cart-close-btn')) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        console.log('🛒 Cart close button touched');
+        this.closeCart();
+      }
+    }, { capture: true });
+
+    // Use event delegation for overlay click to close
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('cart-overlay')) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('🛒 Cart overlay clicked, closing cart');
+        this.closeCart();
       }
     });
 
-    // Close cart button
-    const closeBtn = document.querySelector('.cart-close-btn');
-    if (closeBtn) {
-      closeBtn.addEventListener('click', () => this.closeCart());
-    }
-
-    // Overlay click to close
-    if (this.cartOverlay) {
-      this.cartOverlay.addEventListener('click', (e) => {
-        if (e.target === this.cartOverlay) {
-          this.closeCart();
-        }
-      });
-    }
+    // Add touch event for overlay on mobile
+    document.addEventListener('touchend', (e) => {
+      if (e.target.classList.contains('cart-overlay')) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('🛒 Cart overlay touched, closing cart');
+        this.closeCart();
+      }
+    });
 
     // Checkout button
     const checkoutBtn = document.getElementById('checkout-btn');

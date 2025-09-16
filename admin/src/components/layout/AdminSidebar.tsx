@@ -57,7 +57,7 @@ const navItems: NavItem[] = [
     title: 'Users',
     url: '/users',
     icon: Users,
-    roles: ['veg-admin', 'non-veg-admin', 'super-admin'],
+    roles: ['super-admin'],
   },
   {
     title: 'Reports',

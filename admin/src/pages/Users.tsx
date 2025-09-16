@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,14 @@ import { ExportDropdown } from '@/components/ui/export-dropdown';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from '@/components/ui/pagination';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch, useAppSelector } from '@/store';
 import {
@@ -42,17 +50,20 @@ import {
   Leaf,
   Utensils,
   RefreshCw,
-  Trash2
+  Trash2,
+  ShoppingCart,
+  TrendingUp
 } from 'lucide-react';
 
 export const Users: React.FC = () => {
   const dispatch = useAppDispatch();
   const { showAlert } = useAlert();
   const { isSuperAdmin } = useAuth();
-  const { users, isLoading, error } = useAppSelector((state) => state.users);
+  const { users, isLoading, error, pagination } = useAppSelector((state) => state.users);
 
   // Local state
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedVerification, setSelectedVerification] = useState<string>('all');
@@ -60,6 +71,8 @@ export const Users: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Dialog states
   const [roleUpdateDialog, setRoleUpdateDialog] = useState<{
@@ -113,9 +126,21 @@ export const Users: React.FC = () => {
     isActive: true
   });
 
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1); // Reset pagination when search changes
+    }, 2000); // 3 second delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   useEffect(() => {
     dispatch(fetchUsers({
-      search: searchTerm,
+      page: currentPage,
+      limit: itemsPerPage,
+      search: debouncedSearchTerm,
       role: selectedRole !== 'all' ? selectedRole : '',
       isActive: selectedStatus !== 'all' ? selectedStatus === 'active' : undefined,
       isEmailVerified: selectedVerification !== 'all' ? selectedVerification === 'verified' : undefined,
@@ -123,7 +148,7 @@ export const Users: React.FC = () => {
       sortOrder
     }));
     dispatch(fetchUserStats({}));
-  }, [dispatch, searchTerm, selectedRole, selectedStatus, selectedVerification, sortBy, sortOrder]);
+  }, [dispatch, currentPage, itemsPerPage, debouncedSearchTerm, selectedRole, selectedStatus, selectedVerification, sortBy, sortOrder]);
 
   // Handle error display
   useEffect(() => {
@@ -135,15 +160,17 @@ export const Users: React.FC = () => {
 
   // Export configuration
   const exportColumns = [
-    { key: 'name', label: 'Name', width: 25 },
-    { key: 'email', label: 'Email', width: 30 },
-    { key: 'phoneNumber', label: 'Phone', width: 20, formatter: (value: string) => value || 'N/A' },
-    { key: 'role', label: 'Role', width: 20, formatter: (value: string) => value.replace('-', ' ').toUpperCase() },
-    { key: 'isActive', label: 'Status', width: 15, formatter: formatters.status },
-    { key: 'isEmailVerified', label: 'Email Verified', width: 15, formatter: formatters.boolean },
-    { key: 'stats.orderCount', label: 'Orders', width: 15, formatter: (_value: any, row: any) => row.stats?.orderCount || 0 },
-    { key: 'stats.totalSpent', label: 'Total Spent', width: 20, formatter: (_value: any, row: any) => formatters.currency(row.stats?.totalSpent || 0) },
-    { key: 'createdAt', label: 'Joined Date', width: 20, formatter: formatters.date }
+    { key: 'name', label: 'Name', width: 20 },
+    { key: 'email', label: 'Email', width: 25 },
+    { key: 'phoneNumber', label: 'Phone', width: 15, formatter: (value: string) => value || 'N/A' },
+    { key: 'role', label: 'Role', width: 15, formatter: (value: string) => value.replace('-', ' ').toUpperCase() },
+    { key: 'isActive', label: 'Status', width: 10, formatter: formatters.status },
+    { key: 'isEmailVerified', label: 'Email Verified', width: 10, formatter: formatters.boolean },
+    { key: 'stats.orderCount', label: 'Orders', width: 10, formatter: (_value: any, row: any) => row.stats?.orderCount || 0 },
+    { key: 'stats.totalSpent', label: 'Total Spent', width: 15, formatter: (_value: any, row: any) => formatters.currency(row.stats?.totalSpent || 0) },
+    { key: 'stats.avgCartValue', label: 'Avg Cart Value', width: 15, formatter: (_value: any, row: any) => formatters.currency(row.stats?.avgCartValue || 0) },
+    { key: 'stats.currentCartValue', label: 'Current Cart Value', width: 15, formatter: (_value: any, row: any) => formatters.currency(row.stats?.currentCartValue || 0) },
+    { key: 'createdAt', label: 'Joined Date', width: 15, formatter: formatters.date }
   ];
 
   const exportData = users.map(user => ({
@@ -292,10 +319,10 @@ export const Users: React.FC = () => {
 
       // Refresh the users list
       dispatch(fetchUsers({
-        page: 1,
-        limit: 20,
+        page: currentPage,
+        limit: itemsPerPage,
         search: searchTerm,
-        role: selectedRole !== 'all' ? selectedRole : undefined,
+        role: selectedRole !== 'all' ? selectedRole : '',
         isActive: selectedStatus !== 'all' ? selectedStatus === 'active' : undefined,
         isEmailVerified: selectedVerification !== 'all' ? selectedVerification === 'verified' : undefined,
         sortBy,
@@ -313,7 +340,18 @@ export const Users: React.FC = () => {
     setSelectedVerification('all');
     setSortBy('createdAt');
     setSortOrder('desc');
+    setCurrentPage(1);
     dispatch(resetFilters());
+  };
+
+  // Pagination handlers
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (items: number) => {
+    setItemsPerPage(items);
+    setCurrentPage(1); // Reset to first page when changing items per page
   };
 
 
@@ -366,7 +404,16 @@ export const Users: React.FC = () => {
             disabled={isLoading || users.length === 0}
           />
 
-          <Button variant="outline" onClick={() => dispatch(fetchUsers({}))}>
+          <Button variant="outline" onClick={() => dispatch(fetchUsers({
+            page: currentPage,
+            limit: itemsPerPage,
+            search: searchTerm,
+            role: selectedRole !== 'all' ? selectedRole : '',
+            isActive: selectedStatus !== 'all' ? selectedStatus === 'active' : undefined,
+            isEmailVerified: selectedVerification !== 'all' ? selectedVerification === 'verified' : undefined,
+            sortBy,
+            sortOrder
+          }))}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
@@ -384,12 +431,17 @@ export const Users: React.FC = () => {
                 <Input
                   placeholder="Search users by name, email, or phone..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                  }}
                   className="pl-10"
                 />
               </div>
 
-              <Select value={selectedRole} onValueChange={setSelectedRole}>
+              <Select value={selectedRole} onValueChange={(value) => {
+                setSelectedRole(value);
+                setCurrentPage(1);
+              }}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="All Roles" />
                 </SelectTrigger>
@@ -403,7 +455,10 @@ export const Users: React.FC = () => {
                 </SelectContent>
               </Select>
 
-              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <Select value={selectedStatus} onValueChange={(value) => {
+                setSelectedStatus(value);
+                setCurrentPage(1);
+              }}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="All Status" />
                 </SelectTrigger>
@@ -436,7 +491,10 @@ export const Users: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="text-sm font-medium mb-2 block">Sort By</label>
-                    <Select value={sortBy} onValueChange={setSortBy}>
+                    <Select value={sortBy} onValueChange={(value) => {
+                      setSortBy(value);
+                      setCurrentPage(1);
+                    }}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -450,7 +508,10 @@ export const Users: React.FC = () => {
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-2 block">Sort Order</label>
-                    <Select value={sortOrder} onValueChange={(value: 'asc' | 'desc') => setSortOrder(value)}>
+                    <Select value={sortOrder} onValueChange={(value: 'asc' | 'desc') => {
+                      setSortOrder(value);
+                      setCurrentPage(1);
+                    }}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -498,6 +559,8 @@ export const Users: React.FC = () => {
                   <TableHead>Status</TableHead>
                   <TableHead>Orders</TableHead>
                   <TableHead>Total Spent</TableHead>
+                  <TableHead>Avg Cart Value</TableHead>
+                  <TableHead>Current Cart</TableHead>
                   <TableHead>Joined</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -547,6 +610,12 @@ export const Users: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <span className="font-medium">{formatters.currency(user.stats?.totalSpent || 0)}</span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-medium text-blue-600">{formatters.currency(user.stats?.avgCartValue || 0)}</span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-medium text-green-600">{formatters.currency(user.stats?.currentCartValue || 0)}</span>
                     </TableCell>
                     <TableCell>
                       <span className="text-sm">{formatters.date(user.createdAt)}</span>
@@ -666,6 +735,25 @@ export const Users: React.FC = () => {
                 {user.isEmailVerified ? 'Email Verified' : 'Email Not Verified'}
               </div>
 
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Orders:</span>
+                  <span className="ml-1 font-medium">{user.stats?.orderCount || 0}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Total Spent:</span>
+                  <span className="ml-1 font-medium">{formatters.currency(user.stats?.totalSpent || 0)}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Avg Cart:</span>
+                  <span className="ml-1 font-medium text-blue-600">{formatters.currency(user.stats?.avgCartValue || 0)}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Current Cart:</span>
+                  <span className="ml-1 font-medium text-green-600">{formatters.currency(user.stats?.currentCartValue || 0)}</span>
+                </div>
+              </div>
+
               <div className="text-xs text-muted-foreground">
                 Joined: {formatters.date(user.createdAt)}
               </div>
@@ -729,6 +817,59 @@ export const Users: React.FC = () => {
             </CardContent>
           </Card>
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {users.length > 0 && (
+        <div className="flex items-center justify-between mt-6">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">
+              Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, pagination.totalItems)} of {pagination.totalItems} users
+            </span>
+            <Select value={itemsPerPage.toString()} onValueChange={(value) => handleItemsPerPageChange(Number(value))}>
+              <SelectTrigger className="w-20">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="5">5</SelectItem>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-muted-foreground">per page</span>
+          </div>
+
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className={currentPage <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+
+              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    onClick={() => handlePageChange(page)}
+                    isActive={currentPage === page}
+                    className="cursor-pointer"
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className={currentPage >= pagination.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       )}
 
@@ -842,6 +983,14 @@ export const Users: React.FC = () => {
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Total Spent</label>
                   <p className="text-sm">{formatters.currency(viewUserDialog.user.stats?.totalSpent || 0)}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Average Cart Value</label>
+                  <p className="text-sm text-blue-600">{formatters.currency(viewUserDialog.user.stats?.avgCartValue || 0)}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Current Cart Value</label>
+                  <p className="text-sm text-green-600">{formatters.currency(viewUserDialog.user.stats?.currentCartValue || 0)}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Joined Date</label>
