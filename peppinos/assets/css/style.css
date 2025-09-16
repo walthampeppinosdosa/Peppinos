@@ -2520,7 +2520,7 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
 .chef-description p {
   color: var(--davys-grey);
   line-height: 1.6;
-  font-size: 1rem;
+  font-size: 2rem;
 }
 
 /* Video Section */
@@ -2684,7 +2684,7 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
   }
 
   .chef-name {
-    font-size: 1.8rem;
+    font-size: 2rem;
   }
 
   .play-icon {
@@ -2715,7 +2715,7 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
   }
 
   .chef-name {
-    font-size: 1.6rem;
+    font-size: 2rem;
   }
 
   .chef-title {
