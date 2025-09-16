@@ -8,6 +8,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { ExportDropdown } from '@/components/ui/export-dropdown';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from '@/components/ui/pagination';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { fetchMenuItems, deleteMenuItem } from '@/store/slices/menuSlice';
@@ -38,9 +46,10 @@ export const Menu: React.FC = () => {
   const navigate = useNavigate();
   const { showAlert } = useAlert();
   const { user: currentUser, canManageVeg, canManageNonVeg, canManageMenuItem } = useAuth();
-  const { menuItems, isLoading, error } = useAppSelector((state) => state.menu);
+  const { menuItems, isLoading, error, pagination } = useAppSelector((state) => state.menu);
   const { categories } = useAppSelector((state) => state.categories);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -48,13 +57,40 @@ export const Menu: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>('name');
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'2' | '3' | '4'>('3');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
 
   // Delete confirmation dialog state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{ id: string; name: string } | null>(null);
 
+  // Debounce search term
   useEffect(() => {
-    dispatch(fetchMenuItems({}));
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1); // Reset pagination when search changes
+    }, 1000); // 1000ms delay to reduce API calls
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    // Only fetch if we have valid parameters
+    if (currentPage > 0 && itemsPerPage > 0) {
+      dispatch(fetchMenuItems({
+        page: currentPage,
+        limit: itemsPerPage,
+        search: debouncedSearchTerm,
+        category: selectedCategory !== 'all' ? selectedCategory : '',
+        isVegetarian: selectedType !== 'all' ? selectedType === 'veg' : '',
+        isActive: selectedStatus !== 'all' ? selectedStatus === 'active' : '',
+        sortBy: sortBy === 'name' ? 'name' : sortBy === 'price' ? 'discountedPrice' : 'createdAt',
+        sortOrder: 'desc'
+      }));
+    }
+  }, [dispatch, currentPage, itemsPerPage, debouncedSearchTerm, selectedCategory, selectedType, selectedStatus, sortBy]);
+
+  useEffect(() => {
     // Fetch only menu categories for the dropdown
     dispatch(fetchCategories({ type: 'menu' }));
   }, [dispatch]);
@@ -109,8 +145,17 @@ export const Menu: React.FC = () => {
       try {
         await dispatch(deleteMenuItem(itemToDelete.id)).unwrap();
         showAlert('Menu item deleted successfully!', 'success', 'Delete Complete');
-        // Refresh the menu items list
-        dispatch(fetchMenuItems({}));
+        // Refresh the menu items list with current pagination
+        dispatch(fetchMenuItems({
+          page: currentPage,
+          limit: itemsPerPage,
+          search: searchTerm,
+          category: selectedCategory !== 'all' ? selectedCategory : '',
+          isVegetarian: selectedType !== 'all' ? selectedType === 'veg' : '',
+          isActive: selectedStatus !== 'all' ? selectedStatus === 'active' : '',
+          sortBy: sortBy === 'name' ? 'name' : sortBy === 'price' ? 'discountedPrice' : 'createdAt',
+          sortOrder: 'desc'
+        }));
         resetDeleteState();
       } catch (error: any) {
         showAlert(error || 'Failed to delete menu item', 'error', 'Delete Failed');
@@ -124,6 +169,37 @@ export const Menu: React.FC = () => {
     setItemToDelete(null);
   };
 
+  // Pagination handlers
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (items: number) => {
+    setItemsPerPage(items);
+    setCurrentPage(1); // Reset to first page when changing items per page
+  };
+
+  // Filter change handlers that reset pagination
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+    setCurrentPage(1);
+  };
+
+  const handleTypeChange = (value: string) => {
+    setSelectedType(value);
+    setCurrentPage(1);
+  };
+
+  const handleStatusChange = (value: string) => {
+    setSelectedStatus(value);
+    setCurrentPage(1);
+  };
+
+  const handleSortChange = (value: string) => {
+    setSortBy(value);
+    setCurrentPage(1);
+  };
+
   const getGridCols = () => {
     switch (viewMode) {
       case '2': return 'grid-cols-1 md:grid-cols-2';
@@ -133,59 +209,8 @@ export const Menu: React.FC = () => {
     }
   };
 
-  const filteredMenuItems = menuItems.filter(menuItem => {
-    // Check if menuItem and required properties exist
-    if (!menuItem || !menuItem.name) {
-      return false;
-    }
-
-    const matchesSearch = menuItem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      menuItem.description?.toLowerCase().includes(searchTerm.toLowerCase());
-
-    // Role-based filtering
-    let matchesRole = true;
-    if (currentUser?.role === 'veg-admin') {
-      matchesRole = menuItem.isVegetarian === true;
-    } else if (currentUser?.role === 'non-veg-admin') {
-      matchesRole = menuItem.isVegetarian === false;
-    }
-
-    // Category filtering - check both _id and name
-    const matchesCategory = selectedCategory === 'all' ||
-      menuItem.category?._id === selectedCategory ||
-      menuItem.category?.name?.toLowerCase() === selectedCategory.toLowerCase();
-
-    const matchesType = selectedType === 'all' ||
-      (selectedType === 'veg' && menuItem.isVegetarian) ||
-      (selectedType === 'non-veg' && !menuItem.isVegetarian);
-
-    // Status filtering
-    const matchesStatus = selectedStatus === 'all' ||
-      (selectedStatus === 'active' && menuItem.isActive) ||
-      (selectedStatus === 'inactive' && !menuItem.isActive);
-
-    // Price range filtering
-    const matchesPriceRange = selectedPriceRange === 'all' ||
-      (selectedPriceRange === '0-10' && menuItem.discountedPrice <= 10) ||
-      (selectedPriceRange === '10-20' && menuItem.discountedPrice > 10 && menuItem.discountedPrice <= 20) ||
-      (selectedPriceRange === '20+' && menuItem.discountedPrice > 20);
-
-    return matchesSearch && matchesRole && matchesCategory && matchesType && matchesStatus && matchesPriceRange;
-  }).sort((a, b) => {
-    // Sorting logic
-    switch (sortBy) {
-      case 'name':
-        return a.name.localeCompare(b.name);
-      case 'price':
-        return a.discountedPrice - b.discountedPrice;
-      case 'created':
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      case 'rating':
-        return (b.averageRating || 0) - (a.averageRating || 0);
-      default:
-        return 0;
-    }
-  });
+  // Since we're now doing server-side filtering and sorting, we can use menuItems directly
+  const filteredMenuItems = menuItems;
 
   const getTypeBadgeColor = (isVegetarian: boolean) => {
     return isVegetarian
@@ -305,7 +330,7 @@ export const Menu: React.FC = () => {
                   </SelectContent>
                 </Select>
               )}
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <Select value={selectedCategory} onValueChange={handleCategoryChange}>
                 <SelectTrigger className="w-[160px]">
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
@@ -367,6 +392,7 @@ export const Menu: React.FC = () => {
                     setSelectedStatus('all');
                     setSelectedPriceRange('all');
                     setSortBy('name');
+                    setCurrentPage(1);
                   }}
                   className="h-10"
                 >
@@ -383,7 +409,7 @@ export const Menu: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Status</label>
-                  <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                  <Select value={selectedStatus} onValueChange={handleStatusChange}>
                     <SelectTrigger>
                       <SelectValue placeholder="All Status" />
                     </SelectTrigger>
@@ -410,7 +436,7 @@ export const Menu: React.FC = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-2 block">Sort By</label>
-                  <Select value={sortBy} onValueChange={setSortBy}>
+                  <Select value={sortBy} onValueChange={handleSortChange}>
                     <SelectTrigger>
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
@@ -602,6 +628,58 @@ export const Menu: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Pagination */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between mt-6">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">
+              Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, pagination.totalItems)} of {pagination.totalItems} menu items
+            </span>
+            <Select value={itemsPerPage.toString()} onValueChange={(value) => handleItemsPerPageChange(Number(value))}>
+              <SelectTrigger className="w-20">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-muted-foreground">per page</span>
+          </div>
+
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className={currentPage <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+
+              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    onClick={() => handlePageChange(page)}
+                    isActive={currentPage === page}
+                    className="cursor-pointer"
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className={currentPage >= pagination.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div>
   );
 };

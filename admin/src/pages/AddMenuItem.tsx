@@ -87,6 +87,7 @@ export const AddMenuItem: React.FC = () => {
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [imagesToDelete, setImagesToDelete] = useState<string[]>([]); // Track images to delete from Cloudinary
   const [imageMetadata, setImageMetadata] = useState<Array<{url: string, isNew: boolean, file?: File}>>([]);
+  const [isDragOver, setIsDragOver] = useState(false); // Track drag over state for file upload
 
   const {
     register,
@@ -315,10 +316,25 @@ export const AddMenuItem: React.FC = () => {
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
+    processImageFiles(files);
+  };
+
+  const processImageFiles = (files: File[]) => {
     if (files.length + selectedImages.length > 5) {
       setCustomErrors(prev => ({ ...prev, images: 'Maximum 5 images allowed' }));
       return;
     }
+
+    // Validate file types
+    const validFiles = files.filter(file => {
+      const isValidType = file.type.startsWith('image/');
+      if (!isValidType) {
+        showAlert(`File ${file.name} is not a valid image format`, 'error', 'Invalid File');
+      }
+      return isValidType;
+    });
+
+    if (validFiles.length === 0) return;
 
     // Clear image errors when valid images are selected
     setCustomErrors(prev => {
@@ -327,10 +343,10 @@ export const AddMenuItem: React.FC = () => {
       return newErrors;
     });
 
-    setSelectedImages(prev => [...prev, ...files]);
+    setSelectedImages(prev => [...prev, ...validFiles]);
 
     // Create previews and metadata
-    files.forEach(file => {
+    validFiles.forEach(file => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const url = e.target?.result as string;
@@ -344,6 +360,38 @@ export const AddMenuItem: React.FC = () => {
       };
       reader.readAsDataURL(file);
     });
+  };
+
+  // Drag and drop handlers for file upload
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only set to false if we're leaving the drop zone entirely
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setIsDragOver(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'copy';
+    setIsDragOver(true);
+  };
+
+  const handleFileDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    processImageFiles(files);
   };
 
   const removeImage = (index: number) => {
@@ -365,24 +413,24 @@ export const AddMenuItem: React.FC = () => {
     }
   };
 
-  // Drag and drop handlers
-  const handleDragStart = (e: React.DragEvent, index: number) => {
+  // Drag and drop handlers for image reordering
+  const handleImageDragStart = (e: React.DragEvent, index: number) => {
     setDraggedIndex(index);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', '');
   };
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
+  const handleImageDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     setDragOverIndex(index);
   };
 
-  const handleDragLeave = () => {
+  const handleImageDragLeave = () => {
     setDragOverIndex(null);
   };
 
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+  const handleImageDrop = (e: React.DragEvent, dropIndex: number) => {
     e.preventDefault();
 
     if (draggedIndex === null || draggedIndex === dropIndex) {
@@ -418,7 +466,7 @@ export const AddMenuItem: React.FC = () => {
     setDragOverIndex(null);
   };
 
-  const handleDragEnd = () => {
+  const handleImageDragEnd = () => {
     setDraggedIndex(null);
     setDragOverIndex(null);
   };
@@ -782,6 +830,7 @@ export const AddMenuItem: React.FC = () => {
                 <div>
                   <Label htmlFor="parentCategory">Parent Category *</Label>
                   <Select
+                    value={selectedParentCategory}
                     onValueChange={(value) => {
                       setSelectedParentCategory(value);
                       setValue('parentCategory', value);
@@ -1090,15 +1139,29 @@ export const AddMenuItem: React.FC = () => {
                     onChange={handleImageUpload}
                     className="hidden"
                   />
-                  <Button
-                    type="button"
-                    variant="outline"
+                  <div
+                    className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
+                      isDragOver
+                        ? 'border-blue-500 bg-blue-50 border-solid'
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                    onDragEnter={handleDragEnter}
+                    onDragLeave={handleDragLeave}
+                    onDragOver={handleDragOver}
+                    onDrop={handleFileDrop}
                     onClick={() => document.getElementById('images')?.click()}
-                    className="w-full"
                   >
-                    <Upload className="h-4 w-4 mr-2" />
-                    Choose Images ({selectedImages.length}/5)
-                  </Button>
+                    <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                    <p className="text-sm text-gray-600 mb-1">
+                      Click to upload or drag and drop images here
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      PNG, JPG, GIF up to 1MB each (Max 5 images)
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Currently: {selectedImages.length}/5 images selected
+                    </p>
+                  </div>
                 </div>
                 {customErrors.images && (
                   <p className="text-sm text-destructive mt-1">{customErrors.images}</p>
@@ -1120,11 +1183,11 @@ export const AddMenuItem: React.FC = () => {
                           dragOverIndex === index ? 'ring-2 ring-blue-500 ring-offset-2' : ''
                         }`}
                         draggable
-                        onDragStart={(e) => handleDragStart(e, index)}
-                        onDragOver={(e) => handleDragOver(e, index)}
-                        onDragLeave={handleDragLeave}
-                        onDrop={(e) => handleDrop(e, index)}
-                        onDragEnd={handleDragEnd}
+                        onDragStart={(e) => handleImageDragStart(e, index)}
+                        onDragOver={(e) => handleImageDragOver(e, index)}
+                        onDragLeave={handleImageDragLeave}
+                        onDrop={(e) => handleImageDrop(e, index)}
+                        onDragEnd={handleImageDragEnd}
                       >
                         {/* Drag handle */}
                         <div className="absolute top-1 left-1 z-10 bg-black/50 rounded p-1">

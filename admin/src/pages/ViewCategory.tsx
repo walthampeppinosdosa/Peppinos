@@ -235,7 +235,16 @@ export const ViewCategory: React.FC = () => {
               {currentCategory.parentCategory && (
                 <div>
                   <label className="text-xs text-muted-foreground">Parent Category</label>
-                  <p className="text-sm font-medium">{currentCategory.parentCategory.name}</p>
+                  <p className="text-sm font-medium">
+                    {typeof currentCategory.parentCategory === 'object'
+                      ? currentCategory.parentCategory.name
+                      : 'Parent category not loaded'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {typeof currentCategory.parentCategory === 'object' && currentCategory.parentCategory.isVegetarian !== undefined
+                      ? (currentCategory.parentCategory.isVegetarian ? 'Vegetarian' : 'Non-Vegetarian')
+                      : ''}
+                  </p>
                 </div>
               )}
 

@@ -58,6 +58,7 @@ export const AddCategory: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageToDelete, setImageToDelete] = useState<string | null>(null); // Track image to delete from Cloudinary
   const [hasExistingImage, setHasExistingImage] = useState(false); // Track if category has existing image
+  const [isDragOver, setIsDragOver] = useState(false); // Track drag over state for file upload
 
   const isEditMode = !!id;
 
@@ -140,12 +141,64 @@ export const AddCategory: React.FC = () => {
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+      processImageFile(file);
+    }
+  };
+
+  const processImageFile = (file: File) => {
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      showAlert(`File ${file.name} is not a valid image format`, 'error', 'Invalid File');
+      return;
+    }
+
+    // Validate file size (1MB limit)
+    const maxSize = 1 * 1024 * 1024; // 1MB in bytes
+    if (file.size > maxSize) {
+      showAlert(`File ${file.name} is too large. Maximum size is 1MB`, 'error', 'File Too Large');
+      return;
+    }
+
+    setSelectedImage(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImagePreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Drag and drop handlers for file upload
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only set to false if we're leaving the drop zone entirely
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setIsDragOver(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'copy';
+    setIsDragOver(true);
+  };
+
+  const handleFileDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      const file = files[0]; // Only take the first file for category
+      processImageFile(file);
     }
   };
 
@@ -403,11 +456,20 @@ export const AddCategory: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className={`border-2 border-dashed rounded-lg p-6 ${
-                isEditMode && !imagePreview
-                  ? 'border-destructive bg-destructive/5'
-                  : 'border-gray-300'
-              }`}>
+              <div
+                className={`border-2 border-dashed rounded-lg p-6 transition-colors cursor-pointer ${
+                  isDragOver
+                    ? 'border-blue-500 bg-blue-50 border-solid'
+                    : isEditMode && !imagePreview
+                      ? 'border-destructive bg-destructive/5 hover:border-destructive/70'
+                      : 'border-gray-300 hover:border-gray-400'
+                }`}
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={handleFileDrop}
+                onClick={() => document.getElementById('image-upload')?.click()}
+              >
                 {imagePreview ? (
                   <div className="relative">
                     <img
@@ -420,7 +482,10 @@ export const AddCategory: React.FC = () => {
                       variant="destructive"
                       size="sm"
                       className="absolute top-2 right-2"
-                      onClick={removeImage}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeImage();
+                      }}
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -430,10 +495,10 @@ export const AddCategory: React.FC = () => {
                     <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">
-                        Click to upload or drag and drop
+                        Click to upload or drag and drop an image here
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        PNG, JPG, GIF up to 10MB
+                        PNG, JPG, GIF up to 1MB
                       </p>
                       {isEditMode && (
                         <p className="text-sm text-destructive font-medium">
@@ -445,7 +510,10 @@ export const AddCategory: React.FC = () => {
                       type="button"
                       variant="outline"
                       className="mt-4"
-                      onClick={() => document.getElementById('image-upload')?.click()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        document.getElementById('image-upload')?.click();
+                      }}
                     >
                       <Upload className="h-4 w-4 mr-2" />
                       Choose Image
