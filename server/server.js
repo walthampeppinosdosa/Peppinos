@@ -25,10 +25,62 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(cookieParser());
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI)
-.then(() => console.log('MongoDB connected successfully'))
-.catch((err) => console.error('MongoDB connection error:', err));
+// Database connection with proper timeout and retry options
+const mongoOptions = {
+  serverSelectionTimeoutMS: 30000, // 30 seconds (increased from default 10s)
+  socketTimeoutMS: 45000, // 45 seconds
+  connectTimeoutMS: 30000, // 30 seconds
+  maxPoolSize: 10, // Maintain up to 10 socket connections
+  minPoolSize: 5, // Maintain a minimum of 5 socket connections
+  maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
+  retryWrites: true, // Retry writes on failure
+  retryReads: true, // Retry reads on failure
+  heartbeatFrequencyMS: 10000, // Check server status every 10 seconds
+};
+
+// Disable mongoose buffering for better error handling
+mongoose.set('bufferCommands', false);
+
+mongoose.connect(process.env.MONGODB_URI, mongoOptions)
+.then(() => {
+  console.log('✅ MongoDB connected successfully');
+  console.log('📊 Connection details:', {
+    host: mongoose.connection.host,
+    port: mongoose.connection.port,
+    name: mongoose.connection.name,
+    readyState: mongoose.connection.readyState
+  });
+})
+.catch((err) => {
+  console.error('❌ MongoDB connection error:', err);
+  console.error('🔍 Connection string (masked):', process.env.MONGODB_URI?.replace(/\/\/.*@/, '//***:***@'));
+  process.exit(1); // Exit if database connection fails
+});
+
+// Handle MongoDB connection events
+mongoose.connection.on('connected', () => {
+  console.log('🔗 Mongoose connected to MongoDB');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('❌ Mongoose connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('🔌 Mongoose disconnected from MongoDB');
+});
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  try {
+    await mongoose.connection.close();
+    console.log('🛑 MongoDB connection closed through app termination');
+    process.exit(0);
+  } catch (err) {
+    console.error('❌ Error during graceful shutdown:', err);
+    process.exit(1);
+  }
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -38,6 +90,64 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   });
+});
+
+// Database health check endpoint
+app.get('/api/health', async (req, res) => {
+  try {
+    // Check MongoDB connection
+    const dbState = mongoose.connection.readyState;
+    const dbStates = {
+      0: 'disconnected',
+      1: 'connected',
+      2: 'connecting',
+      3: 'disconnecting'
+    };
+
+    if (dbState === 1) {
+      // Test a simple database operation
+      const adminDb = mongoose.connection.db.admin();
+      const result = await adminDb.ping();
+
+      res.status(200).json({
+        status: 'OK',
+        message: "Peppino's Restaurant API is running",
+        timestamp: new Date().toISOString(),
+        database: {
+          status: 'connected',
+          state: dbStates[dbState],
+          host: mongoose.connection.host,
+          name: mongoose.connection.name,
+          ping: result
+        },
+        environment: process.env.NODE_ENV || 'development'
+      });
+    } else {
+      res.status(503).json({
+        status: 'ERROR',
+        message: 'Database connection issue',
+        timestamp: new Date().toISOString(),
+        database: {
+          status: 'disconnected',
+          state: dbStates[dbState]
+        },
+        environment: process.env.NODE_ENV || 'development'
+      });
+    }
+  } catch (error) {
+    console.error('Health check error:', error);
+    res.status(503).json({
+      status: 'ERROR',
+      message: 'Health check failed',
+      timestamp: new Date().toISOString(),
+      error: error.message,
+      database: {
+        status: 'error',
+        state: mongoose.connection.readyState
+      },
+      environment: process.env.NODE_ENV || 'development'
+    });
+  }
 });
 
 // Test email endpoint (for debugging)

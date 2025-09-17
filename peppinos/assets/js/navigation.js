@@ -95,12 +95,40 @@ class NavigationManager {
           <span class="text text-2" aria-hidden="true">Google Business</span>
         </a>
 
+        <div class="mobile-guest-section">
+          <div class="mobile-guest-info">
+            <div class="guest-welcome">
+              <h3>Welcome to Peppino's</h3>
+              <p>Sign in to access your orders and profile</p>
+            </div>
+          </div>
+
+          <div class="mobile-nav-buttons">
+            <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="mobile-nav-btn google-btn" rel="noopener">
+              <ion-icon name="location-outline" class="btn-icon"></ion-icon>
+              <span class="btn-text">Google Business</span>
+            </a>
+            <a href="./cart.html" class="mobile-nav-btn cart-btn">
+              <ion-icon name="bag-outline" class="btn-icon"></ion-icon>
+              <span class="btn-text">Cart</span>
+              <span class="mobile-cart-badge" id="mobileCartCountGuest">0</span>
+            </a>
+            <a href="./login.html" class="mobile-nav-btn signin-btn">
+              <ion-icon name="log-in-outline" class="btn-icon"></ion-icon>
+              <span class="btn-text">Sign In</span>
+            </a>
+          </div>
+        </div>
+
         <a href="./login.html" class="btn btn-secondary navbar-btn">
           <span class="text text-1">Sign In</span>
           <span class="text text-2" aria-hidden="true">Sign In</span>
         </a>
       `;
     }
+
+    // Update cart count after mobile navigation is created (debounced)
+    this.debouncedUpdateCartCount();
   }
 
   showAuthenticatedNav() {
@@ -174,6 +202,10 @@ class NavigationManager {
           </div>
 
           <div class="mobile-nav-buttons">
+            <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="mobile-nav-btn google-btn" rel="noopener">
+              <ion-icon name="location-outline" class="btn-icon"></ion-icon>
+              <span class="btn-text">Google Business</span>
+            </a>
             <a href="./profile.html" class="mobile-nav-btn profile-btn">
               <ion-icon name="person-outline" class="btn-icon"></ion-icon>
               <span class="btn-text">My Profile</span>
@@ -185,7 +217,7 @@ class NavigationManager {
             <a href="./cart.html" class="mobile-nav-btn cart-btn">
               <ion-icon name="bag-outline" class="btn-icon"></ion-icon>
               <span class="btn-text">Cart</span>
-              <span class="mobile-cart-badge" id="mobileCartCount">0</span>
+              <span class="mobile-cart-badge" id="mobileCartCountAuth">0</span>
             </a>
             <button class="mobile-nav-btn logout-btn" id="logoutBtnMobile">
               <ion-icon name="log-out-outline" class="btn-icon"></ion-icon>
@@ -353,20 +385,24 @@ class NavigationManager {
       dropdownCartCount.style.display = count > 0 ? 'flex' : 'none';
     }
 
-    // Update mobile cart count
-    const mobileCartCount = document.getElementById('mobileCartCount');
-    if (mobileCartCount) {
-      mobileCartCount.textContent = count;
-      if (count > 0) {
-        mobileCartCount.style.display = 'flex';
-        mobileCartCount.style.opacity = '1';
-        mobileCartCount.style.visibility = 'visible';
-      } else {
-        mobileCartCount.style.display = 'none';
-        mobileCartCount.style.opacity = '0';
-        mobileCartCount.style.visibility = 'hidden';
+    // Update mobile cart count (both guest and authenticated)
+    const mobileCartCountGuest = document.getElementById('mobileCartCountGuest');
+    const mobileCartCountAuth = document.getElementById('mobileCartCountAuth');
+
+    [mobileCartCountGuest, mobileCartCountAuth].forEach(element => {
+      if (element) {
+        element.textContent = count;
+        if (count > 0) {
+          element.style.display = 'flex';
+          element.style.opacity = '1';
+          element.style.visibility = 'visible';
+        } else {
+          element.style.display = 'none';
+          element.style.opacity = '0';
+          element.style.visibility = 'hidden';
+        }
       }
-    }
+    });
   }
 
   /**

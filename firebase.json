@@ -10,6 +10,10 @@
       {
         "source": "/api/**",
         "destination": "https://peppinos-backend.vercel.app/api/**"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
       }
     ],
     "headers": [

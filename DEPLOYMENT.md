@@ -19,6 +19,14 @@ The Peppinos restaurant system consists of three main components:
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
+## 🎯 Key Changes - No More Aliases!
+
+This deployment guide has been **streamlined** to remove all Firebase aliases and use direct project deployment:
+- ✅ **No aliases** - Direct project targeting
+- ✅ **Simplified commands** - Clear, straightforward deployment
+- ✅ **Clean configuration** - Minimal `.firebaserc` files
+- ✅ **Better rewrites** - Proper client-side routing support
+
 ## 🔧 Prerequisites
 
 ### Required Tools

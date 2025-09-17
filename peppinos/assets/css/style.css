@@ -6332,6 +6332,32 @@ body.home-page .header.active .btn:hover {
     border-radius: 12px 12px 0 0;
   }
 
+  /* Mobile Guest Section */
+  .mobile-guest-section {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    border-top: 1px solid var(--white-alpha-10);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border-radius: 12px 12px 0 0;
+  }
+
+  .mobile-guest-info {
+    margin-bottom: 1.5rem;
+  }
+
+  .guest-welcome h3 {
+    color: var(--white);
+    font-size: var(--fontSize-body-1);
+    font-weight: var(--weight-semiBold);
+    margin-bottom: 0.5rem;
+  }
+
+  .guest-welcome p {
+    color: var(--quick-silver);
+    font-size: var(--fontSize-body-4);
+    opacity: 0.9;
+  }
+
   .mobile-user-info {
     display: flex;
     align-items: center;
@@ -6478,6 +6504,36 @@ body.home-page .header.active .btn:hover {
 
   .mobile-nav-btn.logout-btn .btn-icon {
     color: #ff6b7a;
+  }
+
+  .mobile-nav-btn.google-btn {
+    background: rgba(66, 133, 244, 0.1);
+    border-color: rgba(66, 133, 244, 0.3);
+    color: #4285f4;
+  }
+
+  .mobile-nav-btn.google-btn:hover {
+    background: rgba(66, 133, 244, 0.2);
+    border-color: #4285f4;
+  }
+
+  .mobile-nav-btn.google-btn .btn-icon {
+    color: #4285f4;
+  }
+
+  .mobile-nav-btn.signin-btn {
+    background: rgba(212, 175, 55, 0.1);
+    border-color: rgba(212, 175, 55, 0.3);
+    color: var(--gold-crayola);
+  }
+
+  .mobile-nav-btn.signin-btn:hover {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: var(--gold-crayola);
+  }
+
+  .mobile-nav-btn.signin-btn .btn-icon {
+    color: var(--gold-crayola);
   }
 
   .navbar-btn {
