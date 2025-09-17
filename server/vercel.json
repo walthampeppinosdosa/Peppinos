@@ -4,19 +4,24 @@
     {
       "src": "server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "server.js"
+      "src": "/api/test",
+      "dest": "api/test.js"
     },
     {
-      "src": "/health",
+      "src": "/api/mongo-test",
+      "dest": "api/mongo-test.js"
+    },
+    {
+      "src": "/(.*)",
       "dest": "server.js"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }

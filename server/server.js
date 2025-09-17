@@ -25,59 +25,79 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(cookieParser());
 
-// Database connection with proper timeout and retry options
-const mongoOptions = {
-  serverSelectionTimeoutMS: 30000, // 30 seconds (increased from default 10s)
-  socketTimeoutMS: 45000, // 45 seconds
-  connectTimeoutMS: 30000, // 30 seconds
-  maxPoolSize: 10, // Maintain up to 10 socket connections
-  minPoolSize: 5, // Maintain a minimum of 5 socket connections
-  maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
-  retryWrites: true, // Retry writes on failure
-  retryReads: true, // Retry reads on failure
-  heartbeatFrequencyMS: 10000, // Check server status every 10 seconds
+// Serverless database connection middleware
+const ensureDatabaseConnection = async (req, res, next) => {
+  // Skip database check for health endpoints
+  if (req.path === '/health' || req.path === '/api/health') {
+    return next();
+  }
+
+  try {
+    // Ensure database connection for each request in serverless
+    if (mongoose.connection.readyState !== 1) {
+      console.log('🔄 Establishing database connection for request...');
+      await connectToDatabase();
+    }
+    next();
+  } catch (error) {
+    console.error('❌ Database connection failed:', error);
+    return res.status(503).json({
+      success: false,
+      message: 'Database connection failed. Please try again.',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 };
 
-// Disable mongoose buffering for better error handling
+// Serverless-optimized MongoDB connection
+const mongoOptions = {
+  serverSelectionTimeoutMS: 5000, // Reduced for serverless
+  socketTimeoutMS: 10000, // Reduced for serverless
+  connectTimeoutMS: 5000, // Reduced for serverless
+  maxPoolSize: 1, // Single connection for serverless
+  minPoolSize: 0, // No minimum for serverless
+  maxIdleTimeMS: 10000, // Shorter idle time
+  retryWrites: true,
+  retryReads: true,
+  heartbeatFrequencyMS: 30000, // Less frequent heartbeat
+};
+
+// Disable mongoose buffering for serverless
 mongoose.set('bufferCommands', false);
 
-mongoose.connect(process.env.MONGODB_URI, mongoOptions)
-.then(() => {
-  console.log('✅ MongoDB connected successfully');
-  console.log('📊 Connection details:', {
-    host: mongoose.connection.host,
-    port: mongoose.connection.port,
-    name: mongoose.connection.name,
-    readyState: mongoose.connection.readyState
-  });
-})
-.catch((err) => {
-  console.error('❌ MongoDB connection error:', err);
-  console.error('🔍 Connection string (masked):', process.env.MONGODB_URI?.replace(/\/\/.*@/, '//***:***@'));
-  process.exit(1); // Exit if database connection fails
-});
+// Global connection promise to avoid multiple connections
+let cachedConnection = null;
+
+// Serverless-optimized connection function
+async function connectToDatabase() {
+  if (cachedConnection) {
+    return cachedConnection;
+  }
+
+  try {
+    cachedConnection = mongoose.connect(process.env.MONGODB_URI, mongoOptions);
+    await cachedConnection;
+    return cachedConnection;
+  } catch (err) {
+    console.error('MongoDB connection error:', err.message);
+    cachedConnection = null; // Reset on error
+    throw err;
+  }
+}
 
 // Handle MongoDB connection events
-mongoose.connection.on('connected', () => {
-  console.log('🔗 Mongoose connected to MongoDB');
-});
-
 mongoose.connection.on('error', (err) => {
-  console.error('❌ Mongoose connection error:', err);
-});
-
-mongoose.connection.on('disconnected', () => {
-  console.log('🔌 Mongoose disconnected from MongoDB');
+  console.error('MongoDB connection error:', err);
 });
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
   try {
     await mongoose.connection.close();
-    console.log('🛑 MongoDB connection closed through app termination');
     process.exit(0);
   } catch (err) {
-    console.error('❌ Error during graceful shutdown:', err);
+    console.error('Error during graceful shutdown:', err);
     process.exit(1);
   }
 });
@@ -93,7 +113,7 @@ app.get('/health', (req, res) => {
 });
 
 // Database health check endpoint
-app.get('/api/health', async (req, res) => {
+app.get('/api/health', (req, res) => {
   try {
     // Check MongoDB connection
     const dbState = mongoose.connection.readyState;
@@ -104,11 +124,18 @@ app.get('/api/health', async (req, res) => {
       3: 'disconnecting'
     };
 
-    if (dbState === 1) {
-      // Test a simple database operation
-      const adminDb = mongoose.connection.db.admin();
-      const result = await adminDb.ping();
+    // Enhanced debugging information
+    const debugInfo = {
+      hasMongoUri: !!process.env.MONGODB_URI,
+      mongoUriLength: process.env.MONGODB_URI?.length || 0,
+      mongoUriStart: process.env.MONGODB_URI?.substring(0, 30) || 'Not found',
+      nodeEnv: process.env.NODE_ENV,
+      platform: process.platform,
+      nodeVersion: process.version,
+      mongooseVersion: require('mongoose/package.json').version
+    };
 
+    if (dbState === 1) {
       res.status(200).json({
         status: 'OK',
         message: "Peppino's Restaurant API is running",
@@ -117,9 +144,9 @@ app.get('/api/health', async (req, res) => {
           status: 'connected',
           state: dbStates[dbState],
           host: mongoose.connection.host,
-          name: mongoose.connection.name,
-          ping: result
+          name: mongoose.connection.name
         },
+        debug: debugInfo,
         environment: process.env.NODE_ENV || 'development'
       });
     } else {
@@ -131,6 +158,7 @@ app.get('/api/health', async (req, res) => {
           status: 'disconnected',
           state: dbStates[dbState]
         },
+        debug: debugInfo,
         environment: process.env.NODE_ENV || 'development'
       });
     }
@@ -150,33 +178,9 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// Test email endpoint (for debugging)
-app.get('/test-email', async (req, res) => {
-  try {
-    const { sendEmail } = require('./helpers/send-email');
-
-    await sendEmail({
-      to: 'walthampeppinosdosa@gmail.com',
-      subject: 'Test Email - Peppinos System',
-      html: `
-        <h2>Email Test</h2>
-        <p>This is a test email to verify the email service is working.</p>
-        <p>Timestamp: ${new Date().toISOString()}</p>
-      `
-    });
-
-    res.status(200).json({
-      success: true,
-      message: 'Test email sent successfully'
-    });
-  } catch (error) {
-    console.error('Test email error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to send test email',
-      error: error.message
-    });
-  }
+// Apply database connection middleware to all API routes (with async wrapper)
+app.use('/api', (req, res, next) => {
+  ensureDatabaseConnection(req, res, next).catch(next);
 });
 
 // Routes
@@ -199,15 +203,6 @@ app.use('/api/shop', require('./routes/shop/order-routes'));
 app.use('/api/shop', require('./routes/shop/address-routes'));
 app.use('/api/shop', require('./routes/shop/review-routes'));
 app.use('/api/user', require('./routes/shop/user-routes'));
-
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    status: 'OK',
-    message: 'Peppino\'s Restaurant API is running',
-    timestamp: new Date().toISOString()
-  });
-});
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -264,9 +259,30 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5001;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+// For local development, start the server
+if (process.env.NODE_ENV !== 'production') {
+  // Start server only after database connection is established
+  async function startServer() {
+    try {
+      // Wait for database connection
+      await connectToDatabase();
+
+      // Start the server only after successful database connection
+      app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+        console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      });
+    } catch (error) {
+      console.error('Failed to start server:', error);
+      // Retry connection after 5 seconds
+      setTimeout(() => {
+        startServer();
+      }, 5000);
+    }
+  }
+
+  // Start the server for local development
+  startServer();
+}
 
 module.exports = app;
