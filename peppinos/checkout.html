@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="./assets/css/style.css">
   <link rel="stylesheet" href="./assets/css/cart.css">
   <link rel="stylesheet" href="./assets/css/components.css">
+  <link rel="stylesheet" href="./assets/css/toast.css">
 
   <!-- Preload images -->
   <link rel="preload" as="image" href="./assets/images/hero-slider-1.png">
@@ -95,6 +96,7 @@
       display: flex;
       gap: 1rem;
       flex-wrap: wrap;
+      color: var(--eerie-black-1);
     }
 
     .radio-option {
@@ -157,6 +159,7 @@
       border-top: 2px solid var(--gold-crayola);
       padding-top: 1rem;
       margin-top: 1rem;
+      color: var(--eerie-black-1);
     }
 
     .cart-total-row {
@@ -229,7 +232,7 @@
 
     .restaurant-status {
       background: var(--red-crayola);
-      color: var(--white);
+      color: var(--eerie-black-2);
       padding: 1rem;
       border-radius: 8px;
       margin-bottom: 1rem;
@@ -242,12 +245,12 @@
 
     .restaurant-status h4 {
       margin-bottom: 0.5rem;
-      font-size: 1.1rem;
+      font-size: 2rem;
     }
 
     .restaurant-status p {
       margin: 0;
-      font-size: 0.9rem;
+      font-size: 1.2rem;
     }
 
     .user-info-display {
@@ -268,6 +271,15 @@
     }
 
     @media (max-width: 768px) {
+      /* Ensure mobile scrolling works */
+      html, body {
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        height: auto !important;
+        min-height: 100vh !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+
       .form-row {
         grid-template-columns: 1fr;
       }
@@ -275,12 +287,23 @@
       .radio-group {
         flex-direction: column;
         gap: 0.75rem;
+        color: var(--eerie-black-1);
       }
 
       .checkout-container {
         margin: 1rem;
         padding: 1rem;
+        min-height: auto !important;
+        height: auto !important;
       }
+
+        .restaurant-status h4 {
+      font-size: 1.8rem;
+    }
+
+    .restaurant-status p {
+      font-size: 1rem;
+    }
 
       .cart-item {
         flex-direction: column;
@@ -707,17 +730,20 @@
     </article>
   </main>
 
-  <!-- Footer -->
+<!--
+    - #FOOTER
+  -->
+
   <footer class="footer section has-bg-image text-center"
     style="background-image: url('./assets/images/footer-bg.jpg')">
     <div class="container">
 
       <div class="footer-top grid-list">
 
-        <div class="footer-brand">
+        <div class="footer-brand has-before has-after">
 
           <a href="index.html" class="logo">
-            <img src="./assets/images/logo.svg" width="160" height="50" loading="lazy" alt="Peppino's">
+            <img src="./assets/images/logo-1.png" width="120" height="38" loading="lazy" alt="Peppino's Dosa home">
           </a>
 
           <address class="body-4">
@@ -729,7 +755,9 @@
           <a href="tel:+17815476099" class="body-4 contact-link">Booking Request : (781) 547-6099</a>
 
           <p class="body-4">
-            Lunch Buffet: Mon-Fri 11:30AM-3PM
+            Lunch Buffet: Mon-Fri 11:30AM-3PM<br>
+            Dining: Mon-Thu 11:30AM-3PM, 5-10PM<br>
+            Fri-Sun 11:30AM-3:30PM, 4:30-10PM
           </p>
 
           <div class="wrapper">
@@ -739,6 +767,7 @@
           </div>
 
           <!-- <p class="title-1">Get News & Offers</p>
+
           <p class="label-1">
             Subscribe us & Get <span class="span">25% Off.</span>
           </p> -->
@@ -746,62 +775,89 @@
           <form action="" class="input-wrapper">
             <div class="icon-wrapper">
               <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+
               <input type="email" name="email_address" placeholder="Your email" autocomplete="off" class="input-field">
             </div>
+
             <button type="submit" class="btn btn-secondary">
               <span class="text text-1">Subscribe</span>
+
               <span class="text text-2" aria-hidden="true">Subscribe</span>
             </button>
           </form>
+
         </div>
 
         <ul class="footer-list">
+
           <li>
-            <a href="./index.html" class="label-2 footer-link hover-underline">Home</a>
+            <a href="index.html" class="text-white footer-link hover-underline">Home</a>
           </li>
+
           <li>
-            <a href="./menu.html" class="label-2 footer-link hover-underline">Menus</a>
+            <a href="menu.html" class="text-white footer-link hover-underline">Menus</a>
           </li>
+
           <li>
-            <a href="./about.html" class="label-2 footer-link hover-underline">About Us</a>
+            <a href="about.html" class="text-white footer-link hover-underline">About Us</a>
           </li>
+
           <li>
-            <a href="./chefs.html" class="label-2 footer-link hover-underline">Our Chefs</a>
+            <a href="chefs.html" class="text-white footer-link hover-underline">Our Chefs</a>
           </li>
+
           <li>
-            <a href="./contact.html" class="label-2 footer-link hover-underline">Contact</a>
+            <a href="catering.html" class="text-white footer-link hover-underline">Catering</a>
           </li>
+
+          <li>
+            <a href="blog.html" class="text-white footer-link hover-underline">Blog</a>
+          </li>
+
+          <li>
+            <a href="contact.html" class="text-white footer-link hover-underline">Contact</a>
+          </li>
+
         </ul>
 
         <ul class="footer-list">
+
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Facebook</a>
+            <a href="#" class="text-white footer-link hover-underline">Facebook</a>
           </li>
+
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Instagram</a>
+            <a href="#" class="text-white footer-link hover-underline">Instagram</a>
           </li>
+
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Twitter</a>
+            <a href="#" class="text-white footer-link hover-underline">Twitter</a>
           </li>
+
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Youtube</a>
+            <a href="#" class="text-white footer-link hover-underline">Youtube</a>
           </li>
+
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Google Map</a>
+            <a href="#" class="text-white footer-link hover-underline">Google Map</a>
           </li>
+
         </ul>
 
       </div>
 
       <div class="footer-bottom">
+
         <p class="copyright">
-          &copy; 2024 Peppino's. All Rights Reserved | Crafted by <a href="#" target="_blank"
-            class="link">codewithsadee</a>
+          &copy; 2025 Peppinos. All Rights Reserved
         </p>
+
       </div>
 
     </div>
   </footer>
+
+
 
   <!-- Back to top button -->
   <a href="#top" class="back-top-btn active" aria-label="back to top" data-back-top-btn>
@@ -831,6 +887,7 @@
     import { formatCurrency, showError, showSuccess } from './assets/js/ui.js';
     import { restaurantHours } from './assets/js/services/restaurant-hours.js';
     import { getCurrentUser, isAuthenticated } from './assets/js/auth.js';
+    import { httpClient } from './assets/js/api.js';
 
     class AuthenticatedCheckoutManager {
       constructor() {
@@ -868,6 +925,15 @@
         }
 
         this.setupEventListeners();
+
+        // Debug cart service state
+        console.log('🔍 Cart service state:', {
+          initialized: cartService._initialized,
+          isAuthenticated: cartService.isAuthenticated,
+          sessionId: cartService.sessionId,
+          cart: cartService.cart
+        });
+
         this.updateCartSummary();
         this.setupFormValidation();
         this.updateRestaurantStatus();
@@ -956,36 +1022,69 @@
         this.isUpdatingCart = true;
 
         try {
-          // Use cached cart data to prevent excessive API calls
-          const cart = cartService.cart;
+          // Get cart data - try cache first, then load from API if needed
+          let cart = cartService.cart;
+          console.log('🔍 Initial cart cache:', cart);
+
+          // If cache is empty, try to load from API
+          if (!cart || !cart.items || cart.items.length === 0) {
+            console.log('🔄 Cart cache empty, loading from API...');
+
+            // Force a fresh cart load by bypassing cache
+            cartService._lastCartUpdate = null; // Reset debounce
+            cart = await cartService.getCart();
+            console.log('🔍 Cart loaded from API:', cart);
+
+            // If still empty, try one more time with a different approach
+            if (!cart || !cart.items || cart.items.length === 0) {
+              console.log('🔄 Cart still empty, trying direct API call...');
+              try {
+                const response = cartService.isAuthenticated
+                  ? await httpClient.get('/api/shop/cart')
+                  : await httpClient.get(`/api/shop/guest/cart/${cartService.sessionId}`);
+
+                if (response.success) {
+                  cart = response.data.cart || response.data;
+                  console.log('🔍 Direct API response:', cart);
+                }
+              } catch (directError) {
+                console.error('Direct API call failed:', directError);
+              }
+            }
+          }
 
           if (!cart || !cart.items || cart.items.length === 0) {
+            console.log('❌ Cart is empty after API call');
             this.cartItems.innerHTML = '<p>Your cart is empty.</p>';
             this.submitBtn.disabled = true;
+            this.isUpdatingCart = false;
             return;
           }
+
+          console.log('🛒 Cart data loaded successfully:', cart);
+          console.log('🛒 Cart items:', cart.items);
+          console.log('🛒 Cart subtotal:', cart.subtotal);
+
+          // Render cart items
+          this.cartItems.innerHTML = cart.items.map(item => this.renderCartItem(item)).join('');
+
+          // Update totals
+          const subtotal = cart.subtotal || 0;
+          const tax = cartService.calculateTax(subtotal);
+          const total = subtotal + tax;
+
+          document.getElementById('cartSubtotal').textContent = formatCurrency(subtotal);
+          document.getElementById('cartTax').textContent = formatCurrency(tax);
+          document.getElementById('cartTotal').textContent = formatCurrency(total);
+
+          this.submitBtn.disabled = false;
         } catch (error) {
           console.error('Error updating cart summary:', error);
           this.cartItems.innerHTML = '<p>Error loading cart. Please refresh the page.</p>';
           this.submitBtn.disabled = true;
-          return;
         } finally {
           this.isUpdatingCart = false;
         }
-
-        // Render cart items
-        this.cartItems.innerHTML = cart.items.map(item => this.renderCartItem(item)).join('');
-
-        // Update totals
-        const subtotal = cart.subtotal || 0;
-        const tax = cartService.calculateTax(subtotal);
-        const total = subtotal + tax;
-
-        document.getElementById('cartSubtotal').textContent = formatCurrency(subtotal);
-        document.getElementById('cartTax').textContent = formatCurrency(tax);
-        document.getElementById('cartTotal').textContent = formatCurrency(total);
-
-        this.submitBtn.disabled = false;
       }
 
       renderCartItem(item) {
@@ -1015,15 +1114,47 @@
         const statusElement = document.getElementById('restaurantStatus');
         const isOpen = restaurantHours.isCurrentlyOpen();
 
-        if (!isOpen) {
+        // Debug logging
+        console.log('🕐 Restaurant Status Check:', {
+          isOpen,
+          currentTime: new Date().toLocaleString(),
+          dayName: restaurantHours.getDayName(new Date()),
+          currentTimeFormatted: restaurantHours.formatTime(new Date())
+        });
+
+        // For development/testing - allow ASAP even when closed
+        // Remove this in production or add a proper admin override
+        const forceEnableASAP = localStorage.getItem('force_enable_asap') === 'true';
+
+        if (!isOpen && !forceEnableASAP) {
           statusElement.style.display = 'block';
           statusElement.classList.remove('open');
           document.getElementById('asap').disabled = true;
           document.getElementById('scheduled').checked = true;
           this.handleTimingChange({ target: { value: 'scheduled' } });
+
+          // Add a temporary override button for testing
+          if (!document.getElementById('override-btn')) {
+            const overrideBtn = document.createElement('button');
+            overrideBtn.id = 'override-btn';
+            overrideBtn.type = 'button';
+            overrideBtn.textContent = 'Enable ASAP (Testing)';
+            overrideBtn.style.cssText = 'margin-top: 10px; padding: 5px 10px; background: #ff6b35; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;';
+            overrideBtn.onclick = () => {
+              localStorage.setItem('force_enable_asap', 'true');
+              this.updateRestaurantStatus();
+            };
+            statusElement.appendChild(overrideBtn);
+          }
         } else {
           statusElement.style.display = 'none';
           document.getElementById('asap').disabled = false;
+
+          // Remove override button if it exists
+          const overrideBtn = document.getElementById('override-btn');
+          if (overrideBtn) {
+            overrideBtn.remove();
+          }
         }
       }
 
@@ -1085,6 +1216,12 @@
         e.preventDefault();
         console.log('🚀 Form submission started');
 
+        // Prevent multiple submissions
+        if (this.submitBtn.disabled || this.submitBtn.classList.contains('loading')) {
+          console.log('🚫 Form submission blocked - already processing');
+          return;
+        }
+
         if (!cartService.cart || !cartService.cart.items || cartService.cart.items.length === 0) {
           showError('Your cart is empty. Please add items before placing an order.');
           return;
@@ -1118,25 +1255,10 @@
           const formData = new FormData(this.form);
           const orderData = this.buildOrderData(formData);
 
-          // Submit order using the API service
-          const response = await fetch(`${CONFIG.API.BASE_URL}/api/shop/orders`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('peppinos_auth_token')}`
-            },
-            body: JSON.stringify(orderData)
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          const result = await response.json();
+          // Submit order using httpClient with proper rate limiting
+          const result = await httpClient.post('/api/shop/orders', orderData);
 
           console.log('📦 Order creation result:', result);
-          console.log('📦 Response status:', response.status);
-          console.log('📦 Response ok:', response.ok);
 
           if (result.success) {
             console.log('✅ Order created successfully, clearing cart...');
@@ -1172,8 +1294,10 @@
           // Show user-friendly error message
           let errorMessage = 'Failed to place order. Please try again.';
 
-          // Handle network errors
-          if (error.message.includes('fetch')) {
+          // Handle specific error types
+          if (error.message.includes('Too many requests')) {
+            errorMessage = 'Too many requests. Please wait a moment and try again.';
+          } else if (error.message.includes('fetch')) {
             errorMessage = 'Network error. Please check your connection and try again.';
           } else if (error.message) {
             errorMessage = error.message;

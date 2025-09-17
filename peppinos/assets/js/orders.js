@@ -202,12 +202,7 @@ class OrdersPage {
     }
 
     // Reorder
-    actions.push(`
-      <button class="btn-small btn-secondary-small" onclick="ordersPage.reorder('${order._id}')">
-        <ion-icon name="refresh-outline"></ion-icon>
-        Reorder
-      </button>
-    `);
+  
 
     // Cancel order (only for pending orders)
     if (order.deliveryStatus === 'pending') {
@@ -338,7 +333,6 @@ class OrdersPage {
   showLoading() {
     document.getElementById('ordersList').innerHTML = `
       <div class="loading">
-        <div class="circle"></div>
         <p>Loading orders...</p>
       </div>
     `;

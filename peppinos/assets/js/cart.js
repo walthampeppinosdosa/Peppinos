@@ -4,7 +4,8 @@ import { showError, showSuccess } from './ui.js';
 class CartPage {
   constructor() {
     this.cartContent = document.getElementById('cart-content');
-    this.cartCount = document.getElementById('cart-count');
+    this.cartSummary = document.getElementById('cart-summary');
+    this.cartItemsCount = document.getElementById('cart-items-count');
     this.init();
   }
 
@@ -33,20 +34,33 @@ class CartPage {
 
   showLoading() {
     this.cartContent.innerHTML = `
-      <div class="cart-items-section">
-        <div class="cart-loading">
-          <div class="cart-loading-spinner"></div>
-          <span>Loading your cart...</span>
-        </div>
+      <div class="cart-loading">
+        <div class="cart-loading-spinner"></div>
+        <span>Loading your cart...</span>
       </div>
     `;
+
+    if (this.cartSummary) {
+      this.cartSummary.innerHTML = `
+        <div class="cart-loading">
+          <span>Loading summary...</span>
+        </div>
+      `;
+    }
   }
 
   setupEventListeners() {
+    // Prevent duplicate event listeners
+    if (this._eventListenerAdded) {
+      return;
+    }
+
     // Listen for cart updates
     cartService.addEventListener((cart) => {
       this.renderCart(cart); // Use renderCart directly instead of updateCartDisplay
     });
+
+    this._eventListenerAdded = true;
   }
 
   async loadCart() {
@@ -67,18 +81,15 @@ class CartPage {
 
     const cartItemsHTML = cart.items.map(item => this.renderCartItem(item)).join('');
 
+    // Update cart items content
     this.cartContent.innerHTML = `
-      <div class="cart-items-section">
-        <div class="cart-items-header">
-          <h2 class="cart-items-title">Cart Items</h2>
-          <span class="cart-items-count">${cart.items.length} item${cart.items.length !== 1 ? 's' : ''}</span>
-        </div>
-        <div class="cart-items-list">
-          ${cartItemsHTML}
-        </div>
+      <div class="cart-items-list">
+        ${cartItemsHTML}
       </div>
-      <div class="cart-summary-section">
-        <h3 class="cart-summary-title">Order Summary</h3>
+    `;
+    // Update cart summary content
+    if (this.cartSummary) {
+      this.cartSummary.innerHTML = `
         <div class="cart-summary-row">
           <span class="cart-summary-label">Subtotal:</span>
           <span class="cart-summary-value">₹${(cart.subtotal || 0).toFixed(2)}</span>
@@ -95,22 +106,8 @@ class CartPage {
           <span class="cart-summary-label">Total:</span>
           <span class="cart-summary-value">₹${(cart.total || cart.subtotal || 0).toFixed(2)}</span>
         </div>
-        <div class="delivery-info" style="margin: 1rem 0; padding: 1rem; background: var(--cultured); border-radius: 8px;">
-          <p style="margin: 0; font-size: 0.9rem; color: var(--davys-gray);">
-            <ion-icon name="time-outline" style="margin-right: 0.5rem;"></ion-icon>
-            Estimated delivery: ${cart.estimatedDeliveryTime || 30} minutes
-          </p>
-        </div>
-        <div class="promo-code" style="margin: 1rem 0;">
-          <div style="display: flex; gap: 0.5rem;">
-            <input type="text" id="promoCode" placeholder="Enter promo code"
-                   style="flex: 1; padding: 0.75rem; border: 1px solid var(--cultured); border-radius: 4px;">
-            <button onclick="cartPage.applyPromoCode()" class="btn btn-outline" style="padding: 0.75rem 1rem;">
-              Apply
-            </button>
-          </div>
-        </div>
-        <div class="cart-action-buttons" style="display: flex; flex-direction: column; align-items: center; gap: 1rem; margin-top: 1rem;">
+   
+        <div class="cart-actions" style="display: flex; flex-direction: column; align-items: center; gap: 1rem; margin-top: 1rem;">
           <button class="cart-checkout-btn" onclick="cartPage.proceedToCheckout()" style="width: 100%; max-width: 300px;">
             Proceed to Checkout
           </button>
@@ -121,10 +118,13 @@ class CartPage {
             Clear Cart
           </button>
         </div>
-      </div>
-    `;
+      `;
+    }
 
-    this.updateCartCount(cart.totalItems || cart.items.length);
+    // Update cart items count
+    if (this.cartItemsCount) {
+      this.cartItemsCount.textContent = `${cart.items.length} item${cart.items.length !== 1 ? 's' : ''}`;
+    }
   }
 
   renderCartItem(item) {
@@ -188,25 +188,32 @@ class CartPage {
 
   renderEmptyCart() {
     this.cartContent.innerHTML = `
-      <div class="cart-items-section">
-        <div class="cart-empty">
-          <div class="cart-empty-icon">
-            <ion-icon name="bag-outline"></ion-icon>
-          </div>
-          <h2 class="cart-empty-title">Your cart is empty</h2>
-          <p class="cart-empty-text">Add some delicious items from our menu to get started!</p>
-          <div class="empty-cart-actions" style="margin-top: 1rem;">
-            <a href="./menu.html" class="btn btn-primary" style="margin-right: 1rem;">
-              Browse Menu
-            </a>
-            <a href="./index.html" class="btn btn-outline">
-              Back to Home
-            </a>
-          </div>
+      <div class="cart-empty">
+        <div class="cart-empty-icon">
+          <ion-icon name="bag-outline"></ion-icon>
+        </div>
+        <h2 class="cart-empty-title">Your cart is empty</h2>
+        <p class="cart-empty-text">Add some delicious items from our menu to get started!</p>
+        <div class="empty-cart-actions" style="margin-top: 1rem;">
+          <a href="./menu.html" class="btn btn-primary" style="margin-right: 1rem;">
+            Browse Menu
+          </a>
+          <a href="./index.html" class="btn btn-outline">
+            Back to Home
+          </a>
         </div>
       </div>
     `;
-    this.updateCartCount(0);
+
+    // Clear summary section
+    if (this.cartSummary) {
+      this.cartSummary.innerHTML = '';
+    }
+
+    // Update cart items count
+    if (this.cartItemsCount) {
+      this.cartItemsCount.textContent = '0 items';
+    }
   }
 
   async updateQuantity(itemId, newQuantity) {
@@ -250,7 +257,8 @@ class CartPage {
     if (confirm('Are you sure you want to clear your cart?')) {
       try {
         await cartService.clearCart();
-        await this.loadCart(); // Refresh cart display
+        // Don't call loadCart() here - clearCart() already triggers notifyListeners()
+        // which will update the display via the event listener
       } catch (error) {
         console.error('Error clearing cart:', error);
         this.showError('Failed to clear cart');
@@ -286,9 +294,9 @@ class CartPage {
 
   saveForLater(itemId) {
     try {
-      // Get the item details before removing
-      const cart = cartService.getCart();
-      const item = cart.items.find(i => i._id === itemId);
+      // Get the item details from current cart state
+      const cart = cartService.cart; // Use cached cart instead of calling getCart()
+      const item = cart?.items?.find(i => i._id === itemId);
 
       if (item) {
         // Save to localStorage for now (in production, you'd save to backend)
@@ -346,19 +354,22 @@ class CartPage {
 
   showError(message) {
     this.cartContent.innerHTML = `
-      <div class="cart-items-section">
-        <div class="cart-empty">
-          <div class="cart-empty-icon">
-            <ion-icon name="alert-circle-outline" style="color: var(--red-orange-crayola);"></ion-icon>
-          </div>
-          <h2 class="cart-empty-title">Error</h2>
-          <p class="cart-empty-text">${message}</p>
-          <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 1rem;">
-            Try Again
-          </button>
+      <div class="cart-empty">
+        <div class="cart-empty-icon">
+          <ion-icon name="alert-circle-outline" style="color: var(--red-orange-crayola);"></ion-icon>
         </div>
+        <h2 class="cart-empty-title">Error</h2>
+        <p class="cart-empty-text">${message}</p>
+        <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 1rem;">
+          Try Again
+        </button>
       </div>
     `;
+
+    // Clear summary section
+    if (this.cartSummary) {
+      this.cartSummary.innerHTML = '';
+    }
   }
 }
 

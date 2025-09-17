@@ -13,8 +13,9 @@ import { getAuthToken, removeAuthData, isTokenExpired } from './auth.js';
 class RequestLimiter {
   constructor() {
     this.requests = new Map(); // endpoint -> { count, resetTime }
-    this.maxRequestsPerMinute = 60; // Limit per endpoint
+    this.maxRequestsPerMinute = 120; // Increased limit per endpoint
     this.windowMs = 60000; // 1 minute
+    this.pendingRequests = new Map(); // Track pending requests to prevent duplicates
   }
 
   canMakeRequest(endpoint) {
@@ -42,6 +43,25 @@ class RequestLimiter {
 
     console.warn(`Rate limit exceeded for ${key}. Please wait.`);
     return false;
+  }
+
+  // Check if request is already pending
+  isPending(requestKey) {
+    return this.pendingRequests.has(requestKey);
+  }
+
+  // Mark request as pending
+  markPending(requestKey, promise) {
+    this.pendingRequests.set(requestKey, promise);
+    promise.finally(() => {
+      this.pendingRequests.delete(requestKey);
+    });
+    return promise;
+  }
+
+  // Get pending request if exists
+  getPendingRequest(requestKey) {
+    return this.pendingRequests.get(requestKey);
   }
 }
 
@@ -134,15 +154,25 @@ class HttpClient {
       config.body = JSON.stringify(config.body);
     }
 
+    // Create request key for deduplication (for GET requests only)
+    const requestKey = config.method === 'GET' ? `${config.method}:${url}` : null;
+
+    // Check if identical GET request is already pending
+    if (requestKey && requestLimiter.isPending(requestKey)) {
+      console.log('🔄 Returning existing pending request for:', requestKey);
+      return requestLimiter.getPendingRequest(requestKey);
+    }
+
     // Check rate limit before making request
     if (!requestLimiter.canMakeRequest(url)) {
       throw new Error('Rate limit exceeded. Please wait before making more requests.');
     }
 
-    try {
-      const response = await fetch(url, config);
-      return await this.handleResponse(response);
-    } catch (error) {
+    const makeRequest = async () => {
+      try {
+        const response = await fetch(url, config);
+        return await this.handleResponse(response);
+      } catch (error) {
       if (CONFIG.DEV.ENABLE_LOGGING) {
         console.error('API Request Error:', error);
       }
@@ -160,7 +190,15 @@ class HttpClient {
         }
       }
 
-      throw error;
+        throw error;
+      }
+    };
+
+    // If this is a GET request, mark it as pending to prevent duplicates
+    if (requestKey) {
+      return requestLimiter.markPending(requestKey, makeRequest());
+    } else {
+      return makeRequest();
     }
   }
 

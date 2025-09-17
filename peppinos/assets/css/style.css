@@ -1020,6 +1020,7 @@ body.nav-active {
     align-items: center !important;
     padding-top: 22px !important;
     position: relative !important;
+    margin-right: 5% !important;
     z-index: 60 !important; /* Lower z-index so sidebar can overlay it */
   }
 
@@ -2520,7 +2521,7 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
 .chef-description p {
   color: var(--davys-grey);
   line-height: 1.6;
-  font-size: 2rem;
+  font-size: 1.5rem;
 }
 
 /* Video Section */
@@ -2678,6 +2679,17 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
     gap: 15px;
   }
 
+  .chef-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .chef-specialty {
+    justify-content: center;
+  }
+
   .chef-img {
     width: 100px;
     height: 100px;
@@ -2709,6 +2721,23 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
     border-radius: 15px;
   }
 
+  .chef-card-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .chef-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .chef-specialty {
+    justify-content: center;
+  }
+
   .chef-img {
     width: 90px;
     height: 90px;
@@ -2726,6 +2755,10 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
     font-size: 0.7rem;
     padding: 5px 10px;
   }
+
+  .chef-description p {
+  font-size: 1.2rem;
+}
 
   .play-icon {
     width: 60px;
@@ -4375,7 +4408,7 @@ textarea.input-field {
   text-align: center;
   padding: 20px;
   border-radius: var(--radius-16);
-  background-color: var(--cultured);
+  background-color: var(--gold-crayola);
 }
 
 .contact-item .title-3 {
@@ -5571,7 +5604,7 @@ textarea.input-field {
 
   .btn-secondary:hover {
     background-color: var(--gold-crayola) !important;
-    color: var(--eerie-black-1) !important;
+    color: var(--white) !important;
   }
 
   /* Index.html specific button styles */

@@ -135,7 +135,7 @@ class NavigationManager {
               <a href="./cart.html" class="dropdown-item" style="display: block; padding: 0.75rem 1rem; color: var(--white); text-decoration: none; transition: background 0.3s ease; position: relative;">
                 <ion-icon name="bag-outline" style="margin-right: 0.5rem;"></ion-icon>
                 Cart
-                <span class="dropdown-cart-count" id="dropdownCartCount" style="position: absolute; top: 0.5rem; right: 1rem; background: var(--gold-crayola); color: var(--eerie-black-1); font-size: 11px; font-weight: 600; min-width: 16px; height: 16px; border-radius: 50%; display: none; align-items: center; justify-content: center; line-height: 1;">0</span>
+                <span class="dropdown-cart-count" id="dropdownCartCount">0</span>
               </a>
               <div style="border-top: 1px solid var(--white-alpha-10); margin: 0.5rem 0;"></div>
               <button class="dropdown-item logout-btn" id="logoutBtn" style="display: block; width: 100%; text-align: left; padding: 0.75rem 1rem; color: var(--white); background: none; border: none; cursor: pointer; transition: background 0.3s ease;">

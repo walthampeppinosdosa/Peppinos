@@ -162,7 +162,7 @@
   border-color: var(--gold-crayola);
 }
 
-/* Radio Group */
+/* Radio Group - Now using checkbox style for spicy and size */
 .radio-group {
   display: flex;
   flex-direction: column;
@@ -177,6 +177,7 @@
   border: 2px solid var(--cultured);
   border-radius: 8px;
   transition: all 0.2s ease;
+  gap: 12px;
 }
 
 .radio-option:hover {
@@ -184,9 +185,36 @@
   background: rgba(218, 165, 32, 0.05);
 }
 
+/* Style radio inputs to look like square checkboxes */
 .radio-option input[type="radio"] {
-  margin-right: 12px;
+  margin: 0;
+  flex-shrink: 0;
   accent-color: var(--gold-crayola);
+  width: 18px;
+  height: 18px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 2px solid #ccc;
+  border-radius: 3px;
+  background: white;
+  position: relative;
+  cursor: pointer;
+}
+
+.radio-option input[type="radio"]:checked {
+  background: var(--gold-crayola);
+  border-color: var(--gold-crayola);
+}
+
+.radio-option input[type="radio"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
 }
 
 .radio-option input[type="radio"]:checked + .radio-label {
@@ -196,21 +224,16 @@
 
 .radio-label {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 2px;
   width: 100%;
   font-size: 14px;
   color: #333333 !important;
+  flex: 1;
+  line-height: 1.4;
 }
 
-.checkbox-label {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  font-size: 14px;
-  color: #333333 !important;
-}
+
 
 .option-content {
   display: flex;
@@ -233,7 +256,6 @@
 .spicy-desc, .prep-desc {
   font-size: 12px;
   color: #666666 !important;
-  margin-top: 2px;
   line-height: 1.3;
 }
 
@@ -246,7 +268,7 @@
 
 .checkbox-option {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   cursor: pointer;
   padding: 12px 16px;
   border: 2px solid var(--cultured);
@@ -266,6 +288,29 @@
   accent-color: var(--gold-crayola);
   width: 18px;
   height: 18px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 2px solid #ccc;
+  border-radius: 3px;
+  background: white;
+  position: relative;
+  cursor: pointer;
+}
+
+.checkbox-option input[type="checkbox"]:checked {
+  background: var(--gold-crayola);
+  border-color: var(--gold-crayola);
+}
+
+.checkbox-option input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
 }
 
 .checkbox-option input[type="checkbox"]:checked + .checkbox-label {
@@ -274,6 +319,10 @@
 }
 
 .checkbox-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
   font-size: 14px;
   color: #333333 !important;
   flex: 1;
@@ -285,21 +334,26 @@
   width: 100%;
   min-height: 80px;
   padding: 12px 16px;
-  border: 2px solid var(--cultured);
+  border: 2px solid #e5e5e5;
   border-radius: 8px;
   font-size: 14px;
   color: var(--eerie-black);
   resize: vertical;
   font-family: inherit;
+  background-color: var(--white);
+  transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
 .special-instructions-input:focus {
   outline: none;
   border-color: var(--gold-crayola);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
 }
 
 .special-instructions-input::placeholder {
-  color: var(--davys-gray);
+  color: var(--quick-silver);
+  opacity: 0.8;
 }
 
 /* Modal Footer */
@@ -328,6 +382,7 @@
   transition: var(--transition-2);
   cursor: pointer;
   border-radius: 0;
+  padding: 6px 12px; 
 }
 
 .modal-footer .btn::before {

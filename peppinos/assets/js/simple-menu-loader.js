@@ -455,7 +455,7 @@ class CategoryMenuLoader {
   showLoading() {
     this.container.innerHTML = `
       <li class="menu-loading">
-        <div style="text-align: center; padding: 40px;">
+        <div style="text-align: center; padding: 40px; color: var(--eerie-black-3);">
           <div style="font-size: 24px; margin-bottom: 10px;">🍽️</div>
           <p>Loading delicious menu items...</p>
         </div>

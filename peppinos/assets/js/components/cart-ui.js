@@ -36,12 +36,22 @@ class CartUI {
 
     // Listen for cart updates
     cartService.addEventListener((cart) => {
-      // Ensure cart HTML exists before updating
-      if (!document.getElementById('cart-overlay')) {
-        this.createCartHTML();
+      // Prevent updates during DOM manipulation
+      if (this._isUpdating) {
+        return;
       }
-      this.updateCartDisplay(cart);
-      this.updateCartIcon();
+
+      this._isUpdating = true;
+      try {
+        // Ensure cart HTML exists before updating
+        if (!document.getElementById('cart-overlay')) {
+          this.createCartHTML();
+        }
+        this.updateCartDisplay(cart);
+        this.updateCartIcon();
+      } finally {
+        this._isUpdating = false;
+      }
     });
   }
 
@@ -93,7 +103,7 @@ class CartUI {
             
             <div class="cart-actions">
               <button id="view-cart-btn" class="btn btn-outline">View Cart</button>
-              <button id="checkout-btn" class="btn btn-primary">Checkout</button>
+              <button id="checkout-btn" class="btn btn-outline">Checkout</button>
             </div>
           </div>
           
@@ -400,9 +410,14 @@ class CartUI {
     const tax = cartService.calculateTax(subtotal);
     const total = subtotal + tax;
 
-    document.getElementById('cart-subtotal').textContent = formatCurrency(subtotal);
-    document.getElementById('cart-tax').textContent = formatCurrency(tax);
-    document.getElementById('cart-total').textContent = formatCurrency(total);
+    // Safely update elements if they exist
+    const subtotalEl = document.getElementById('cart-subtotal');
+    const taxEl = document.getElementById('cart-tax');
+    const totalEl = document.getElementById('cart-total');
+
+    if (subtotalEl) subtotalEl.textContent = formatCurrency(subtotal);
+    if (taxEl) taxEl.textContent = formatCurrency(tax);
+    if (totalEl) totalEl.textContent = formatCurrency(total);
   }
 
   /**

@@ -105,9 +105,22 @@ class CartService {
   setupSessionListeners() {
     sessionManager.addEventListener((event, data) => {
       if (event === 'cartUpdated' && data) {
-        // Cart was updated in another tab
+        // Cart was updated in another tab - prevent infinite loop
+        if (this._isUpdatingFromStorage) {
+          return;
+        }
+        this._isUpdatingFromStorage = true;
         this.cart = data.cart;
-        this.notifyListeners();
+        // Don't call notifyListeners here to prevent storage loop
+        // Just update the UI directly
+        this.listeners.forEach(callback => {
+          try {
+            callback(this.cart);
+          } catch (error) {
+            console.error('Error in cart listener:', error);
+          }
+        });
+        this._isUpdatingFromStorage = false;
       } else if (event === 'userLoggedOut') {
         // User logged out in another tab - recheck authentication
         this.isAuthenticated = this.checkUserAuthentication();
@@ -206,14 +219,14 @@ class CartService {
     // Set new timeout with longer delay
     this._refreshTimeout = setTimeout(() => {
       // Double-check we're not initializing when timeout fires
-      if (!this._initPromise && !this._isUpdating && !window.kindeCallbackInProgress) {
+      if (!this._initPromise && !this._isUpdating && !this._isNotifying && !window.kindeCallbackInProgress) {
         console.log('🔄 Executing scheduled cart refresh');
         this.getCart();
       } else {
         console.log('🔄 Cancelled scheduled cart refresh - conditions changed');
       }
       this._refreshTimeout = null;
-    }, 2000); // 2 second debounce (increased from 1 second)
+    }, 5000); // 5 second debounce (increased from 2 seconds to reduce API calls)
   }
 
   /**
@@ -242,17 +255,23 @@ class CartService {
    * Notify all listeners of cart updates
    */
   notifyListeners() {
-    if (this._isUpdating) {
-      return; // Prevent recursive updates
+    if (this._isUpdating || this._isNotifying) {
+      return; // Prevent recursive updates and duplicate notifications
     }
 
-    this._isUpdating = true;
+    this._isNotifying = true;
     this._lastCartUpdate = Date.now(); // Track when cart was last updated
     try {
-      this.listeners.forEach(callback => callback(this.cart));
+      this.listeners.forEach(callback => {
+        try {
+          callback(this.cart);
+        } catch (error) {
+          console.error('Error in cart listener:', error);
+        }
+      });
       this.saveToLocalStorage();
     } finally {
-      this._isUpdating = false;
+      this._isNotifying = false;
     }
   }
 
@@ -260,6 +279,11 @@ class CartService {
    * Save cart to localStorage for persistence
    */
   saveToLocalStorage() {
+    // Don't save to localStorage if we're updating from storage (prevents infinite loop)
+    if (this._isUpdatingFromStorage) {
+      return;
+    }
+
     try {
       const cartData = {
         cart: this.cart,
@@ -315,6 +339,13 @@ class CartService {
     // Prevent multiple simultaneous cart loads
     if (this._cartLoadPromise) {
       return this._cartLoadPromise;
+    }
+
+    // Prevent too frequent API calls (debounce)
+    const now = Date.now();
+    if (this._lastCartUpdate && (now - this._lastCartUpdate) < 2000) {
+      console.log('🔄 Cart API call debounced - returning cached cart');
+      return this.cart;
     }
 
     this._cartLoadPromise = this._doGetCart();

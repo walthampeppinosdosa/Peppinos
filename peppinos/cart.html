@@ -217,8 +217,25 @@
               <p class="section-subtitle label-2">Review your order</p>
             </div>
 
-            <div class="cart-content" id="cart-content">
-              <!-- Cart items will be populated by JavaScript -->
+            <div class="cart-content">
+              <!-- Cart Items Section -->
+              <div class="cart-items-section">
+                <div class="cart-items-header">
+                  <h2 class="cart-items-title">Your Items</h2>
+                  <span class="cart-items-count" id="cart-items-count">0 items</span>
+                </div>
+                <div id="cart-content">
+                  <!-- Cart items will be populated by JavaScript -->
+                </div>
+              </div>
+
+              <!-- Cart Summary Section -->
+              <div class="cart-summary-section">
+                <h3 class="cart-summary-title">Order Summary</h3>
+                <div id="cart-summary">
+                  <!-- Summary will be populated by JavaScript -->
+                </div>
+              </div>
             </div>
 
             <div class="continue-shopping">
@@ -233,26 +250,34 @@
     </article>
   </main>
 
-  <!-- Footer -->
+   <!--
+    - #FOOTER
+  -->
+
   <footer class="footer section has-bg-image text-center"
     style="background-image: url('./assets/images/footer-bg.jpg')">
     <div class="container">
+
       <div class="footer-top grid-list">
-        <div class="footer-brand">
-          <a href="./index.html" class="logo">
-            <img src="./assets/images/logo.svg" width="160" height="50" alt="Peppino's - Home">
+
+        <div class="footer-brand has-before has-after">
+
+          <a href="index.html" class="logo">
+            <img src="./assets/images/logo-1.png" width="120" height="38" loading="lazy" alt="Peppino's Dosa home">
           </a>
 
           <address class="body-4">
-            Restaurant St, Delicious City, <br>
-            London 9578, UK
+            434 Moody St, Waltham, MA 02453
           </address>
 
-          <a href="mailto:booking@restaurant.com" class="body-4 contact-link">booking@restaurant.com</a>
-          <a href="tel:+88123123456" class="body-4 contact-link">Booking Request : +88-123-123456</a>
+          <a href="mailto:Walthampeppinosdosa@gmail.com" class="body-4 contact-link">Walthampeppinosdosa@gmail.com</a>
+
+          <a href="tel:+17815476099" class="body-4 contact-link">Booking Request : (781) 547-6099</a>
 
           <p class="body-4">
-            Open : 09:00 am - 01:00 pm
+            Lunch Buffet: Mon-Fri 11:30AM-3PM<br>
+            Dining: Mon-Thu 11:30AM-3PM, 5-10PM<br>
+            Fri-Sun 11:30AM-3:30PM, 4:30-10PM
           </p>
 
           <div class="wrapper">
@@ -262,6 +287,7 @@
           </div>
 
           <!-- <p class="title-1">Get News & Offers</p>
+
           <p class="label-1">
             Subscribe us & Get <span class="span">25% Off.</span>
           </p> -->
@@ -269,69 +295,151 @@
           <form action="" class="input-wrapper">
             <div class="icon-wrapper">
               <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+
               <input type="email" name="email_address" placeholder="Your email" autocomplete="off" class="input-field">
             </div>
+
             <button type="submit" class="btn btn-secondary">
               <span class="text text-1">Subscribe</span>
+
               <span class="text text-2" aria-hidden="true">Subscribe</span>
             </button>
           </form>
+
         </div>
 
         <ul class="footer-list">
+
           <li>
-            <a href="./index.html" class="label-2 footer-link hover-underline">Home</a>
+            <a href="index.html" class="text-white footer-link hover-underline">Home</a>
           </li>
+
           <li>
-            <a href="./menu.html" class="label-2 footer-link hover-underline">Menus</a>
+            <a href="menu.html" class="text-white footer-link hover-underline">Menus</a>
           </li>
+
           <li>
-            <a href="./about.html" class="label-2 footer-link hover-underline">About Us</a>
+            <a href="about.html" class="text-white footer-link hover-underline">About Us</a>
           </li>
+
           <li>
-            <a href="./chefs.html" class="label-2 footer-link hover-underline">Our Chefs</a>
+            <a href="chefs.html" class="text-white footer-link hover-underline">Our Chefs</a>
           </li>
+
           <li>
-            <a href="./contact.html" class="label-2 footer-link hover-underline">Contact</a>
+            <a href="catering.html" class="text-white footer-link hover-underline">Catering</a>
           </li>
+
+          <li>
+            <a href="blog.html" class="text-white footer-link hover-underline">Blog</a>
+          </li>
+
+          <li>
+            <a href="contact.html" class="text-white footer-link hover-underline">Contact</a>
+          </li>
+
         </ul>
 
         <ul class="footer-list">
+
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Facebook</a>
+            <a href="#" class="text-white footer-link hover-underline">Facebook</a>
           </li>
+
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Instagram</a>
+            <a href="#" class="text-white footer-link hover-underline">Instagram</a>
           </li>
+
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Twitter</a>
+            <a href="#" class="text-white footer-link hover-underline">Twitter</a>
           </li>
+
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Youtube</a>
+            <a href="#" class="text-white footer-link hover-underline">Youtube</a>
           </li>
+
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Google Map</a>
+            <a href="#" class="text-white footer-link hover-underline">Google Map</a>
           </li>
+
         </ul>
+
       </div>
 
       <div class="footer-bottom">
+
         <p class="copyright">
-          &copy; 2022 Peppino's. All Rights Reserved | Crafted by <a href="#" target="_blank"
-            class="link">codewithsadee</a>
+          &copy; 2025 Peppinos. All Rights Reserved
         </p>
+
       </div>
+
     </div>
   </footer>
-
   <!-- Back to top button -->
   <a href="#top" class="back-top-btn active" aria-label="back to top" data-back-top-btn>
     <ion-icon name="chevron-up" aria-hidden="true"></ion-icon>
   </a>
 
+  <!-- Cart Sidebar (will be populated by JavaScript) -->
+  <div id="cart-overlay" class="cart-overlay">
+    <div class="cart-sidebar">
+      <div class="cart-header">
+        <h3 class="cart-title">Your Cart</h3>
+        <button class="cart-close-btn" aria-label="Close cart">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="cart-content">
+        <div class="cart-items" id="cart-items">
+          <!-- Cart items will be populated by JavaScript -->
+        </div>
+
+        <div class="cart-summary">
+          <div class="cart-summary-row">
+            <span>Subtotal</span>
+            <span id="cart-subtotal">$0.00</span>
+          </div>
+          <div class="cart-summary-row">
+            <span>Tax</span>
+            <span id="cart-tax">$0.00</span>
+          </div>
+          <div class="cart-summary-row cart-total">
+            <span>Total</span>
+            <span id="cart-total">$0.00</span>
+          </div>
+        </div>
+
+        <div class="cart-actions">
+          <button class="btn btn-outline" id="view-cart-btn">View Cart</button>
+          <button class="btn btn-primary" id="checkout-btn">Checkout</button>
+        </div>
+      </div>
+
+      <div class="cart-empty" id="cart-empty" style="display: none;">
+        <div class="cart-empty-content">
+          <ion-icon name="bag-outline" class="cart-empty-icon"></ion-icon>
+          <h4>Your cart is empty</h4>
+          <p>Add some delicious items to get started!</p>
+          <button class="btn btn-primary" onclick="window.location.href='./menu.html'">
+            Browse Menu
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Custom JS -->
   <script src="./assets/js/script.js"></script>
   <script type="module" src="./assets/js/cart.js"></script>
+
+  <!--
+    - authentication integration
+  -->
+  <script type="module" src="./assets/js/config.js"></script>
+  <script type="module" src="./assets/js/navigation.js"></script>
+  <script type="module" src="./assets/js/auth.js"></script>
 
   <!-- Ionicon link -->
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
