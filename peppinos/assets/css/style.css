@@ -203,11 +203,27 @@ body {
 }
 
 body.loaded {
-  overflow: overlay;
+  overflow: auto;
+  overflow-x: hidden;
 }
 
 body.nav-active {
   overflow: hidden;
+}
+
+/* Mobile-specific overflow fixes */
+@media (max-width: 768px) {
+  body.loaded {
+    overflow: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body.cart-open {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+  }
 }
 
 ::-webkit-scrollbar {
@@ -6730,7 +6746,7 @@ body.home-page .header.active .btn:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: 1000000; /* Higher than cart overlay */
   backdrop-filter: blur(4px);
 }
 
@@ -6851,15 +6867,30 @@ body.home-page .header.active .btn:hover {
   transform: translateY(-2px);
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+  .auth-modal-overlay {
+    z-index: 1000001 !important; /* Ensure highest z-index on mobile */
+    padding: 1rem;
+  }
+
   .auth-modal {
     width: 95%;
-    margin: 1rem;
+    margin: 0;
+    max-width: none;
   }
 
   .auth-modal-header,
   .auth-modal-body {
     padding: 1rem;
+  }
+
+  .auth-options {
+    gap: 0.75rem;
+  }
+
+  .btn-auth {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9rem;
   }
 }
 

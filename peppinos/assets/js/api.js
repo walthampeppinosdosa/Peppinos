@@ -7,42 +7,12 @@ import { CONFIG, getApiUrl } from './config.js';
 import { getAuthToken, removeAuthData, isTokenExpired } from './auth.js';
 
 /**
- * Request Rate Limiter
- * Prevents excessive API requests
+ * Request Deduplicator
+ * Prevents duplicate identical requests
  */
-class RequestLimiter {
+class RequestDeduplicator {
   constructor() {
-    this.requests = new Map(); // endpoint -> { count, resetTime }
-    this.maxRequestsPerMinute = 120; // Increased limit per endpoint
-    this.windowMs = 60000; // 1 minute
     this.pendingRequests = new Map(); // Track pending requests to prevent duplicates
-  }
-
-  canMakeRequest(endpoint) {
-    const now = Date.now();
-    const key = endpoint.split('?')[0]; // Remove query params for grouping
-
-    if (!this.requests.has(key)) {
-      this.requests.set(key, { count: 1, resetTime: now + this.windowMs });
-      return true;
-    }
-
-    const requestData = this.requests.get(key);
-
-    // Reset if window has passed
-    if (now > requestData.resetTime) {
-      this.requests.set(key, { count: 1, resetTime: now + this.windowMs });
-      return true;
-    }
-
-    // Check if under limit
-    if (requestData.count < this.maxRequestsPerMinute) {
-      requestData.count++;
-      return true;
-    }
-
-    console.warn(`Rate limit exceeded for ${key}. Please wait.`);
-    return false;
   }
 
   // Check if request is already pending
@@ -65,7 +35,7 @@ class RequestLimiter {
   }
 }
 
-const requestLimiter = new RequestLimiter();
+const requestDeduplicator = new RequestDeduplicator();
 
 /**
  * HTTP Client Class
@@ -158,14 +128,9 @@ class HttpClient {
     const requestKey = config.method === 'GET' ? `${config.method}:${url}` : null;
 
     // Check if identical GET request is already pending
-    if (requestKey && requestLimiter.isPending(requestKey)) {
+    if (requestKey && requestDeduplicator.isPending(requestKey)) {
       console.log('🔄 Returning existing pending request for:', requestKey);
-      return requestLimiter.getPendingRequest(requestKey);
-    }
-
-    // Check rate limit before making request
-    if (!requestLimiter.canMakeRequest(url)) {
-      throw new Error('Rate limit exceeded. Please wait before making more requests.');
+      return requestDeduplicator.getPendingRequest(requestKey);
     }
 
     const makeRequest = async () => {
@@ -177,18 +142,7 @@ class HttpClient {
         console.error('API Request Error:', error);
       }
 
-      // Handle rate limiting with retry
-      if (error.status === 429) {
-        console.warn('Rate limited, retrying after delay...');
-        await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 1000)); // Wait 2-3 seconds
-        try {
-          const retryResponse = await fetch(url, config);
-          return await this.handleResponse(retryResponse);
-        } catch (retryError) {
-          console.error('Retry failed:', retryError);
-          throw retryError;
-        }
-      }
+      // Rate limiting removed - no longer needed
 
         throw error;
       }
@@ -196,7 +150,7 @@ class HttpClient {
 
     // If this is a GET request, mark it as pending to prevent duplicates
     if (requestKey) {
-      return requestLimiter.markPending(requestKey, makeRequest());
+      return requestDeduplicator.markPending(requestKey, makeRequest());
     } else {
       return makeRequest();
     }

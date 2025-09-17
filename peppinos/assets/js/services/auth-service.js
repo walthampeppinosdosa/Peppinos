@@ -89,9 +89,15 @@ class AuthService {
    */
   showLoginPrompt(message = 'Please sign in to continue with your order') {
     return new Promise((resolve, reject) => {
+      // Close cart sidebar first if it's open
+      if (window.cartUI && window.cartUI.isOpen) {
+        window.cartUI.closeCart();
+      }
+
       // Create login modal
       const modal = document.createElement('div');
       modal.className = 'auth-modal-overlay';
+      modal.style.zIndex = '1000000'; // Higher than cart overlay
       modal.innerHTML = `
         <div class="auth-modal">
           <div class="auth-modal-header">

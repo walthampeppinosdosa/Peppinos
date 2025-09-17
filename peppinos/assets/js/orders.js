@@ -232,17 +232,21 @@ class OrdersPage {
 
   async trackOrder(orderId) {
     try {
+      // First try to get the order to get the order number
       const response = await httpClient.get(`/api/shop/orders/${orderId}/track`);
-      
+
       if (response.success) {
         const order = response.data.order;
-        this.showOrderTracking(order);
+        // Redirect to order tracking page with order number
+        window.location.href = `./order-tracking.html?orderNumber=${order.orderNumber}`;
       } else {
         throw new Error(response.message || 'Failed to track order');
       }
     } catch (error) {
       console.error('Error tracking order:', error);
-      this.showError('Failed to track order');
+      // If the authenticated endpoint fails, try to redirect with order ID
+      // The tracking page will handle the fallback
+      window.location.href = `./order-tracking.html?orderNumber=${orderId}`;
     }
   }
 

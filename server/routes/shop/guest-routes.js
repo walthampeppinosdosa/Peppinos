@@ -122,6 +122,44 @@ router.get('/orders/session/:sessionId', getGuestOrdersBySession);
  */
 router.get('/orders/:orderNumber/track', trackGuestOrder);
 
+/**
+ * @route   GET /api/shop/guest/orders/id/:orderId
+ * @desc    Get order by ID (for order confirmation page)
+ * @access  Public
+ */
+router.get('/orders/id/:orderId', async (req, res) => {
+  try {
+    const Order = require('../../models/Order');
+    const orderId = req.params.orderId;
+
+    const order = await Order.findById(orderId)
+      .populate([
+        { path: 'user', select: 'name email phoneNumber role' },
+        { path: 'items.menu', select: 'name images category' }
+      ]);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      order
+    });
+
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch order',
+      error: error.message
+    });
+  }
+});
+
 // Guest Session Management Routes
 /**
  * @route   GET /api/shop/guest/session

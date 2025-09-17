@@ -1,95 +1,10 @@
-const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cors = require('cors');
-const slowDown = require('express-slow-down');
 
-// Rate limiting configurations
-const createRateLimit = (windowMs, max, message, skipSuccessfulRequests = false) => {
-  return rateLimit({
-    windowMs,
-    max,
-    message: {
-      success: false,
-      message
-    },
-    standardHeaders: true,
-    legacyHeaders: false,
-    skipSuccessfulRequests,
-    handler: (req, res) => {
-      res.status(429).json({
-        success: false,
-        message,
-        retryAfter: Math.round(windowMs / 1000)
-      });
-    }
-  });
-};
-
-// General rate limit - disabled in development
-const generalLimiter = process.env.NODE_ENV === 'development'
-  ? (req, res, next) => next() // Skip rate limiting in development
-  : createRateLimit(
-      15 * 60 * 1000, // 15 minutes
-      100, // limit each IP to 100 requests per windowMs
-      'Too many requests from this IP, please try again later.'
-    );
-
-// Auth rate limit (stricter) - disabled in development
-const authLimiter = process.env.NODE_ENV === 'development'
-  ? (req, res, next) => {
-      console.log('🔓 Auth rate limiting disabled in development');
-      next();
-    } // Skip rate limiting in development
-  : createRateLimit(
-      15 * 60 * 1000, // 15 minutes
-      5, // limit each IP to 5 requests per windowMs
-      'Too many authentication attempts, please try again later.',
-      true // Skip successful requests
-    );
-
-// Password reset rate limit - disabled in development
-const passwordResetLimiter = process.env.NODE_ENV === 'development'
-  ? (req, res, next) => next() // Skip rate limiting in development
-  : createRateLimit(
-      60 * 60 * 1000, // 1 hour
-      3, // limit each IP to 3 password reset requests per hour
-      'Too many password reset attempts, please try again later.'
-    );
-
-// API rate limit
-const apiLimiter = createRateLimit(
-  15 * 60 * 1000, // 15 minutes
-  1000, // limit each IP to 1000 requests per windowMs
-  'API rate limit exceeded, please try again later.'
-);
-
-// Admin API rate limit (more restrictive)
-const adminApiLimiter = createRateLimit(
-  15 * 60 * 1000, // 15 minutes
-  process.env.NODE_ENV === 'development' ? 2000 : 500, // Higher limit for development
-  'Admin API rate limit exceeded, please try again later.'
-);
-
-// File upload rate limit
-const uploadLimiter = createRateLimit(
-  15 * 60 * 1000, // 15 minutes
-  20, // limit each IP to 20 uploads per windowMs
-  'Too many file uploads, please try again later.'
-);
-
-// Speed limiter for suspicious activity
-const speedLimiter = slowDown({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  delayAfter: 50, // allow 50 requests per windowMs without delay
-  delayMs: (used, req) => {
-    const delayAfter = req.slowDown.limit;
-    return (used - delayAfter) * 500;
-  }, // add 500ms delay per request after delayAfter (v2 compatible)
-  maxDelayMs: 20000, // maximum delay of 20 seconds
-});
+// Rate limiting removed - was causing issues in development and production
 
 // CORS configuration
 const corsOptions = {
@@ -262,13 +177,6 @@ const validateApiKey = (req, res, next) => {
 };
 
 module.exports = {
-  generalLimiter,
-  authLimiter,
-  passwordResetLimiter,
-  apiLimiter,
-  adminApiLimiter,
-  uploadLimiter,
-  speedLimiter,
   corsOptions,
   helmetConfig,
   securityHeaders,

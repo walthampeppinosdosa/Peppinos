@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const { corsOptions, helmetConfig, mongoSanitize, generalLimiter, authLimiter, adminApiLimiter } = require('./middleware/security-middleware');
+const { corsOptions, helmetConfig, mongoSanitize } = require('./middleware/security-middleware');
 require('dotenv').config();
 
 const app = express();
@@ -14,8 +14,7 @@ app.use(mongoSanitize);
 // CORS configuration - Use the comprehensive CORS options
 app.use(cors(corsOptions));
 
-// Rate limiting
-app.use('/api/', generalLimiter);
+// Rate limiting removed - causing issues in development
 
 // Handle preflight requests
 app.options('*', cors(corsOptions));
@@ -78,6 +77,18 @@ async function connectToDatabase() {
   try {
     cachedConnection = mongoose.connect(process.env.MONGODB_URI, mongoOptions);
     await cachedConnection;
+
+    // Show success message only in local development
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('✅ MongoDB connected successfully');
+      console.log('📊 Connection details:', {
+        host: mongoose.connection.host,
+        port: mongoose.connection.port,
+        name: mongoose.connection.name,
+        readyState: mongoose.connection.readyState
+      });
+    }
+
     return cachedConnection;
   } catch (err) {
     console.error('MongoDB connection error:', err.message);
@@ -87,8 +98,20 @@ async function connectToDatabase() {
 }
 
 // Handle MongoDB connection events
+mongoose.connection.on('connected', () => {
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('🔗 Mongoose connected to MongoDB');
+  }
+});
+
 mongoose.connection.on('error', (err) => {
   console.error('MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('🔌 Mongoose disconnected from MongoDB');
+  }
 });
 
 // Graceful shutdown
@@ -184,9 +207,7 @@ app.use('/api', (req, res, next) => {
 });
 
 // Routes
-app.use('/api/auth', authLimiter);
 app.use('/api/auth', require('./routes/auth/auth-routes'));
-app.use('/api/admin', adminApiLimiter); // Apply admin rate limiting to all admin routes
 app.use('/api/admin/menu', require('./routes/admin/menu-routes')); // New menu routes
 app.use('/api/admin', require('./routes/admin/category-routes'));
 app.use('/api/admin', require('./routes/admin/order-routes'));

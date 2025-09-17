@@ -173,6 +173,8 @@ router.get('/orders/track/:orderNumber', async (req, res) => {
   }
 });
 
+
+
 // POST /api/shop/payment/checkout - Stripe checkout (placeholder for now)
 router.post('/payment/checkout', (req, res) => {
   res.status(501).json({

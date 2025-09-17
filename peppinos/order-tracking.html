@@ -257,71 +257,143 @@
 
 <body id="top">
 
-  <!-- HEADER -->
+  <!--
+    - #HEADER
+  -->
+
   <header class="header" data-header>
     <div class="container">
-      <a href="./index.html" class="logo">
-        <img src="./assets/images/logo-1.png" width="160" height="50" alt="Peppino's - Home">
+
+      <a href="index.html" class="logo">
+        <div class="logo-container">
+          <div class="logo-spinner">
+            <div class="logo-face logo-face-1">
+              <img src="./assets/images/logo-1.png" width="360" height="114" alt="Peppino's Dosa - Home">
+            </div>
+            <div class="logo-face logo-face-2">
+              <img src="./assets/images/logo-2.png" width="360" height="114" alt="Peppino's Dosa - Home">
+            </div>
+            <div class="logo-face logo-face-3">
+              <img src="./assets/images/logo-3.png" width="360" height="114" alt="Peppino's Dosa - Home">
+            </div>
+          </div>
+        </div>
       </a>
 
       <nav class="navbar" data-navbar>
+
         <button class="close-btn" aria-label="close menu" data-nav-toggler>
           <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
         </button>
 
-        <a href="./index.html" class="logo">
-          <img src="./assets/images/logo-1.png" width="160" height="50" alt="Peppino's - Home">
+        <a href="index.html" class="logo">
+          <div class="logo-container">
+            <div class="logo-spinner">
+              <div class="logo-face logo-face-1">
+                <img src="./assets/images/logo-1.png" width="360" height="114" alt="Peppino's Dosa - Home">
+              </div>
+              <div class="logo-face logo-face-2">
+                <img src="./assets/images/logo-2.png" width="360" height="114" alt="Peppino's Dosa - Home">
+              </div>
+              <div class="logo-face logo-face-3">
+                <img src="./assets/images/logo-3.png" width="360" height="114" alt="Peppino's Dosa - Home">
+              </div>
+            </div>
+          </div>
         </a>
 
         <ul class="navbar-list">
+
           <li class="navbar-item">
-            <a href="./index.html" class="navbar-link hover-underline">
+            <a href="index.html" class="navbar-link hover-underline active">
               <div class="separator"></div>
+
               <span class="span">Home</span>
             </a>
           </li>
 
           <li class="navbar-item">
-            <a href="./menu.html" class="navbar-link hover-underline">
+            <a href="menu.html" class="navbar-link hover-underline">
               <div class="separator"></div>
+
               <span class="span">Menus</span>
             </a>
           </li>
 
           <li class="navbar-item">
-            <a href="./about.html" class="navbar-link hover-underline">
+            <a href="about.html" class="navbar-link hover-underline">
               <div class="separator"></div>
+
               <span class="span">About Us</span>
             </a>
           </li>
 
           <li class="navbar-item">
-            <a href="./contact.html" class="navbar-link hover-underline">
+            <a href="chefs.html" class="navbar-link hover-underline">
               <div class="separator"></div>
+
+              <span class="span">Our Chefs</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="catering.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+              <span class="span">Catering</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="contact.html" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
               <span class="span">Contact</span>
             </a>
           </li>
+
         </ul>
 
         <div class="text-center">
-          <p class="headline-1 navbar-title">Visit Us</p>
+          <p class="headline-1 text-white navbar-title">Visit Us</p>
+
           <address class="body-4">
-            434 Moody St, Waltham, MA 02453
+            434 Moody St, <br>
+            Waltham, MA 02453
           </address>
 
-          <p class="body-4 navbar-text">Open: 11:30AM - 10:00PM</p>
+          <p class="body-4 navbar-text">Lunch Buffet: Mon-Fri 11:30AM-3PM</p>
+
           <a href="mailto:Walthampeppinosdosa@gmail.com" class="body-4 sidebar-link">Walthampeppinosdosa@gmail.com</a>
 
           <div class="separator"></div>
 
           <p class="contact-label">Booking Request</p>
+
           <a href="tel:+17815476099" class="body-1 contact-number hover-underline">
             (781) 547-6099
           </a>
         </div>
+
+        <div class="navbar-actions">
+          <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google navbar-btn" rel="noopener">
+            <span class="text text-1">Google Business</span>
+            <span class="text text-2" aria-hidden="true">Google Business</span>
+          </a>
+
+          <a href="./login.html" class="btn btn-secondary navbar-btn">
+            <span class="text text-1">Sign In</span>
+            <span class="text text-2" aria-hidden="true">Sign In</span>
+          </a>
+        </div>
+
       </nav>
 
       <div class="header-actions">
+        <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google" rel="noopener">
+          <span class="text text-1">Google Business</span>
+          <span class="text text-2" aria-hidden="true">Google Business</span>
+        </a>
+
         <!-- Auth buttons will be populated by JavaScript -->
         <div id="auth-buttons"></div>
 
@@ -339,8 +411,10 @@
       </button>
 
       <div class="overlay" data-nav-toggler data-overlay></div>
+
     </div>
   </header>
+
 
   <main>
     <article>
@@ -390,14 +464,20 @@
     </article>
   </main>
 
-  <!-- FOOTER -->
+ <!--
+    - #FOOTER
+  -->
+
   <footer class="footer section has-bg-image text-center"
     style="background-image: url('./assets/images/footer-bg.jpg')">
     <div class="container">
+
       <div class="footer-top grid-list">
-        <div class="footer-brand">
-          <a href="./index.html" class="logo">
-            <img src="./assets/images/logo-1.png" width="160" height="50" alt="Peppino's - Home">
+
+        <div class="footer-brand has-before has-after">
+
+          <a href="index.html" class="logo">
+            <img src="./assets/images/logo-1.png" width="120" height="38" loading="lazy" alt="Peppino's Dosa home">
           </a>
 
           <address class="body-4">
@@ -405,6 +485,7 @@
           </address>
 
           <a href="mailto:Walthampeppinosdosa@gmail.com" class="body-4 contact-link">Walthampeppinosdosa@gmail.com</a>
+
           <a href="tel:+17815476099" class="body-4 contact-link">Booking Request : (781) 547-6099</a>
 
           <p class="body-4">
@@ -412,14 +493,101 @@
             Dining: Mon-Thu 11:30AM-3PM, 5-10PM<br>
             Fri-Sun 11:30AM-3:30PM, 4:30-10PM
           </p>
+
+          <div class="wrapper">
+            <div class="separator"></div>
+            <div class="separator"></div>
+            <div class="separator"></div>
+          </div>
+
+          <!-- <p class="title-1">Get News & Offers</p>
+
+          <p class="label-1">
+            Subscribe us & Get <span class="span">25% Off.</span>
+          </p> -->
+
+          <form action="" class="input-wrapper">
+            <div class="icon-wrapper">
+              <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+
+              <input type="email" name="email_address" placeholder="Your email" autocomplete="off" class="input-field">
+            </div>
+
+            <button type="submit" class="btn btn-secondary">
+              <span class="text text-1">Subscribe</span>
+
+              <span class="text text-2" aria-hidden="true">Subscribe</span>
+            </button>
+          </form>
+
         </div>
+
+        <ul class="footer-list">
+
+          <li>
+            <a href="index.html" class="text-white footer-link hover-underline">Home</a>
+          </li>
+
+          <li>
+            <a href="menu.html" class="text-white footer-link hover-underline">Menus</a>
+          </li>
+
+          <li>
+            <a href="about.html" class="text-white footer-link hover-underline">About Us</a>
+          </li>
+
+          <li>
+            <a href="chefs.html" class="text-white footer-link hover-underline">Our Chefs</a>
+          </li>
+
+          <li>
+            <a href="catering.html" class="text-white footer-link hover-underline">Catering</a>
+          </li>
+
+          <li>
+            <a href="blog.html" class="text-white footer-link hover-underline">Blog</a>
+          </li>
+
+          <li>
+            <a href="contact.html" class="text-white footer-link hover-underline">Contact</a>
+          </li>
+
+        </ul>
+
+        <ul class="footer-list">
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Facebook</a>
+          </li>
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Instagram</a>
+          </li>
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Twitter</a>
+          </li>
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Youtube</a>
+          </li>
+
+          <li>
+            <a href="#" class="text-white footer-link hover-underline">Google Map</a>
+          </li>
+
+        </ul>
+
       </div>
 
       <div class="footer-bottom">
+
         <p class="copyright">
           &copy; 2025 Peppinos. All Rights Reserved
         </p>
+
       </div>
+
     </div>
   </footer>
 
@@ -434,6 +602,7 @@
   <!-- Order tracking functionality -->
   <script type="module">
     import { formatCurrency } from './assets/js/ui.js';
+    import { getApiUrl } from './assets/js/config.js';
 
     class OrderTracker {
       constructor() {
@@ -472,15 +641,48 @@
       async trackOrder(orderNumber) {
         try {
           this.showLoading();
-          
-          const response = await fetch(`/api/shop/orders/track/${orderNumber}`);
-          const data = await response.json();
+
+          // First try authenticated endpoint
+          let response = await fetch(getApiUrl(`/api/shop/orders/track/${orderNumber}`));
+          let data = await response.json();
+
+          // If authenticated endpoint fails, try guest endpoint
+          if (!response.ok || !data.success) {
+            response = await fetch(getApiUrl(`/api/shop/guest/orders/${orderNumber}/track`));
+            data = await response.json();
+          }
 
           if (!response.ok || !data.success) {
             throw new Error(data.message || 'Order not found');
           }
 
-          this.displayOrderStatus(data.order);
+          // Handle different response formats
+          const orderData = data.order || data.data;
+
+          // If this is guest tracking data, we need to fetch full order details
+          if (data.data && !data.order) {
+            // This is guest tracking response, fetch full order details
+            try {
+              const fullOrderResponse = await fetch(getApiUrl(`/api/shop/guest/orders/${orderNumber}`));
+              const fullOrderData = await fullOrderResponse.json();
+              if (fullOrderResponse.ok && fullOrderData.success) {
+                // Merge tracking data with full order data
+                const fullOrder = fullOrderData.data.order;
+                fullOrder.status = orderData.status;
+                fullOrder.paymentStatus = orderData.paymentStatus;
+                fullOrder.estimatedDeliveryTime = orderData.estimatedDeliveryTime;
+                this.displayOrderStatus(fullOrder);
+              } else {
+                // Fallback to tracking data only
+                this.displayOrderStatus(orderData);
+              }
+            } catch (error) {
+              console.warn('Could not fetch full order details, using tracking data only:', error);
+              this.displayOrderStatus(orderData);
+            }
+          } else {
+            this.displayOrderStatus(orderData);
+          }
 
         } catch (error) {
           console.error('Error tracking order:', error);
@@ -514,28 +716,33 @@
               <span><strong>${order.orderNumber}</strong></span>
             </div>
             
-            <div class="detail-row">
-              <span>Order Type:</span>
-              <span>${order.orderType === 'pickup' ? 'Pickup' : 'Delivery'}</span>
-            </div>
+            ${order.orderType ? `
+              <div class="detail-row">
+                <span>Order Type:</span>
+                <span>${order.orderType === 'pickup' ? 'Pickup' : 'Delivery'}</span>
+              </div>
+            ` : ''}
             
             <div class="detail-row">
               <span>Order Date:</span>
-              <span>${new Date(order.createdAt).toLocaleDateString('en-US', {
-                weekday: 'short',
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true
-              })}</span>
+              <span>${order.createdAt || order.orderDate ?
+                new Date(order.createdAt || order.orderDate).toLocaleDateString('en-US', {
+                  weekday: 'short',
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true
+                }) : 'Not available'}</span>
             </div>
-            
-            <div class="detail-row">
-              <span>Total Amount:</span>
-              <span><strong>${formatCurrency(order.total)}</strong></span>
-            </div>
+
+            ${order.totalPrice || order.total ? `
+              <div class="detail-row">
+                <span>Total Amount:</span>
+                <span><strong>${formatCurrency(order.totalPrice || order.total)}</strong></span>
+              </div>
+            ` : ''}
             
             ${order.deliveryAddress ? `
               <div class="detail-row">

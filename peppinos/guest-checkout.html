@@ -117,24 +117,27 @@
 
     .btn-checkout {
       width: 100%;
-      padding: 1rem;
       background: var(--gold-crayola);
-      color: var(--white);
+      color: var(--eerie-black-1);
       border: none;
-      border-radius: 4px;
+      padding: 1rem 2rem;
       font-size: 1.1rem;
       font-weight: 600;
+      border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
     }
 
     .btn-checkout:hover {
       background: var(--golden-poppy);
+      transform: translateY(-2px);
     }
 
     .btn-checkout:disabled {
-      background: var(--cultured);
+      background: var(--quick-silver);
       cursor: not-allowed;
+      transform: none;
       position: relative;
     }
 
@@ -338,7 +341,7 @@
       }
 
       .btn-checkout {
-        padding: 1.25rem;
+        padding: 1.25rem 2rem;
         font-size: 1.2rem;
         border-radius: 8px;
       }
@@ -352,6 +355,31 @@
       .radio-option label {
         font-size: 1.1rem;
         cursor: pointer;
+      }
+    }
+
+    /* Mobile scroll fixes */
+    @media (max-width: 768px) {
+      body {
+        overflow: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        height: auto !important;
+        min-height: 100vh !important;
+      }
+
+      html {
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+
+      .checkout-container {
+        padding: 1rem;
+        margin: 1rem auto;
+      }
+
+      main {
+        padding-bottom: 2rem;
       }
     }
   </style>
@@ -1105,10 +1133,11 @@
 
           if (!result.success) {
             // Show detailed error message in toast
-            let errorMessage = result.message || 'Failed to place order';
+            let errorMessage = result.error || 'Failed to place order';
 
             // If there's a specific validation error, show it
             if (result.error) {
+              errorMessage = result.error;
               if (result.error.includes('duplicate key error') && result.error.includes('email')) {
                 errorMessage = 'This email is already registered. Please use a different email or sign in to your account.';
               } else if (result.error.includes('validation failed')) {
@@ -1289,6 +1318,8 @@
 
     // Initialize checkout manager when page loads
     document.addEventListener('DOMContentLoaded', () => {
+      // Add loaded class to enable scrolling
+      document.body.classList.add('loaded');
       new CheckoutManager();
     });
   </script>
