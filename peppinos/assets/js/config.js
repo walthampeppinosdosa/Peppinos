@@ -58,6 +58,16 @@ export const CONFIG = {
       CATEGORIES: {
         GET_ALL: '/api/shop/categories',
         GET_BY_ID: '/api/shop/categories'
+      },
+      // Address endpoints (Shop)
+      ADDRESS: {
+        GET_ALL: '/api/shop/addresses',
+        GET_BY_ID: '/api/shop/addresses',
+        CREATE: '/api/shop/addresses',
+        UPDATE: '/api/shop/addresses',
+        DELETE: '/api/shop/addresses',
+        SET_DEFAULT: '/api/shop/addresses',
+        GET_DEFAULT: '/api/shop/addresses/default'
       }
     }
   },
@@ -124,6 +134,17 @@ export const CONFIG = {
     },
     PHONE: {
       PATTERN: /^\+?[\d\s\-\(\)]+$/
+    }
+  },
+
+  // Location Services Configuration (RapidAPI)
+  LOCATION: {
+    RAPIDAPI_KEY: '79c1d61b05msh074c13a69af8475p1dd228jsn7e411b29dbbc',
+    RAPIDAPI_HOST: 'city-and-state-search-api.p.rapidapi.com',
+    RAPIDAPI_BASE_URL: 'https://city-and-state-search-api.p.rapidapi.com',
+    ENDPOINTS: {
+      STATES: '/states',
+      CITIES: '/cities'
     }
   },
 
@@ -207,6 +228,6 @@ export const getValidationRule = (type) => {
 };
 
 // Export individual configurations for convenience
-export const { API, AUTH, KINDE, APP, UI, VALIDATION, FEATURES, DEV } = CONFIG;
+export const { API, AUTH, KINDE, APP, UI, VALIDATION, FEATURES, DEV, LOCATION } = CONFIG;
 
 export default CONFIG;

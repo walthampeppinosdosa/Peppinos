@@ -127,9 +127,9 @@ export const Login: React.FC = () => {
           <div className="mt-6 p-4 bg-muted rounded-lg">
             <p className="text-sm text-muted-foreground mb-2">Demo Accounts:</p>
             <div className="space-y-1 text-xs">
-              <p><strong>Super Admin:</strong> superadmin@peppinos.com / SuperAdmin123</p>
-              <p><strong>Veg Admin:</strong> vegadmin@peppinos.com / VegAdmin123</p>
-              <p><strong>Non-Veg Admin:</strong> nonvegadmin@peppinos.com / NonVegAdmin123</p>
+              <p><strong>Super Admin:</strong> superadmin@peppinos.com / Superadmin1@peppinos.com</p>
+              <p><strong>Veg Admin:</strong> vegadmin@peppinos.com / VegAdmin@123</p>
+              <p><strong>Non-Veg Admin:</strong> nonvegadmin@peppinos.com / NonVegAdmin@123</p>
             </div>
           </div>
         </CardContent>

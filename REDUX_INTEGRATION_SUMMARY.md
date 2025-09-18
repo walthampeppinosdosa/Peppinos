@@ -138,15 +138,15 @@ cd admin && npm run dev
 ```
 Super Admin:
 Email: superadmin@peppinos.com
-Password: SuperAdmin123
+Password: Superadmin1@peppinos.com
 
 Veg Admin:
 Email: vegadmin@peppinos.com
-Password: VegAdmin123
+Password: VegAdmin@123
 
 Non-Veg Admin:
 Email: nonvegadmin@peppinos.com
-Password: NonVegAdmin123
+Password: NonVegAdmin@123
 ```
 
 #### 4. Using Redux in Components
