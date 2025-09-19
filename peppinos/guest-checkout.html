@@ -247,7 +247,7 @@
 
     .total-final {
       font-weight: 600;
-      font-size: 1.1rem;
+      font-size: 1.5rem;
       color: var(--gold-crayola);
       border-top: 1px solid var(--cultured);
       padding-top: 0.5rem;
@@ -398,9 +398,9 @@
           <div class="logo-face logo-face-2">
             <img src="./assets/images/logo-2.png" width="360" height="114" alt="Peppino's Dosa - Home">
           </div>
-          <div class="logo-face logo-face-3">
+          <!-- <div class="logo-face logo-face-3">
             <img src="./assets/images/logo-3.png" width="360" height="114" alt="Peppino's Dosa - Home">
-          </div>
+          </div> -->
         </div>
       </a>
 
@@ -577,12 +577,12 @@
                 <h3>Order Type</h3>
                 <div class="radio-group">
                   <div class="radio-option">
-                    <input type="radio" id="pickup" name="orderType" value="pickup">
+                    <input type="radio" id="pickup" name="orderType" value="pickup" checked>
                     <label for="pickup">Pickup</label>
                   </div>
                   <div class="radio-option">
-                    <input type="radio" id="delivery" name="orderType" value="delivery" checked>
-                    <label for="delivery">Delivery</label>
+                    <input type="radio" id="delivery" name="orderType" value="delivery" disabled>
+                    <label for="delivery" class="disabled-option">Delivery (Coming Soon)</label>
                   </div>
                 </div>
               </div>
@@ -590,24 +590,34 @@
               <!-- Delivery Address (shown only for delivery) -->
               <div class="form-section" id="deliveryAddressSection">
                 <h3>Delivery Address</h3>
-                
+
                 <div class="form-group">
                   <label for="street">Street Address *</label>
                   <input type="text" id="street" name="street" required>
                   <div class="error-message" id="streetError"></div>
                 </div>
 
+                <div class="form-group">
+                  <label for="landmark">Landmark (Optional)</label>
+                  <input type="text" id="landmark" name="landmark">
+                  <div class="error-message" id="landmarkError"></div>
+                </div>
+
                 <div class="form-row">
                   <div class="form-group">
-                    <label for="city">City *</label>
-                    <input type="text" id="city" name="city" required>
-                    <div class="error-message" id="cityError"></div>
+                    <label for="state">State *</label>
+                    <select id="state" name="state" required>
+                      <option value="">Select state...</option>
+                    </select>
+                    <div class="error-message" id="stateError"></div>
                   </div>
 
                   <div class="form-group">
-                    <label for="state">State *</label>
-                    <input type="text" id="state" name="state" required>
-                    <div class="error-message" id="stateError"></div>
+                    <label for="city">City *</label>
+                    <select id="city" name="city" required>
+                      <option value="">Select city...</option>
+                    </select>
+                    <div class="error-message" id="cityError"></div>
                   </div>
                 </div>
 
@@ -620,7 +630,7 @@
 
                   <div class="form-group">
                     <label for="country">Country</label>
-                    <input type="text" id="country" name="country" value="United States">
+                    <input type="text" id="country" name="country" value="United States" readonly>
                   </div>
                 </div>
               </div>
@@ -735,11 +745,7 @@
           </p> -->
 
           <form action="" class="input-wrapper">
-            <div class="icon-wrapper">
-              <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
-
-              <input type="email" name="email_address" placeholder="Your email" autocomplete="off" class="input-field">
-            </div>
+           
 
             <button type="submit" class="btn btn-secondary">
               <span class="text text-1">Subscribe</span>
@@ -835,6 +841,7 @@
     import { formatCurrency, showError, showSuccess } from './assets/js/ui.js';
     import { restaurantHours } from './assets/js/services/restaurant-hours.js';
     import { httpClient } from './assets/js/api.js';
+    import { getStatesList, getCitiesByState } from './assets/js/location-service.js';
 
     class CheckoutManager {
       constructor() {
@@ -862,6 +869,7 @@
         this.setupFormValidation();
         this.updateRestaurantStatus();
         this.setupMobileEnhancements();
+        this.initializeLocationServices();
 
         // Listen for cart updates (with debouncing to prevent infinite loops)
         let cartUpdateTimeout;
@@ -886,6 +894,74 @@
 
         // Form submission
         this.form.addEventListener('submit', this.handleFormSubmit.bind(this));
+
+        // State change for city loading
+        const stateField = document.getElementById('state');
+        if (stateField) {
+          stateField.addEventListener('change', (e) => {
+            this.loadCitiesForState(e.target.value);
+          });
+        }
+      }
+
+      async initializeLocationServices() {
+        try {
+          await this.loadStates();
+        } catch (error) {
+          console.error('Error initializing location services:', error);
+        }
+      }
+
+      async loadStates() {
+        const stateField = document.getElementById('state');
+        if (!stateField) return;
+
+        try {
+          stateField.innerHTML = '<option value="">Loading states...</option>';
+          const states = await getStatesList();
+
+          stateField.innerHTML = '<option value="">Select state...</option>';
+          states.forEach(state => {
+            const option = document.createElement('option');
+            option.value = state.value;
+            option.textContent = state.label;
+            stateField.appendChild(option);
+          });
+        } catch (error) {
+          console.error('Error loading states:', error);
+          stateField.innerHTML = '<option value="">Error loading states</option>';
+        }
+      }
+
+      async loadCitiesForState(stateCode) {
+        const cityField = document.getElementById('city');
+        if (!cityField || !stateCode) {
+          if (cityField) {
+            cityField.innerHTML = '<option value="">Select city...</option>';
+          }
+          return;
+        }
+
+        try {
+          cityField.innerHTML = '<option value="">🔄 Loading cities...</option>';
+          cityField.disabled = true;
+
+          const cities = await getCitiesByState(stateCode);
+
+          cityField.innerHTML = '<option value="">Select city...</option>';
+          cities.forEach(city => {
+            const option = document.createElement('option');
+            option.value = city.value;
+            option.textContent = city.label;
+            cityField.appendChild(option);
+          });
+
+          cityField.disabled = false;
+        } catch (error) {
+          console.error('Error loading cities:', error);
+          cityField.innerHTML = '<option value="">❌ Error loading cities</option>';
+          cityField.disabled = false;
+        }
       }
 
       handleOrderTypeChange(e) {
@@ -988,7 +1064,7 @@
           currentTimeFormatted: restaurantHours.formatTime(new Date())
         });
 
-        // For development/testing - allow ASAP even when closed
+        // Allow ASAP option to be enabled even when restaurant is closed
         const forceEnableASAP = localStorage.getItem('force_enable_asap') === 'true';
 
         if (!status.isOpen && !forceEnableASAP) {
@@ -1002,29 +1078,9 @@
           document.getElementById('scheduled').checked = true;
           this.handleTimingChange({ target: { value: 'scheduled' } });
           document.getElementById('asap').disabled = true;
-
-          // Add a temporary override button for testing
-          if (!document.getElementById('override-btn-guest')) {
-            const overrideBtn = document.createElement('button');
-            overrideBtn.id = 'override-btn-guest';
-            overrideBtn.type = 'button';
-            overrideBtn.textContent = 'Enable ASAP (Testing)';
-            overrideBtn.style.cssText = 'margin-top: 10px; padding: 5px 10px; background: #ff6b35; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;';
-            overrideBtn.onclick = () => {
-              localStorage.setItem('force_enable_asap', 'true');
-              this.updateRestaurantStatus();
-            };
-            statusElement.appendChild(overrideBtn);
-          }
         } else {
           statusElement.style.display = 'none';
           document.getElementById('asap').disabled = false;
-
-          // Remove override button if it exists
-          const overrideBtn = document.getElementById('override-btn-guest');
-          if (overrideBtn) {
-            overrideBtn.remove();
-          }
         }
       }
 
@@ -1041,7 +1097,7 @@
         document.getElementById('scheduledDate').max = maxDate.toISOString().split('T')[0];
 
         // Initialize form state
-        this.handleOrderTypeChange({ target: { value: 'delivery' } });
+        this.handleOrderTypeChange({ target: { value: 'pickup' } });
         this.handleTimingChange({ target: { value: 'asap' } });
 
         // Setup date change listener for time slots

@@ -352,11 +352,17 @@ function initLogo() {
       }
 
       const previousFace = currentFace;
-      currentFace = (currentFace % 3) + 1;
-      spinner.className = `logo-spinner show-face-${currentFace}`;
+      // Rotate between face 1 and face 2
+      currentFace = currentFace === 1 ? 2 : 1;
+
+      // Remove all face classes first
+      spinner.classList.remove('show-face-1', 'show-face-2', 'show-face-3');
+
+      // Add the appropriate class for the current face
+      spinner.classList.add(`show-face-${currentFace}`);
 
       console.log(`🪙 Container ${containerIndex + 1}: Spinning from face ${previousFace} to face ${currentFace}`);
-      console.log(`🔧 Container ${containerIndex + 1}: Spinner class is now: ${spinner.className}`);
+      console.log(`🔧 Container ${containerIndex + 1}: Spinner class: ${spinner.className}`);
 
       // Force a style recalculation
       spinner.offsetHeight;
@@ -370,9 +376,9 @@ function initLogo() {
           if (!isPaused) {
             spinCoin();
           }
-        }, 5000);
+        }, 3000);
       }
-    }, 3000);
+    }, 2000);
 
     // Pause on hover
     container.addEventListener('mouseenter', () => {

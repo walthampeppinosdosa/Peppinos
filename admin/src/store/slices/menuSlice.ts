@@ -213,13 +213,36 @@ const menuSlice = createSlice({
         state.isLoading = false;
         // Handle both direct response and nested data response
         const responseData = action.payload.data || action.payload;
-        state.menuItems = responseData.menuItems || [];
+        const menuItems = responseData.menuItems || [];
+
+        // Filter out any invalid menu items and log warnings
+        const validMenuItems = menuItems.filter((item: any) => {
+          if (!item || typeof item !== 'object') {
+            console.warn('Invalid menu item found (not an object):', item);
+            return false;
+          }
+          if (!item._id) {
+            console.warn('Menu item missing _id:', item);
+            return false;
+          }
+          if (typeof item.isVegetarian !== 'boolean') {
+            console.warn('Menu item missing or invalid isVegetarian property:', item);
+            return false;
+          }
+          return true;
+        });
+
+        state.menuItems = validMenuItems;
         state.pagination = responseData.pagination || {
           currentPage: 1,
           totalPages: 1,
           totalItems: 0,
           itemsPerPage: 10
         };
+
+        if (validMenuItems.length !== menuItems.length) {
+          console.warn(`Filtered out ${menuItems.length - validMenuItems.length} invalid menu items`);
+        }
       })
       .addCase(fetchMenuItems.rejected, (state, action) => {
         state.isLoading = false;
@@ -247,7 +270,8 @@ const menuSlice = createSlice({
       })
       .addCase(createMenuItem.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.menuItems.unshift(action.payload.data);
+        // Don't add to state directly - let the component trigger a re-fetch
+        // This ensures data consistency and proper population
       })
       .addCase(createMenuItem.rejected, (state, action) => {
         state.isLoading = false;

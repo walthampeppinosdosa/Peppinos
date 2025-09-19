@@ -122,6 +122,8 @@
   background: var(--eerie-black-4);
   border-radius: 20px;
   padding: 4px;
+  width: fit-content;
+  min-width: 120px;
   max-width: 150px;
 }
 
@@ -129,20 +131,23 @@
   width: 28px;
   height: 28px;
   border: none;
-  background: var(--gold-crayola);
-  color: var(--eerie-black-1);
+  background: #DAA520;  /* Gold color */
+  color: #1a1a1a;       /* Dark text */
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-weight: 600;
-  transition: var(--transition-1);
+  transition: all 0.3s ease;
   font-size: 14px;
+  flex-shrink: 0;
 }
 
 .quantity-btn:hover {
-  background: var(--golden-poppy);
+  background: #FFB347 !important;  /* Lighter gold on hover */
+  color: #1a1a1a !important;       /* Keep dark text visible */
+  transform: scale(1.05);
 }
 
 .quantity-input {

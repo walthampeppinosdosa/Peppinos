@@ -29,6 +29,14 @@ const createOrder = async (req, res) => {
       isAuthenticated: !!req.user
     });
 
+    // Check if this is a guest user (no req.user means guest)
+    if (!req.user) {
+      return res.status(400).json({
+        success: false,
+        message: 'This endpoint is for authenticated users only. Guest users should use /api/shop/guest/checkout'
+      });
+    }
+
     // Validate required fields (phone is optional)
     if (!customerInfo || !customerInfo.name || !customerInfo.email) {
       console.error('❌ Customer info validation failed:', {

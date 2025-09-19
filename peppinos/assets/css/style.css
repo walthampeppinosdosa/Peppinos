@@ -785,7 +785,7 @@ body.nav-active {
 }
 
 .logo-face-2 {
-  transform: rotateY(120deg);
+  transform: rotateY(180deg);
 }
 
 .logo-face-3 {
@@ -805,7 +805,7 @@ body.nav-active {
 }
 
 .logo-spinner.show-face-2 {
-  transform: rotateY(-120deg);
+  transform: rotateY(-180deg);
 }
 
 .logo-spinner.show-face-3 {
@@ -1270,7 +1270,7 @@ body.nav-active {
 }
 
 .logo-spinner.show-face-2 {
-  transform: rotateY(-120deg) !important;
+  transform: rotateY(-180deg) !important;
 }
 
 .logo-spinner.show-face-3 {
@@ -3878,6 +3878,7 @@ body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
 .menu-card .card-text {
   color: var(--quick-silver);
   line-height: var(--lineHeight-4);
+  font-size: 1.5rem;  
 }
 
 .menu-text .span {
@@ -5608,7 +5609,7 @@ textarea.input-field {
 
   .btn-primary:hover {
     background-color: transparent !important;
-    color: var(--gold-crayola) !important;
+    color: var(--eerie-black-2) !important;
   }
 
   /* Default button style for all pages except index.html */
@@ -7524,7 +7525,7 @@ body.cart-open {
 }
 
 .quantity-selector .qty-btn:hover {
-  background: var(--golden-poppy);
+  background: var(--gold-crayola);
 }
 
 .quantity-selector .qty-display {

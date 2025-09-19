@@ -46,6 +46,19 @@
 
 .text-center { text-align: center; }
 
+/* Disabled option styling */
+.disabled-option {
+  color: #888 !important;
+  opacity: 0.6;
+  cursor: not-allowed !important;
+}
+
+input[type="radio"]:disabled + label.disabled-option {
+  color: #888 !important;
+  opacity: 0.6;
+  cursor: not-allowed !important;
+}
+
 .img-cover {
   width: 100%;
   height: 100%;

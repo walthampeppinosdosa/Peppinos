@@ -723,7 +723,10 @@ export const Orders: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">
-                      {order.deliveryAddress.city}, {order.deliveryAddress.state}
+                      {order.deliveryAddress ?
+                        `${order.deliveryAddress.city}, ${order.deliveryAddress.state}` :
+                        'Pickup Order'
+                      }
                     </span>
                   </div>
 
@@ -803,12 +806,20 @@ export const Orders: React.FC = () => {
                             </div>
 
                             <div>
-                              <h4 className="font-semibold mb-2">Delivery Address</h4>
+                              <h4 className="font-semibold mb-2">
+                                {selectedOrder.deliveryAddress ? 'Delivery Address' : 'Order Type'}
+                              </h4>
                               <div className="text-sm">
-                                <p>{selectedOrder.deliveryAddress.street}</p>
-                                <p>{selectedOrder.deliveryAddress.city}, {selectedOrder.deliveryAddress.state}</p>
-                                <p>{selectedOrder.deliveryAddress.zipCode}, {selectedOrder.deliveryAddress.country}</p>
-                                <p>Phone: {selectedOrder.deliveryAddress.phoneNumber}</p>
+                                {selectedOrder.deliveryAddress ? (
+                                  <>
+                                    <p>{selectedOrder.deliveryAddress.street}</p>
+                                    <p>{selectedOrder.deliveryAddress.city}, {selectedOrder.deliveryAddress.state}</p>
+                                    <p>{selectedOrder.deliveryAddress.zipCode}, {selectedOrder.deliveryAddress.country}</p>
+                                    <p>Phone: {selectedOrder.deliveryAddress.phoneNumber}</p>
+                                  </>
+                                ) : (
+                                  <p>Pickup Order</p>
+                                )}
                               </div>
                             </div>
                           </div>

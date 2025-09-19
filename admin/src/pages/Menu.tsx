@@ -77,6 +77,17 @@ export const Menu: React.FC = () => {
   useEffect(() => {
     // Only fetch if we have valid parameters
     if (currentPage > 0 && itemsPerPage > 0) {
+      console.log('Fetching menu items with params:', {
+        page: currentPage,
+        limit: itemsPerPage,
+        search: debouncedSearchTerm,
+        category: selectedCategory !== 'all' ? selectedCategory : '',
+        isVegetarian: selectedType !== 'all' ? selectedType === 'veg' : '',
+        isActive: selectedStatus !== 'all' ? selectedStatus === 'active' : '',
+        sortBy,
+        sortOrder: 'desc'
+      });
+
       dispatch(fetchMenuItems({
         page: currentPage,
         limit: itemsPerPage,
@@ -108,6 +119,13 @@ export const Menu: React.FC = () => {
   useEffect(() => {
     if (menuItems.length > 0) {
       console.log('Menu items data:', menuItems.slice(0, 2)); // Log first 2 items
+      // Check for any items with missing isVegetarian property
+      const invalidItems = menuItems.filter(item =>
+        !item || typeof item.isVegetarian !== 'boolean'
+      );
+      if (invalidItems.length > 0) {
+        console.error('Found invalid menu items:', invalidItems);
+      }
     }
   }, [menuItems]);
 
@@ -210,7 +228,14 @@ export const Menu: React.FC = () => {
   };
 
   // Since we're now doing server-side filtering and sorting, we can use menuItems directly
-  const filteredMenuItems = menuItems;
+  // Add safety check to filter out any undefined/null items and ensure required properties exist
+  const filteredMenuItems = menuItems.filter(item =>
+    item &&
+    typeof item === 'object' &&
+    item._id &&
+    item.name &&
+    typeof item.isVegetarian === 'boolean'
+  );
 
   const getTypeBadgeColor = (isVegetarian: boolean) => {
     return isVegetarian
@@ -465,19 +490,26 @@ export const Menu: React.FC = () => {
 
       {/* Menu Items Grid */}
       <div className={`grid ${getGridCols()} gap-6`}>
-        {filteredMenuItems.map((menuItem) => (
-          <Card key={menuItem._id} className="hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-lg flex items-center gap-2 mb-1">
-                    {menuItem.isVegetarian ? (
-                      <Leaf className="h-4 w-4 text-green-600" />
-                    ) : (
-                      <Utensils className="h-4 w-4 text-red-600" />
-                    )}
-                    <span className="flex-1">{menuItem.name}</span>
-                  </CardTitle>
+        {filteredMenuItems.map((menuItem) => {
+          // Additional safety check for individual menu item
+          if (!menuItem || typeof menuItem.isVegetarian !== 'boolean') {
+            console.warn('Invalid menu item found:', menuItem);
+            return null;
+          }
+
+          return (
+            <Card key={menuItem._id} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <CardTitle className="text-lg flex items-center gap-2 mb-1">
+                      {menuItem.isVegetarian ? (
+                        <Leaf className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Utensils className="h-4 w-4 text-red-600" />
+                      )}
+                      <span className="flex-1">{menuItem.name}</span>
+                    </CardTitle>
                   <CardDescription className="text-sm">{menuItem.category?.name || 'No Category'}</CardDescription>
                 </div>
                 <Badge className={getTypeBadgeColor(menuItem.isVegetarian)}>
@@ -573,7 +605,8 @@ export const Menu: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
       </div>
 
       {filteredMenuItems.length == 0 && (

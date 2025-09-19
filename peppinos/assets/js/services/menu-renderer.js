@@ -325,9 +325,9 @@ export class MenuRenderer {
       <div class="option-group">
         <label class="option-label">Quantity</label>
         <div class="quantity-selector">
-          <button type="button" class="quantity-btn" data-action="decrease">-</button>
+          <button type="button" class="qty-btn" data-action="decrease">-</button>
           <input type="number" class="quantity-input" value="1" min="1" max="10">
-          <button type="button" class="quantity-btn" data-action="increase">+</button>
+          <button type="button" class="qty-btn" data-action="increase">+</button>
         </div>
       </div>
     `;

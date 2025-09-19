@@ -112,7 +112,19 @@ const orderSchema = new mongoose.Schema({
   },
   deliveryAddress: {
     type: orderAddressSchema,
-    required: [true, 'Delivery address is required']
+    required: function() {
+      return this.orderType === 'delivery';
+    },
+    validate: {
+      validator: function(value) {
+        // Only validate if orderType is delivery
+        if (this.orderType === 'delivery') {
+          return value != null;
+        }
+        return true;
+      },
+      message: 'Delivery address is required for delivery orders'
+    }
   },
   paymentStatus: {
     type: String,

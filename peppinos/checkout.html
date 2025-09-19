@@ -170,7 +170,7 @@
 
     .cart-total-row.final {
       font-weight: 600;
-      font-size: 1.1rem;
+      font-size: 1.6rem;
       color: var(--gold-crayola);
     }
 
@@ -268,6 +268,221 @@
     .user-info-display p {
       margin: 0.25rem 0;
       color: var(--eerie-black-1);
+    }
+
+    /* Address Management Styles */
+    .address-actions {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .address-card {
+      background: var(--cultured);
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    .address-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .address-header h4 {
+      color: var(--gold-crayola);
+      margin: 0;
+      font-family: var(--ff-forum);
+      text-transform: capitalize;
+    }
+
+    .address-header .address-actions {
+      margin: 0;
+      gap: 0.25rem;
+    }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--eerie-black-1);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-icon:hover {
+      background: var(--white);
+      color: var(--gold-crayola);
+    }
+
+    .address-details p {
+      margin: 0.25rem 0;
+      color: var(--eerie-black-1);
+      line-height: 1.4;
+    }
+
+    .address-details p:first-child {
+      font-weight: 600;
+    }
+
+    /* Modal Styles */
+    .address-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 1rem;
+    }
+
+    .address-modal-content {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .address-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .address-modal-header h3 {
+      color: var(--gold-crayola);
+      margin: 0;
+      font-family: var(--ff-forum);
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--eerie-black-1);
+      padding: 0.5rem;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .close-modal:hover {
+      background: var(--cultured);
+      color: var(--gold-crayola);
+    }
+
+
+
+    /* Checkbox styling for mobile */
+    .form-group label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .form-group input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+      flex-shrink: 0;
+    }
+
+    /* Mobile responsive checkbox */
+    @media (max-width: 768px) {
+      .form-group label {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem 0;
+      }
+
+      .form-group input[type="checkbox"] {
+        align-self: flex-start;
+      }
+    }
+
+    /* Button styling consistency */
+    .btn-secondary {
+      background: var(--white);
+      color: var(--eerie-black-1);
+      border: 2px solid var(--gold-crayola);
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      font-family: inherit;
+    }
+
+    .btn-secondary:hover {
+      background: var(--gold-crayola);
+      color: var(--eerie-black-2);
+    }
+
+   
+
+    .btn-primary:disabled,
+    .btn-secondary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Form actions styling */
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      justify-content: flex-end;
+    }
+
+    @media (max-width: 768px) {
+      .form-actions {
+        flex-direction: column;
+      }
+
+      .address-modal-content {
+        margin: 1rem;
+        padding: 1.5rem;
+        max-height: 85vh;
+      }
+
+      .address-actions {
+        flex-direction: column;
+      }
+
+      .address-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .address-header .address-actions {
+        flex-direction: row;
+        align-self: flex-end;
+      }
     }
 
     @media (max-width: 768px) {
@@ -420,9 +635,9 @@
           <div class="logo-face logo-face-2">
             <img src="./assets/images/logo-2.png" width="360" height="114" alt="Peppino's Dosa - Home">
           </div>
-          <div class="logo-face logo-face-3">
+          <!-- <div class="logo-face logo-face-3">
             <img src="./assets/images/logo-3.png" width="360" height="114" alt="Peppino's Dosa - Home">
-          </div>
+          </div> -->
         </div>
       </a>
 
@@ -440,9 +655,9 @@
             <div class="logo-face logo-face-2">
               <img src="./assets/images/logo-2.png" width="360" height="114" alt="Peppino's Dosa - Home">
             </div>
-            <div class="logo-face logo-face-3">
+            <!-- <div class="logo-face logo-face-3">
               <img src="./assets/images/logo-3.png" width="360" height="114" alt="Peppino's Dosa - Home">
-            </div>
+            </div> -->
           </div>
         </a>
 
@@ -615,12 +830,12 @@
                 <h3>Order Type</h3>
                 <div class="radio-group">
                   <div class="radio-option">
-                    <input type="radio" id="pickup" name="orderType" value="pickup">
+                    <input type="radio" id="pickup" name="orderType" value="pickup" checked>
                     <label for="pickup">Pickup</label>
                   </div>
                   <div class="radio-option">
-                    <input type="radio" id="delivery" name="orderType" value="delivery" checked>
-                    <label for="delivery">Delivery</label>
+                    <input type="radio" id="delivery" name="orderType" value="delivery" disabled>
+                    <label for="delivery" class="disabled-option">Delivery (Coming Soon)</label>
                   </div>
                 </div>
               </div>
@@ -629,36 +844,44 @@
               <div class="form-section" id="deliveryAddressSection">
                 <h3>Delivery Address</h3>
 
-                <div class="form-group">
-                  <label for="street">Street Address *</label>
-                  <input type="text" id="street" name="street" required>
-                  <div class="error-message" id="streetError"></div>
-                </div>
-
-                <div class="form-row">
+                <!-- Address Selection -->
+                <div id="addressSelection">
                   <div class="form-group">
-                    <label for="city">City *</label>
-                    <input type="text" id="city" name="city" required>
-                    <div class="error-message" id="cityError"></div>
+                    <label for="selectedAddress">Select Address *</label>
+                    <select id="selectedAddress" name="selectedAddress" required>
+                      <option value="">Choose an address...</option>
+                    </select>
+                    <div class="error-message" id="selectedAddressError"></div>
                   </div>
 
-                  <div class="form-group">
-                    <label for="state">State *</label>
-                    <input type="text" id="state" name="state" required>
-                    <div class="error-message" id="stateError"></div>
+                  <div class="address-actions">
+                    <button type="button" class="btn btn-secondary" id="addNewAddressBtn">
+                      <ion-icon name="add-outline"></ion-icon>
+                      Add New Address
+                    </button>
                   </div>
                 </div>
 
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="zipCode">ZIP Code *</label>
-                    <input type="text" id="zipCode" name="zipCode" required>
-                    <div class="error-message" id="zipCodeError"></div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="country">Country</label>
-                    <input type="text" id="country" name="country" value="United States">
+                <!-- Selected Address Display -->
+                <div id="selectedAddressDisplay" style="display: none;">
+                  <div class="address-card">
+                    <div class="address-header">
+                      <h4 id="displayAddressType"></h4>
+                      <div class="address-actions">
+                        <button type="button" class="btn-icon" id="editAddressBtn" title="Edit Address">
+                          <ion-icon name="create-outline"></ion-icon>
+                        </button>
+                        <button type="button" class="btn-icon" id="deleteAddressBtn" title="Delete Address">
+                          <ion-icon name="trash-outline"></ion-icon>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="address-details">
+                      <p id="displayAddressName"></p>
+                      <p id="displayAddressPhone"></p>
+                      <p id="displayAddressStreet"></p>
+                      <p id="displayAddressLocation"></p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -773,11 +996,7 @@
           </p> -->
 
           <form action="" class="input-wrapper">
-            <div class="icon-wrapper">
-              <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
-
-              <input type="email" name="email_address" placeholder="Your email" autocomplete="off" class="input-field">
-            </div>
+           
 
             <button type="submit" class="btn btn-secondary">
               <span class="text text-1">Subscribe</span>
@@ -888,6 +1107,7 @@
     import { restaurantHours } from './assets/js/services/restaurant-hours.js';
     import { getCurrentUser, isAuthenticated } from './assets/js/auth.js';
     import { httpClient } from './assets/js/api.js';
+    import { AddressManager } from './assets/js/address-manager.js';
 
     class AuthenticatedCheckoutManager {
       constructor() {
@@ -897,6 +1117,7 @@
         this.submitBtn = document.getElementById('submitBtn');
         this.userInfoDisplay = document.getElementById('userInfoDisplay');
         this.isUpdatingCart = false; // Flag to prevent multiple simultaneous cart updates
+        this.addressManager = null; // Will be initialized after auth check
         this.init();
       }
 
@@ -938,6 +1159,9 @@
         this.setupFormValidation();
         this.updateRestaurantStatus();
         this.setupMobileEnhancements();
+
+        // Initialize address manager for authenticated users
+        this.addressManager = new AddressManager();
         this.displayUserInfo();
 
         // Cart will be loaded by updateCartSummary() call below
@@ -986,14 +1210,14 @@
         if (e.target.value === 'delivery') {
           deliverySection.style.display = 'block';
           // Make delivery fields required
-          deliverySection.querySelectorAll('input[required]').forEach(input => {
-            input.required = true;
+          deliverySection.querySelectorAll('input[required], select[required]').forEach(field => {
+            field.required = true;
           });
         } else {
           deliverySection.style.display = 'none';
-          // Remove required from delivery fields
-          deliverySection.querySelectorAll('input').forEach(input => {
-            input.required = false;
+          // Remove required from delivery fields (both input and select elements)
+          deliverySection.querySelectorAll('input, select').forEach(field => {
+            field.required = false;
           });
         }
         this.updateTimeSlots();
@@ -1122,8 +1346,7 @@
           currentTimeFormatted: restaurantHours.formatTime(new Date())
         });
 
-        // For development/testing - allow ASAP even when closed
-        // Remove this in production or add a proper admin override
+        // Allow ASAP option to be enabled even when restaurant is closed
         const forceEnableASAP = localStorage.getItem('force_enable_asap') === 'true';
 
         if (!isOpen && !forceEnableASAP) {
@@ -1132,29 +1355,9 @@
           document.getElementById('asap').disabled = true;
           document.getElementById('scheduled').checked = true;
           this.handleTimingChange({ target: { value: 'scheduled' } });
-
-          // Add a temporary override button for testing
-          if (!document.getElementById('override-btn')) {
-            const overrideBtn = document.createElement('button');
-            overrideBtn.id = 'override-btn';
-            overrideBtn.type = 'button';
-            overrideBtn.textContent = 'Enable ASAP (Testing)';
-            overrideBtn.style.cssText = 'margin-top: 10px; padding: 5px 10px; background: #ff6b35; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;';
-            overrideBtn.onclick = () => {
-              localStorage.setItem('force_enable_asap', 'true');
-              this.updateRestaurantStatus();
-            };
-            statusElement.appendChild(overrideBtn);
-          }
         } else {
           statusElement.style.display = 'none';
           document.getElementById('asap').disabled = false;
-
-          // Remove override button if it exists
-          const overrideBtn = document.getElementById('override-btn');
-          if (overrideBtn) {
-            overrideBtn.remove();
-          }
         }
       }
 
@@ -1170,7 +1373,7 @@
         document.getElementById('scheduledDate').max = maxDate.toISOString().split('T')[0];
 
         // Initialize form state
-        this.handleOrderTypeChange({ target: { value: 'delivery' } });
+        this.handleOrderTypeChange({ target: { value: 'pickup' } });
         this.handleTimingChange({ target: { value: 'asap' } });
 
         // Setup date change listener for time slots
@@ -1227,6 +1430,19 @@
           return;
         }
 
+        // Validate address selection for delivery orders
+        const orderType = new FormData(this.form).get('orderType');
+        if (orderType === 'delivery') {
+          if (!this.addressManager) {
+            showError('Address manager not initialized. Please refresh the page.');
+            return;
+          }
+          if (!this.addressManager.validateAddressSelection()) {
+            showError('Please select a delivery address.');
+            return;
+          }
+        }
+
         // Validate scheduled time if scheduling
         const timing = new FormData(this.form).get('timing');
         if (timing === 'scheduled') {
@@ -1255,8 +1471,14 @@
           const formData = new FormData(this.form);
           const orderData = this.buildOrderData(formData);
 
+          // Check if user is a guest and use appropriate endpoint
+          const isGuest = localStorage.getItem('peppinos_is_guest') === 'true';
+          const endpoint = isGuest ? '/api/shop/guest/checkout' : '/api/shop/orders';
+
+          console.log('🔍 Using endpoint:', endpoint, 'for guest:', isGuest);
+
           // Submit order using httpClient with proper rate limiting
-          const result = await httpClient.post('/api/shop/orders', orderData);
+          const result = await httpClient.post(endpoint, orderData);
 
           console.log('📦 Order creation result:', result);
 
@@ -1315,10 +1537,46 @@
       buildOrderData(formData) {
         const cart = cartService.cart;
         const user = getCurrentUser();
+        const isGuest = localStorage.getItem('peppinos_is_guest') === 'true';
 
-        console.log('🔍 Building order data with user:', user);
+        console.log('🔍 Building order data with user:', user, 'isGuest:', isGuest);
 
-        // Ensure user data is properly structured
+        // For guest users, format data for guest checkout endpoint
+        if (isGuest) {
+          const orderData = {
+            // Customer information (guest checkout format)
+            customer: {
+              name: user?.name || user?.username || user?.displayName || 'Guest User',
+              phoneNumber: user?.phone || user?.phoneNumber || user?.mobile || '',
+              email: user?.email || ''
+            },
+
+            // Order details
+            orderType: formData.get('orderType'),
+            timing: formData.get('timing'),
+            paymentMethod: formData.get('paymentMethod'),
+            specialInstructions: formData.get('specialInstructions'),
+
+            // Session info for guest orders
+            sessionId: cartService.sessionId
+          };
+
+          // Add delivery address if delivery order
+          if (formData.get('orderType') === 'delivery') {
+            orderData.deliveryAddress = this.addressManager.getSelectedAddress();
+          }
+
+          // Add scheduled date/time if scheduled
+          if (formData.get('timing') === 'scheduled') {
+            orderData.scheduledDate = formData.get('scheduledDate');
+            orderData.scheduledTime = formData.get('scheduledTime');
+          }
+
+          console.log('📋 Guest order data built:', orderData);
+          return orderData;
+        }
+
+        // For authenticated users, use original format
         const customerInfo = {
           name: user?.name || user?.username || user?.displayName || 'Guest User',
           phone: user?.phone || user?.phoneNumber || user?.mobile || '',
@@ -1369,14 +1627,22 @@
 
         // Add delivery address if delivery order
         if (formData.get('orderType') === 'delivery') {
-          orderData.deliveryAddress = {
-            street: formData.get('street'),
-            city: formData.get('city'),
-            state: formData.get('state'),
-            zipCode: formData.get('zipCode'),
-            country: formData.get('country') || 'United States',
-            phoneNumber: customerInfo.phone || formData.get('phone') || '(000) 000-0000'
-          };
+          const selectedAddressId = this.addressManager?.getSelectedAddressId();
+          if (selectedAddressId && this.addressManager?.addresses) {
+            const selectedAddress = this.addressManager.addresses.find(addr => addr._id === selectedAddressId);
+            if (selectedAddress) {
+              orderData.deliveryAddress = {
+                street: selectedAddress.street,
+                city: selectedAddress.city,
+                state: selectedAddress.state,
+                zipCode: selectedAddress.pincode,
+                country: 'United States',
+                phoneNumber: selectedAddress.phoneNumber,
+                landmark: selectedAddress.landmark,
+                addressId: selectedAddress._id
+              };
+            }
+          }
         }
 
         // Add scheduled time if scheduled
@@ -1432,6 +1698,82 @@
     // Initialize checkout manager
     new AuthenticatedCheckoutManager();
   </script>
+
+  <!-- Address Modal -->
+  <div id="addressModal" class="address-modal" style="display: none;">
+    <div class="address-modal-content">
+      <div class="address-modal-header">
+        <h3 id="addressModalTitle">Add New Address</h3>
+        <button type="button" class="close-modal" id="closeAddressModal">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <form id="addressForm">
+        <input type="hidden" id="addressId" name="addressId">
+
+        <div class="form-group">
+          <label for="addressType">Address Type *</label>
+          <select id="addressType" name="type" required>
+            <option value="">Select type...</option>
+            <option value="home">Home</option>
+            <option value="work">Work</option>
+            <option value="other">Other</option>
+          </select>
+          <div class="error-message" id="addressTypeError"></div>
+        </div>
+
+
+
+        <div class="form-group">
+          <label for="addressStreet">Street Address *</label>
+          <input type="text" id="addressStreet" name="street" required>
+          <div class="error-message" id="addressStreetError"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="addressLandmark">Landmark (Optional)</label>
+          <input type="text" id="addressLandmark" name="landmark">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="addressState">State *</label>
+            <select id="addressState" name="state" required>
+              <option value="">Select state...</option>
+            </select>
+            <div class="error-message" id="addressStateError"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="addressCity">City *</label>
+            <select id="addressCity" name="city" required>
+              <option value="">Select city...</option>
+            </select>
+            <div class="error-message" id="addressCityError"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="addressPincode">ZIP Code *</label>
+          <input type="text" id="addressPincode" name="pincode" required>
+          <div class="error-message" id="addressPincodeError"></div>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="isDefaultAddress" name="isDefault">
+            Set as default address
+          </label>
+        </div>
+
+        <div class="form-actions" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" id="cancelAddressBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveAddressBtn">Save Address</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
 </body>
 </html>

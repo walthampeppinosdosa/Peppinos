@@ -6,9 +6,18 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from '@/components/ui/pagination';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { fetchCategories, fetchParentCategories, deleteCategory } from '@/store/slices/categoriesSlice';
+import { fetchCategories, fetchParentCategories, deleteCategory, setPagination } from '@/store/slices/categoriesSlice';
 import ExportDropdown from '@/components/ui/export-dropdown';
 import { useAlert } from '@/hooks/useAlert';
 import {
@@ -23,7 +32,9 @@ import {
   Image,
   Grid3X3,
   Grid2X2,
-  LayoutGrid
+  LayoutGrid,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import type { Category } from '@/store/slices/categoriesSlice';
 
@@ -31,25 +42,32 @@ export const Categories: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { user: currentUser, canManageVeg, canManageNonVeg } = useAuth();
-  const { categories, parentCategories, isLoading, error } = useAppSelector((state) => state.categories);
+  const { categories, parentCategories, isLoading, error, pagination } = useAppSelector((state) => state.categories);
   const { showAlert } = useAlert();
 
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'2' | '3' | '4'>('3');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
 
   // Delete confirmation dialog state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<{ id: string; name: string } | null>(null);
 
   useEffect(() => {
-    dispatch(fetchCategories({}));
+    dispatch(fetchCategories({
+      page: currentPage,
+      limit: itemsPerPage,
+      search: searchTerm,
+      type: selectedType !== 'all' ? selectedType : ''
+    }));
     // Only fetch parent categories if we don't have them already
     if (parentCategories.length === 0) {
       dispatch(fetchParentCategories());
     }
-  }, [dispatch, parentCategories.length]);
+  }, [dispatch, currentPage, itemsPerPage, searchTerm, selectedType, parentCategories.length]);
 
   // Handler functions
   const handleView = (category: Category) => {
@@ -88,8 +106,13 @@ export const Categories: React.FC = () => {
       try {
         await dispatch(deleteCategory(categoryToDelete.id)).unwrap();
         showAlert('Category deleted successfully!', 'success', 'Delete Complete');
-        // Refresh the categories list
-        dispatch(fetchCategories({}));
+        // Refresh the categories list with current pagination
+        dispatch(fetchCategories({
+          page: currentPage,
+          limit: itemsPerPage,
+          search: searchTerm,
+          type: selectedType !== 'all' ? selectedType : ''
+        }));
         resetDeleteState();
       } catch (error: any) {
         console.error('Delete error:', error);
@@ -102,12 +125,31 @@ export const Categories: React.FC = () => {
     }
   };
 
+  // Pagination handlers
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (items: number) => {
+    setItemsPerPage(items);
+    setCurrentPage(1); // Reset to first page when changing items per page
+  };
+
+  // Filter change handlers that reset pagination
+  const handleTypeChange = (value: string) => {
+    setSelectedType(value);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
+
+  // Apply role-based filtering on the client side since server doesn't handle role filtering
   const filteredCategories = categories.filter(category => {
     // Only show menu categories (not parent categories) - same as Menu.tsx dropdown
     if (category.type !== 'menu') return false;
-
-    const matchesSearch = category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         category.description?.toLowerCase().includes(searchTerm.toLowerCase());
 
     // Role-based filtering - same logic as Menu.tsx
     let matchesRole = true;
@@ -119,11 +161,7 @@ export const Categories: React.FC = () => {
       matchesRole = category.isVegetarian === false || category.parentCategory?.isVegetarian === false;
     }
 
-    const matchesType = selectedType === 'all' ||
-                       (selectedType === 'veg' && (category.isVegetarian || category.parentCategory?.isVegetarian)) ||
-                       (selectedType === 'non-veg' && (!category.isVegetarian && !category.parentCategory?.isVegetarian));
-
-    return matchesSearch && matchesRole && matchesType;
+    return matchesRole;
   });
 
   // Prepare export data (after filteredCategories is defined)
@@ -235,7 +273,7 @@ export const Categories: React.FC = () => {
                 <Input
                   placeholder="Search categories by name or description..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-10"
                 />
               </div>
@@ -244,7 +282,7 @@ export const Categories: React.FC = () => {
               {currentUser?.role === 'super-admin' && (
                 <select
                   value={selectedType}
-                  onChange={(e) => setSelectedType(e.target.value)}
+                  onChange={(e) => handleTypeChange(e.target.value)}
                   className="px-3 py-2 border border-input bg-background rounded-md text-sm"
                 >
                   <option value="all">All Types</option>
@@ -372,6 +410,58 @@ export const Categories: React.FC = () => {
             )}
           </CardContent>
         </Card>
+      )}
+
+      {/* Pagination */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between mt-6">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">
+              Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, pagination.totalItems)} of {pagination.totalItems} categories
+            </span>
+            <Select value={itemsPerPage.toString()} onValueChange={(value) => handleItemsPerPageChange(Number(value))}>
+              <SelectTrigger className="w-20">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-muted-foreground">per page</span>
+          </div>
+
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className={currentPage <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+
+              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    onClick={() => handlePageChange(page)}
+                    isActive={currentPage === page}
+                    className="cursor-pointer"
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className={currentPage >= pagination.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
       )}
 
       {/* Delete Confirmation Dialog */}
