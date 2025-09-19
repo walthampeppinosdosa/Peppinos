@@ -86,7 +86,7 @@ class CartOptionsService {
       }
     } catch (error) {
       console.error('Error handling add to cart:', error);
-      showError('Failed to add item to cart');
+      // Don't show error toast here - cartService.addToCart already handles it
     }
   }
 
@@ -290,6 +290,9 @@ class CartOptionsService {
       const modal = document.getElementById(`cartModal-${itemId}`);
       if (!modal) return;
 
+      // Get the add to cart button
+      const addToCartBtn = modal.querySelector(`#confirmAddToCart-${itemId}`);
+
       // Set current modal for validation
       this.currentModal = modal;
 
@@ -301,6 +304,18 @@ class CartOptionsService {
       if (!validation.isValid) {
         showError(validation.message);
         return;
+      }
+
+      // Show loading state
+      if (addToCartBtn) {
+        addToCartBtn.disabled = true;
+        addToCartBtn.classList.add('loading');
+        addToCartBtn.style.background = 'var(--quick-silver)';
+        addToCartBtn.style.color = 'transparent';
+        addToCartBtn.innerHTML = `
+          <div class="spinner"></div>
+          Add to Cart
+        `;
       }
 
       // Add to cart
@@ -317,7 +332,18 @@ class CartOptionsService {
 
     } catch (error) {
       console.error('Error adding to cart:', error);
-      showError('Failed to add item to cart');
+      // Don't show error toast here - cartService.addToCart already handles it
+
+      // Reset button state on error
+      const modal = document.getElementById(`cartModal-${itemId}`);
+      const addToCartBtn = modal?.querySelector(`#confirmAddToCart-${itemId}`);
+      if (addToCartBtn) {
+        addToCartBtn.disabled = false;
+        addToCartBtn.classList.remove('loading');
+        addToCartBtn.style.background = '';
+        addToCartBtn.style.color = '';
+        addToCartBtn.innerHTML = 'Add to Cart';
+      }
     }
   }
 

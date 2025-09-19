@@ -334,10 +334,27 @@ export const AddCategory: React.FC = () => {
     return false;
   });
 
-  if (isEditMode && isLoading) {
+  // Show loading state in edit mode until all data is populated
+  if (isEditMode && (isLoading || !currentCategory || currentCategory._id !== id || parentCategories.length === 0)) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="sm" onClick={() => navigate('/categories')}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Categories
+          </Button>
+        </div>
+
+        {/* Loading State */}
+        <Card>
+          <CardContent className="flex items-center justify-center py-12">
+            <div className="text-center space-y-4">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+              <p className="text-muted-foreground">Loading category data...</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

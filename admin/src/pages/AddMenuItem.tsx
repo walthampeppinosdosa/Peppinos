@@ -15,7 +15,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { createMenuItem, updateMenuItem, fetchMenuItemById, clearCurrentMenuItem } from '@/store/slices/menuSlice';
-import { fetchCategories, fetchParentCategories } from '@/store/slices/categoriesSlice';
+import { fetchParentCategories, fetchMenuCategories } from '@/store/slices/categoriesSlice';
 import { fetchSpicyLevelsByCategory } from '@/store/slices/spicyLevelSlice';
 import { fetchPreparationsByCategory } from '@/store/slices/preparationSlice';
 import { InlineItemManager } from '@/components/menu/InlineItemManager';
@@ -262,10 +262,8 @@ export const AddMenuItem: React.FC = () => {
   }, [watchedMrp, watchedDiscountedPrice, setError, clearErrors]);
 
   useEffect(() => {
-    // Fetch categories based on user role
-    const params: any = { type: 'menu' };
-
-    dispatch(fetchCategories(params));
+    // Fetch ALL menu categories for dropdown (no pagination)
+    dispatch(fetchMenuCategories({}));
 
     // Fetch parent categories for all admin roles (needed for auto-selection)
     dispatch(fetchParentCategories());
@@ -297,6 +295,9 @@ export const AddMenuItem: React.FC = () => {
     if (selectedParentCategory) {
       dispatch(fetchSpicyLevelsByCategory(selectedParentCategory));
       dispatch(fetchPreparationsByCategory(selectedParentCategory));
+
+      // Also refresh categories to ensure we have the latest data
+      dispatch(fetchMenuCategories({}));
     }
   }, [dispatch, selectedParentCategory]);
 
@@ -734,10 +735,16 @@ export const AddMenuItem: React.FC = () => {
     // Only show menu categories (not parent categories)
     if (category.type !== 'menu') return false;
 
+    // Ensure category has a parent category
+    if (!category.parentCategory) return false;
+
     if (user?.role === 'super-admin') {
       // For super-admin, filter by selected parent category if one is selected
       if (selectedParentCategory) {
-        return category.parentCategory?._id === selectedParentCategory;
+        const parentId = typeof category.parentCategory === 'string'
+          ? category.parentCategory
+          : category.parentCategory._id;
+        return parentId === selectedParentCategory;
       }
       return true; // Show all if no parent category selected
     }
@@ -745,6 +752,31 @@ export const AddMenuItem: React.FC = () => {
     if (user?.role === 'non-veg-admin') return category.parentCategory?.isVegetarian === false;
     return true;
   });
+
+  // Show loading state in edit mode until all data is populated
+  if (isEditMode && (menuLoading || !currentMenuItem || currentMenuItem._id !== id || categories.length === 0 || parentCategories.length === 0)) {
+    return (
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="sm" onClick={() => navigate('/menu')}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Menu
+          </Button>
+        </div>
+
+        {/* Loading State */}
+        <Card>
+          <CardContent className="flex items-center justify-center py-12">
+            <div className="text-center space-y-4">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+              <p className="text-muted-foreground">Loading menu item data...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

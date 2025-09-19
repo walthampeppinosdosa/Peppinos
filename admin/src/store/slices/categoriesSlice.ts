@@ -123,6 +123,37 @@ export const fetchParentCategories = createAsyncThunk(
   }
 );
 
+export const fetchMenuCategories = createAsyncThunk(
+  'categories/fetchMenuCategories',
+  async (params: { parentId?: string } = {}, { rejectWithValue }) => {
+    try {
+      const queryParams = new URLSearchParams();
+
+      // Always fetch menu type categories
+      queryParams.append('type', 'menu');
+
+      // Set high limit to get all categories for dropdown
+      queryParams.append('limit', '1000');
+
+      if (params.parentId) {
+        queryParams.append('parentCategory', params.parentId);
+      }
+
+      const url = `/api/admin/categories?${queryParams.toString()}`;
+
+      const response = await api.get(url);
+
+      if (response.success) {
+        return response.data.categories;
+      } else {
+        return rejectWithValue(response.message || 'Failed to fetch menu categories');
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch menu categories');
+    }
+  }
+);
+
 export const fetchCategoryById = createAsyncThunk(
   'categories/fetchCategoryById',
   async (categoryId: string, { rejectWithValue }) => {
@@ -267,6 +298,22 @@ const categoriesSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchParentCategories.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Fetch Menu Categories
+    builder
+      .addCase(fetchMenuCategories.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchMenuCategories.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.categories = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchMenuCategories.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });

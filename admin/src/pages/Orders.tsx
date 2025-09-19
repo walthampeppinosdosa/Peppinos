@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,6 +44,7 @@ import {
   type Order
 } from '@/store/slices/ordersSlice';
 
+
 export const Orders: React.FC = () => {
   const dispatch = useAppDispatch();
   const { showAlert } = useAlert();
@@ -66,6 +67,8 @@ export const Orders: React.FC = () => {
     startDate: '',
     endDate: ''
   });
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [refreshInterval, setRefreshInterval] = useState(30); // seconds
 
   // Date validation functions
   const handleStartDateChange = (newStartDate: string) => {
@@ -122,6 +125,23 @@ export const Orders: React.FC = () => {
       dispatch(clearError());
     }
   }, [error, showAlert, dispatch]);
+
+  // Auto-refresh functionality
+  const refreshData = useCallback(() => {
+    dispatch(fetchOrders(filters));
+    dispatch(fetchOrderStats({}));
+  }, [dispatch, filters]);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+
+    // Set up auto-refresh interval
+    const interval = setInterval(() => {
+      refreshData();
+    }, refreshInterval * 1000);
+
+    return () => clearInterval(interval);
+  }, [autoRefresh, refreshInterval, refreshData]);
 
   const handleFilterChange = (key: string, value: string) => {
     dispatch(updateFilters({ [key]: value, page: 1 }));
@@ -366,12 +386,39 @@ export const Orders: React.FC = () => {
 
           <Button
             variant="outline"
-            onClick={() => dispatch(fetchOrders(filters))}
+            onClick={refreshData}
             disabled={isLoading}
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
+
+          {/* Auto-refresh Controls */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAutoRefresh(!autoRefresh)}
+              className={autoRefresh ? 'bg-green-50 border-green-200' : ''}
+            >
+              <Clock className="h-4 w-4 mr-2" />
+              Auto-refresh {autoRefresh ? 'On' : 'Off'}
+            </Button>
+
+            {autoRefresh && (
+              <Select value={refreshInterval.toString()} onValueChange={(value) => setRefreshInterval(Number(value))}>
+                <SelectTrigger className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10s</SelectItem>
+                  <SelectItem value="30">30s</SelectItem>
+                  <SelectItem value="60">1m</SelectItem>
+                  <SelectItem value="300">5m</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          </div>
         </div>
       </div>
 
@@ -824,6 +871,16 @@ export const Orders: React.FC = () => {
                             </div>
                           </div>
 
+                          {/* Special Instructions */}
+                          {selectedOrder.specialInstructions && (
+                            <div>
+                              <h4 className="font-semibold mb-2">Special Instructions</h4>
+                              <div className="p-3 bg-orange-50 border border-orange-200 rounded">
+                                <p className="text-sm text-orange-800">{selectedOrder.specialInstructions}</p>
+                              </div>
+                            </div>
+                          )}
+
                           {/* Order Items */}
                           <div>
                             <h4 className="font-semibold mb-2">Order Items</h4>
@@ -844,6 +901,11 @@ export const Orders: React.FC = () => {
                                       {item.addons.length > 0 && (
                                         <p className="text-sm text-muted-foreground">
                                           Addons: {item.addons.map(addon => addon.name).join(', ')}
+                                        </p>
+                                      )}
+                                      {item.specialInstructions && (
+                                        <p className="text-sm text-orange-600 font-medium">
+                                          Note: {item.specialInstructions}
                                         </p>
                                       )}
                                     </div>

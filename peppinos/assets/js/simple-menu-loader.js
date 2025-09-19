@@ -402,9 +402,11 @@ class CategoryMenuLoader {
         const quantity = parseInt(qtyDisplay.textContent);
 
         try {
-          // Disable button during request
+          // Disable button and show loading state
           button.disabled = true;
-          button.innerHTML = '<ion-icon name="hourglass-outline"></ion-icon> Adding...';
+          button.classList.add('loading');
+          button.style.background = 'var(--quick-silver)';
+          button.style.color = 'transparent';
 
           // Import cart options service dynamically
           const { CartOptionsService } = await import('./services/cart-options-service.js');
@@ -426,8 +428,10 @@ class CategoryMenuLoader {
 
           // Reset button state (success feedback is handled by cart service)
           button.disabled = false;
+          button.classList.remove('loading');
           button.innerHTML = '<ion-icon name="bag-add-outline"></ion-icon> Add to Cart';
           button.style.background = 'var(--gold-crayola)';
+          button.style.color = '';
           // Reset quantity to 1
           qtyDisplay.textContent = '1';
 
@@ -435,8 +439,10 @@ class CategoryMenuLoader {
           console.error('Error adding to cart:', error);
 
           // Show error feedback
+          button.classList.remove('loading');
           button.innerHTML = '<ion-icon name="close-outline"></ion-icon> Error';
           button.style.background = 'var(--red-orange-crayola)';
+          button.style.color = '';
 
           // Reset button after 2 seconds
           setTimeout(() => {

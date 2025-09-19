@@ -536,6 +536,20 @@
       .form-group textarea {
         font-size: 16px; /* Prevent zoom on iOS */
         padding: 1rem;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        touch-action: manipulation;
+        user-select: text;
+        -webkit-user-select: text;
+      }
+
+      /* Ensure input fields are properly focusable on mobile */
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        outline: 2px solid var(--gold-crayola);
+        outline-offset: 2px;
       }
     }
 
@@ -583,6 +597,15 @@
 </head>
 
 <body id="top">
+
+  <!--
+    - #PRELOADER
+  -->
+
+  <div class="preload" data-preaload>
+    <div class="circle"></div>
+    <p class="text">Peppino's Dosa</p>
+  </div>
 
   <!-- Topbar -->
   <div class="topbar">
@@ -998,11 +1021,11 @@
           <form action="" class="input-wrapper">
            
 
-            <button type="submit" class="btn btn-secondary">
+            <!-- <button type="submit" class="btn btn-secondary">
               <span class="text text-1">Subscribe</span>
 
               <span class="text text-2" aria-hidden="true">Subscribe</span>
-            </button>
+            </button> -->
           </form>
 
         </div>
@@ -1302,10 +1325,22 @@
           document.getElementById('cartTotal').textContent = formatCurrency(total);
 
           this.submitBtn.disabled = false;
+
+          // Hide preloader once cart is loaded
+          const preloader = document.querySelector('[data-preaload]');
+          if (preloader) {
+            preloader.classList.add('loaded');
+          }
         } catch (error) {
           console.error('Error updating cart summary:', error);
           this.cartItems.innerHTML = '<p>Error loading cart. Please refresh the page.</p>';
           this.submitBtn.disabled = true;
+
+          // Hide preloader even on error
+          const preloader = document.querySelector('[data-preaload]');
+          if (preloader) {
+            preloader.classList.add('loaded');
+          }
         } finally {
           this.isUpdatingCart = false;
         }
@@ -1696,7 +1731,9 @@
     }
 
     // Initialize checkout manager
-    new AuthenticatedCheckoutManager();
+    document.addEventListener('DOMContentLoaded', () => {
+      new AuthenticatedCheckoutManager();
+    });
   </script>
 
   <!-- Address Modal -->

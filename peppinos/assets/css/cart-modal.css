@@ -131,8 +131,8 @@
   width: 28px;
   height: 28px;
   border: none;
-  background: #DAA520;  /* Gold color */
-  color: #1a1a1a;       /* Dark text */
+  background: var(--gold-crayola);  /* Use consistent light gold */
+  color: var(--eerie-black-1);      /* Dark text */
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -145,8 +145,8 @@
 }
 
 .quantity-btn:hover {
-  background: #FFB347 !important;  /* Lighter gold on hover */
-  color: #1a1a1a !important;       /* Keep dark text visible */
+  background: var(--golden-poppy) !important;  /* Consistent hover color */
+  color: var(--eerie-black-1) !important;      /* Keep dark text visible */
   transform: scale(1.05);
 }
 
@@ -425,6 +425,30 @@
 
 .modal-footer .btn-primary:hover {
   color: var(--eerie-black-1) !important;
+}
+
+/* Loading state for modal buttons */
+.modal-footer .btn.loading {
+  color: transparent !important;
+  position: relative;
+}
+
+.modal-footer .btn.loading .spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid var(--white);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 /* Add to Cart Button in Menu Cards */

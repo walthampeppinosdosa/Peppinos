@@ -651,8 +651,25 @@ const deleteMenuItem = async (req, res) => {
     if (menuItem.images && menuItem.images.length > 0) {
       try {
         const deletePromises = menuItem.images.map(imageUrl => {
-          const publicId = imageUrl?.split('/').pop().split('.')[0];
-          return deleteFromCloudinary(publicId);
+          try {
+            // Extract public_id from Cloudinary URL
+            const urlParts = imageUrl.split('/');
+            const uploadIndex = urlParts.findIndex(part => part === 'upload');
+
+            if (uploadIndex !== -1 && uploadIndex + 2 < urlParts.length) {
+              // Skip version (v123456) and get folder + public_id
+              const pathAfterUpload = urlParts.slice(uploadIndex + 2).join('/');
+              const finalPublicId = pathAfterUpload.replace(/\.[^/.]+$/, ''); // Remove extension
+              return deleteFromCloudinary(finalPublicId);
+            } else {
+              // Fallback: try to extract just the filename
+              const publicId = imageUrl?.split('/').pop().split('.')[0];
+              return deleteFromCloudinary(`menu-items/${publicId}`);
+            }
+          } catch (error) {
+            console.error('Error processing image URL for deletion:', imageUrl, error);
+            return Promise.resolve(); // Don't fail the entire operation
+          }
         });
         await Promise.all(deletePromises);
       } catch (deleteError) {
