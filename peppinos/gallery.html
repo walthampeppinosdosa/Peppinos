@@ -9,9 +9,9 @@
   <!--
     - primary meta tags
   -->
-  <title>Peppinos - Contact Us</title>
-  <meta name="title" content="Peppinos - Contact Us">
-  <meta name="description" content="Contact Peppinos Restaurant for reservations and inquiries">
+  <title>Peppinos - Gallery</title>
+  <meta name="title" content="Peppinos - Gallery">
+  <meta name="description" content="Explore our beautiful restaurant gallery showcasing delicious dishes and dining experience">
 
   <!--
     - favicon
@@ -55,7 +55,7 @@
 
 </head>
 
-<body id="top" class="contact-page">
+<body id="top">
 
   <!--
     - #PRELOADER
@@ -65,10 +65,6 @@
     <div class="circle"></div>
     <p class="text">Peppino's Dosa</p>
   </div>
-
-
-
-
 
   <!--
     - #TOP BAR
@@ -94,7 +90,7 @@
           <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
         </div>
 
-        <span class="span">Mon-Thu: 11:30AM-3PM, 5-10PM | Fri-Sun: 11:30AM-3:30PM, 4:30-10PM</span>
+        <span class="span">Lunch Buffet: Mon-Fri 11:30AM-3PM</span>
       </div>
 
       <a href="tel:+17815476099" class="topbar-item link">
@@ -107,20 +103,16 @@
 
       <div class="separator"></div>
 
-      <a href="mailto:walthampeppinosdosa@gmail.com" class="topbar-item link">
+      <a href="mailto:Walthampeppinosdosa@gmail.com" class="topbar-item link">
         <div class="icon">
           <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
         </div>
 
-        <span class="span">walthampeppinosdosa@gmail.com</span>
+        <span class="span">Walthampeppinosdosa@gmail.com</span>
       </a>
 
     </div>
   </div>
-
-
-
-
 
   <!--
     - #HEADER
@@ -132,14 +124,10 @@
       <a href="index.html" class="logo">
         <div class="logo-container">
           <div class="logo-spinner">
-            <div class="logo-face logo-face-1">
-              <img src="./assets/images/logo-1.png" width="360" height="114" alt="Peppino's Dosa - Home">
-            </div>
-            <div class="logo-face logo-face-2">
-              <img src="./assets/images/logo-2.png" width="360" height="114" alt="Peppino's Dosa - Home">
-            </div>
-            <!-- <div class="logo-face logo-face-3">
-              <img src="./assets/images/logo-3.png" width="360" height="114" alt="Peppino's Dosa - Home">
+            <img src="./assets/images/logo.svg" width="165" height="50" alt="Peppinos - Home" class="logo-img">
+            <!-- <div class="logo-text">
+              <span class="logo-main">Peppino's</span>
+              <span class="logo-sub">Dosa</span>
             </div> -->
           </div>
         </div>
@@ -151,7 +139,17 @@
           <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
         </button>
 
-
+        <a href="index.html" class="logo">
+          <div class="logo-container">
+            <div class="logo-spinner">
+              <img src="./assets/images/logo.svg" width="165" height="50" alt="Peppinos - Home" class="logo-img">
+              <!-- <div class="logo-text">
+                <span class="logo-main">Peppino's</span>
+                <span class="logo-sub">Dosa</span>
+              </div> -->
+            </div>
+          </div>
+        </a>
 
         <ul class="navbar-list">
 
@@ -188,7 +186,7 @@
           </li>
 
           <li class="navbar-item">
-            <a href="gallery.html" class="navbar-link hover-underline">
+            <a href="gallery.html" class="navbar-link hover-underline active">
               <div class="separator"></div>
 
               <span class="span">Gallery</span>
@@ -211,7 +209,7 @@
           </li>
 
           <li class="navbar-item">
-            <a href="contact.html" class="navbar-link hover-underline active">
+            <a href="contact.html" class="navbar-link hover-underline">
               <div class="separator"></div>
 
               <span class="span">Contact</span>
@@ -221,7 +219,7 @@
         </ul>
 
         <div class="text-center">
-          <p class="headline-1 navbar-title">Visit Us</p>
+          <p class="headline-1 text-white navbar-title">Visit Us</p>
 
           <address class="body-4">
             434 Moody St, <br>
@@ -230,7 +228,7 @@
 
           <p class="body-4 navbar-text">Lunch Buffet: Mon-Fri 11:30AM-3PM</p>
 
-          <a href="mailto:walthampeppinosdosa@gmail.com" class="body-4 sidebar-link">walthampeppinosdosa@gmail.com</a>
+          <a href="mailto:Walthampeppinosdosa@gmail.com" class="body-4 sidebar-link">Walthampeppinosdosa@gmail.com</a>
 
           <div class="separator"></div>
 
@@ -256,8 +254,6 @@
         <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google" rel="noopener" aria-label="Google Business">
         </a>
 
-  
-
         <!-- Auth buttons will be populated by JavaScript -->
         <div id="auth-buttons"></div>
 
@@ -279,130 +275,119 @@
     </div>
   </header>
 
-
-
-
-
   <main>
     <article>
 
       <!--
-        - #RESERVATION
+        - #HERO
       -->
 
-      <section class="reservation" id="reservation">
+      <section class="hero text-center" aria-label="home" id="home">
+        <ul class="hero-slider" data-hero-slider>
+
+          <li class="slider-item active" data-hero-slider-item>
+            <div class="slider-bg">
+              <img src="./assets/images/hero-slider-1.png" width="1880" height="950" alt="" class="img-cover">
+            </div>
+
+            <p class="label-2 section-subtitle slider-reveal">Discover Our</p>
+
+            <h1 class="display-1 hero-title slider-reveal">
+              Beautiful Gallery
+            </h1>
+
+            <p class="body-2 hero-text slider-reveal">
+              Explore the visual journey of our culinary artistry and dining experience
+            </p>
+
+            <a href="#gallery" class="btn btn-primary slider-reveal">
+              <span class="text text-1">View Gallery</span>
+              <span class="text text-2" aria-hidden="true">View Gallery</span>
+            </a>
+
+          </li>
+
+        </ul>
+
+        <button class="slider-btn prev" aria-label="slide to previous" data-prev-btn>
+          <ion-icon name="chevron-back"></ion-icon>
+        </button>
+
+        <button class="slider-btn next" aria-label="slide to next" data-next-btn>
+          <ion-icon name="chevron-forward"></ion-icon>
+        </button>
+
+        <a href="#gallery" class="hero-btn has-after">
+          <img src="./assets/images/hero-icon.png" width="48" height="48" alt="booking icon">
+          <span class="label-2 text-center span">Explore Gallery</span>
+        </a>
+
+      </section>
+
+      <!--
+        - #GALLERY
+      -->
+
+      <section class="section gallery" aria-label="gallery" id="gallery">
         <div class="container">
 
-          <div class="form reservation-form bg-black-10">
+          <p class="section-subtitle text-center label-2">Visual Journey</p>
 
-            <form action="" class="form-left">
+          <h2 class="headline-1 section-title text-center">Our Gallery</h2>
 
-              <h2 class="headline text-center">Online Reservation</h2>
+          <p class="section-text text-center">
+            Take a visual tour through our restaurant and discover the artistry behind every dish.
+            From our beautifully crafted dosas to the warm ambiance of our dining space.
+          </p>
 
-              <p class="form-text text-center">
-                Booking request <a href="tel:+17815476099" class="link">(781) 547-6099</a>
-                or fill out the order form
-              </p>
+          <div class="gallery-grid">
 
-              <div class="input-wrapper">
-                <input type="text" name="name" placeholder="Your Name" autocomplete="off" class="input-field">
-
-                <input type="tel" name="phone" placeholder="Phone Number" autocomplete="off" class="input-field">
+            <div class="gallery-item">
+              <img src="./assets/images/gallery-1.jpg" width="400" height="300" loading="lazy" alt="Delicious Masala Dosa" class="img-cover">
+              <div class="gallery-overlay">
+                <h3 class="gallery-title">Signature Masala Dosa</h3>
+                <p class="gallery-text">Our famous crispy dosa with spiced potato filling</p>
               </div>
+            </div>
 
-              <div class="input-wrapper">
-
-                <div class="icon-wrapper">
-                  <ion-icon name="person-outline" aria-hidden="true"></ion-icon>
-
-                  <select name="person" class="input-field">
-                    <option value="1-person">1 Person</option>
-                    <option value="2-person">2 Person</option>
-                    <option value="3-person">3 Person</option>
-                    <option value="4-person">4 Person</option>
-                    <option value="5-person">5 Person</option>
-                    <option value="6-person">6 Person</option>
-                    <option value="7-person">7 Person</option>
-                  </select>
-
-                  <ion-icon name="chevron-down" aria-hidden="true"></ion-icon>
-                </div>
-
-                <div class="icon-wrapper">
-                  <ion-icon name="calendar-clear-outline" aria-hidden="true"></ion-icon>
-
-                  <input type="date" name="reservation-date" class="input-field">
-
-                  <ion-icon name="chevron-down" aria-hidden="true"></ion-icon>
-                </div>
-
-                <div class="icon-wrapper">
-                  <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
-
-                  <select name="person" class="input-field">
-                    <option value="08:00am">08 : 00 am</option>
-                    <option value="09:00am">09 : 00 am</option>
-                    <option value="010:00am">10 : 00 am</option>
-                    <option value="011:00am">11 : 00 am</option>
-                    <option value="012:00am">12 : 00 am</option>
-                    <option value="01:00pm">01 : 00 pm</option>
-                    <option value="02:00pm">02 : 00 pm</option>
-                    <option value="03:00pm">03 : 00 pm</option>
-                    <option value="04:00pm">04 : 00 pm</option>
-                    <option value="05:00pm">05 : 00 pm</option>
-                    <option value="06:00pm">06 : 00 pm</option>
-                    <option value="07:00pm">07 : 00 pm</option>
-                    <option value="08:00pm">08 : 00 pm</option>
-                    <option value="09:00pm">09 : 00 pm</option>
-                    <option value="10:00pm">10 : 00 pm</option>
-                  </select>
-
-                  <ion-icon name="chevron-down" aria-hidden="true"></ion-icon>
-                </div>
-
+            <div class="gallery-item">
+              <img src="./assets/images/gallery-2.jpg" width="400" height="300" loading="lazy" alt="Restaurant Interior" class="img-cover">
+              <div class="gallery-overlay">
+                <h3 class="gallery-title">Dining Experience</h3>
+                <p class="gallery-text">Warm and inviting atmosphere for family dining</p>
               </div>
+            </div>
 
-              <textarea name="message" placeholder="Message" autocomplete="off" class="input-field"></textarea>
+            <div class="gallery-item">
+              <img src="./assets/images/gallery-3.jpg" width="400" height="300" loading="lazy" alt="Chef Preparing Food" class="img-cover">
+              <div class="gallery-overlay">
+                <h3 class="gallery-title">Culinary Artistry</h3>
+                <p class="gallery-text">Our skilled chefs crafting authentic South Indian cuisine</p>
+              </div>
+            </div>
 
-              <button type="submit" class="btn btn-secondary">
-                <span class="text text-1">Book A Table</span>
+            <div class="gallery-item">
+              <img src="./assets/images/gallery-4.jpg" width="400" height="300" loading="lazy" alt="Variety of Dishes" class="img-cover">
+              <div class="gallery-overlay">
+                <h3 class="gallery-title">Diverse Menu</h3>
+                <p class="gallery-text">Wide selection of vegetarian and non-vegetarian options</p>
+              </div>
+            </div>
 
-                <span class="text text-2" aria-hidden="true">Book A Table</span>
-              </button>
+            <div class="gallery-item">
+              <img src="./assets/images/gallery-5.jpg" width="400" height="300" loading="lazy" alt="Fresh Ingredients" class="img-cover">
+              <div class="gallery-overlay">
+                <h3 class="gallery-title">Fresh Ingredients</h3>
+                <p class="gallery-text">Quality ingredients sourced for authentic flavors</p>
+              </div>
+            </div>
 
-            </form>
-
-              <div class="form-right text-center" style="background-image: url('./assets/images/form-pattern.png')">
-
-              <h2 class="headline text-center">Contact Us</h2>
-
-              <p class="contact-label">Booking Request</p>
-
-              <a href="tel:+17815476099" class="text-4xl text-black contact-number hover-underline">(781) 547-6099</a>
-
-              <div class="separator"></div>
-
-              <p class="contact-label">Location</p>
-
-              <address class="text-black">
-                434 Moody St, <br>
-                Waltham, MA 02453
-              </address>
-
-              <p class="contact-label">Lunch Time</p>
-
-              <p class="text-black">
-                Monday to Sunday <br>
-                11.00 am - 2.30pm
-              </p>
-
-              <p class="contact-label">Dinner Time</p>
-
-              <p class="text-black">
-                Monday to Sunday <br>
-                05.00 pm - 10.00pm
-              </p>
-
+            <div class="gallery-item">
+              <img src="./assets/images/gallery-6.jpg" width="400" height="300" loading="lazy" alt="Happy Customers" class="img-cover">
+              <div class="gallery-overlay">
+                <h3 class="gallery-title">Happy Customers</h3>
+                <p class="gallery-text">Creating memorable dining experiences</p>
+              </div>
             </div>
 
           </div>
@@ -412,10 +397,6 @@
 
     </article>
   </main>
-
-
-
-
 
   <!--
     - #FOOTER
@@ -430,21 +411,19 @@
         <div class="footer-brand has-before has-after">
 
           <a href="index.html" class="logo">
-            <img src="./assets/images/logo-1.png" width="90" height="24" loading="lazy" alt="peppinos home">
+            <img src="./assets/images/logo.svg" width="160" height="50" loading="lazy" alt="peppinos home">
           </a>
 
           <address class="body-4">
             434 Moody St, Waltham, MA 02453
           </address>
 
-          <a href="mailto:walthampeppinosdosa@gmail.com" class="body-4 contact-link">walthampeppinosdosa@gmail.com</a>
+          <a href="mailto:Walthampeppinosdosa@gmail.com" class="body-4 contact-link">Walthampeppinosdosa@gmail.com</a>
 
           <a href="tel:+17815476099" class="body-4 contact-link">Booking Request : (781) 547-6099</a>
 
           <p class="body-4">
-            Lunch Buffet: Mon-Fri 11:30AM-3PM<br>
-            Dining: Mon-Thu 11:30AM-3PM, 5-10PM<br>
-            Fri-Sun 11:30AM-3:30PM, 4:30-10PM
+            Lunch Buffet: Mon-Fri 11:30AM-3PM
           </p>
 
           <div class="wrapper">
@@ -453,20 +432,24 @@
             <div class="separator"></div>
           </div>
 
-          <!-- <p class="title-1">Get News & Offers</p>
+          <p class="title-1">Get News & Offers</p>
 
           <p class="label-1">
             Subscribe us & Get <span class="span">25% Off.</span>
-          </p> -->
+          </p>
 
           <form action="" class="input-wrapper">
-           
+            <div class="icon-wrapper">
+              <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
 
-            <!-- <button type="submit" class="btn btn-secondary">
+              <input type="email" name="email_address" placeholder="Your email" autocomplete="off" class="input-field">
+            </div>
+
+            <button type="submit" class="btn btn-secondary">
               <span class="text text-1">Subscribe</span>
 
               <span class="text text-2" aria-hidden="true">Subscribe</span>
-            </button> -->
+            </button>
           </form>
 
         </div>
@@ -474,31 +457,23 @@
         <ul class="footer-list">
 
           <li>
-            <a href="index.html" class="text-white footer-link hover-underline">Home</a>
+            <a href="index.html" class="label-2 footer-link hover-underline">Home</a>
           </li>
 
           <li>
-            <a href="menu.html" class="text-white footer-link hover-underline">Menus</a>
+            <a href="menu.html" class="label-2 footer-link hover-underline">Menus</a>
           </li>
 
           <li>
-            <a href="about.html" class="text-white footer-link hover-underline">About Us</a>
+            <a href="about.html" class="label-2 footer-link hover-underline">About Us</a>
           </li>
 
           <li>
-            <a href="chefs.html" class="text-white footer-link hover-underline">Our Chefs</a>
+            <a href="chefs.html" class="label-2 footer-link hover-underline">Our Chefs</a>
           </li>
 
           <li>
-            <a href="catering.html" class="text-white footer-link hover-underline">Catering</a>
-          </li>
-
-          <li>
-            <a href="blog.html" class="text-white footer-link hover-underline">Blog</a>
-          </li>
-
-          <li>
-            <a href="contact.html" class="text-white footer-link hover-underline">Contact</a>
+            <a href="contact.html" class="label-2 footer-link hover-underline">Contact</a>
           </li>
 
         </ul>
@@ -506,23 +481,23 @@
         <ul class="footer-list">
 
           <li>
-            <a href="#" class="text-white footer-link hover-underline">Facebook</a>
+            <a href="#" class="label-2 footer-link hover-underline">Facebook</a>
           </li>
 
           <li>
-            <a href="#" class="text-white footer-link hover-underline">Instagram</a>
+            <a href="#" class="label-2 footer-link hover-underline">Instagram</a>
           </li>
 
           <li>
-            <a href="#" class="text-white footer-link hover-underline">Twitter</a>
+            <a href="#" class="label-2 footer-link hover-underline">Twitter</a>
           </li>
 
           <li>
-            <a href="#" class="text-white footer-link hover-underline">Youtube</a>
+            <a href="#" class="label-2 footer-link hover-underline">Youtube</a>
           </li>
 
           <li>
-            <a href="#" class="text-white footer-link hover-underline">Google Map</a>
+            <a href="https://www.google.com/maps/place/Peppino's+Dosa" class="label-2 footer-link hover-underline">Google Map</a>
           </li>
 
         </ul>
@@ -532,18 +507,14 @@
       <div class="footer-bottom">
 
         <p class="copyright">
-          &copy; 2025 Peppinos. All Rights Reserved
-
+          &copy; 2024 Peppinos. All Rights Reserved | Crafted by <a href="#" target="_blank"
+            class="link">Peppinos Team</a>
         </p>
 
       </div>
 
     </div>
   </footer>
-
-
-
-
 
   <!--
     - #BACK TO TOP
@@ -553,29 +524,24 @@
     <ion-icon name="chevron-up" aria-hidden="true"></ion-icon>
   </a>
 
-
-
-
-
   <!--
     - custom js link
   -->
   <script src="./assets/js/script.js"></script>
-  <script src="./assets/js/custom.js"></script>
+  <script type="module" src="./assets/js/navigation.js"></script>
 
   <!-- Cart functionality is now handled by navigation.js -->
+
+  <!--
+    - authentication integration
+  -->
+  <script type="module" src="./assets/js/auth.js"></script>
 
   <!--
     - ionicon link
   -->
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-
-  <!--
-    - authentication integration
-  -->
-  <script type="module" src="./assets/js/navigation.js"></script>
-  <script type="module" src="./assets/js/auth.js"></script>
 
 </body>
 

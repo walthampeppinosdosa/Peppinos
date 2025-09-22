@@ -80,9 +80,8 @@ class NavigationManager {
     // Update auth buttons for guests (preserve cart icon and other header elements)
     if (this.authButtons) {
       this.authButtons.innerHTML = `
-        <a href="./login.html" class="btn btn-secondary">
-          <span class="text text-1">Sign In</span>
-          <span class="text text-2" aria-hidden="true">Sign In</span>
+        <a href="./login.html" class="btn btn-signin" aria-label="Sign In">
+          <ion-icon name="person-add-outline"></ion-icon>
         </a>
       `;
     }
@@ -120,9 +119,8 @@ class NavigationManager {
           </div>
         </div>
 
-        <a href="./login.html" class="btn btn-secondary navbar-btn">
-          <span class="text text-1">Sign In</span>
-          <span class="text text-2" aria-hidden="true">Sign In</span>
+        <a href="./login.html" class="btn btn-signin navbar-btn" aria-label="Sign In">
+          <ion-icon name="person-add-outline"></ion-icon>
         </a>
       `;
     }

@@ -1379,151 +1379,280 @@ body.nav-active {
   line-height: 1;
 }
 
-/* Google Business Button - Exact same behavior as Find a Table */
+/* Google Business Icon - Default for all pages except index.html */
 .btn-google {
+  width: 48px !important;
+  height: 48px !important;
   background-color: var(--eerie-black-1) !important;
   color: var(--white) !important;
-  border: 2px solid var(--gold-crayola) !important;
-  padding: 12px 45px;
-  border-radius: var(--radius-6);
-  font-family: var(--fontFamily-dm-sans);
-  font-size: var(--fontSize-label-2);
-  font-weight: var(--weight-bold);
-  text-transform: uppercase;
-  letter-spacing: var(--letterSpacing-1);
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  max-width: max-content;
-  white-space: nowrap;
-  transition: var(--transition-1);
+  border: none !important;
+  border-radius: 50% !important;
+  font-family: var(--fontFamily-dm-sans) !important;
+  font-size: 20px !important;
+  font-weight: var(--weight-bold) !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  transition: background-color 0.3s ease, color 0.3s ease !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  min-width: 58px !important;
+  flex-shrink: 0 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
 }
 
 .btn-google:hover {
   background-color: var(--gold-crayola) !important;
-  color: var(--eerie-black-1) !important;
+  color: var(--white) !important;
+  animation: hoverPulse 0.6s ease-in-out !important;
 }
 
-/* Index.html specific Google button styles - same as Find a Table */
-/* Non-sticky header state */
+@keyframes hoverPulse {
+  0% { background-color: var(--eerie-black-1); }
+  50% { background-color: var(--gold-crayola); }
+  100% { background-color: var(--eerie-black-1); }
+}
+
+/* Index.html specific Google icon styles */
+/* Non-sticky header state - gold background with special hover effect */
 body.home-page .header:not(.active) .btn-google {
   background-color: var(--gold-crayola) !important;
   color: var(--black) !important;
-  border: 2px solid var(--gold-crayola) !important;
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
+  border: none !important;
+  transition: background-color 0.3s ease, color 0.3s ease !important;
 }
 
-body.home-page .header:not(.active) .btn-google::before {
-  content: "";
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 200%;
-  height: 200%;
-  border-radius: var(--radius-circle);
-  background-color: var(--smoky-black-1);
-  transition: var(--transition-2);
-  z-index: -1;
+body.home-page .header:not(.active) .btn-google:hover {
+  background-color: var(--gold-crayola) !important;
+  color: var(--eerie-black-1) !important;
+  animation: indexHoverPulse 0.6s ease-in-out !important;
 }
 
-body.home-page .header:not(.active) .btn-google:is(:hover, :focus-visible)::before {
-  bottom: -50%;
+@keyframes indexHoverPulse {
+  0% { background-color: var(--gold-crayola); color: var(--black); }
+  50% { background-color: var(--eerie-black-1); color: var(--eerie-black-1); }
+  100% { background-color: var(--gold-crayola); color: var(--eerie-black-1); }
 }
 
-body.home-page .header:not(.active) .btn-google .text {
-  transition: var(--transition-1);
-}
-
-body.home-page .header:not(.active) .btn-google .text-2 {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: max-content;
-  color: var(--white);
-}
-
-body.home-page .header:not(.active) .btn-google:is(:hover, :focus-visible) .text-1 {
-  transform: translateY(-40px);
-}
-
-body.home-page .header:not(.active) .btn-google:is(:hover, :focus-visible) .text-2 {
-  top: 50%;
-  transform: translate(-50%, -50%);
-}
-
-/* Sticky header state - same as Find a Table button */
+/* Sticky header state - black background with white text */
 body.home-page .header.active .btn-google {
+  background-color: var(--smoky-black-1) !important;
+  color: var(--white) !important;
+  border: none !important;
+  transition: background-color 0.3s ease, color 0.3s ease !important;
+}
+
+body.home-page .header.active .btn-google:hover {
   background-color: var(--eerie-black-1) !important;
   color: var(--white) !important;
-  border: 2px solid var(--gold-crayola) !important;
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
+  animation: stickyHoverPulse 0.6s ease-in-out !important;
 }
 
-body.home-page .header.active .btn-google::before {
-  content: "";
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 200%;
-  height: 200%;
-  border-radius: var(--radius-circle);
-  background-color: var(--gold-crayola);
-  transition: var(--transition-2);
-  z-index: -1;
+@keyframes stickyHoverPulse {
+  0% { background-color: var(--eerie-black-1); color: var(--white); }
+  50% { background-color: var(--gold-crayola); color: var(--white); }
+  100% { background-color: var(--eerie-black-1); color: var(--white); }
 }
 
-body.home-page .header.active .btn-google:is(:hover, :focus-visible)::before {
-  bottom: -50%;
-}
-
-body.home-page .header.active .btn-google .text {
-  transition: var(--transition-1);
-}
-
-body.home-page .header.active .btn-google .text-2 {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: max-content;
-  color: var(--eerie-black-1);
-}
-
-body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-1 {
-  transform: translateY(-40px);
-}
-
-body.home-page .header.active .btn-google:is(:hover, :focus-visible) .text-2 {
-  top: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.btn-google .text {
-  position: relative !important;
-  z-index: 1 !important;
-  white-space: nowrap !important;
-}
-
-/* Hide the second text element in Google button */
+/* Google icon content - just show 'G' */
+.btn-google .text,
+.btn-google .text-1,
 .btn-google .text-2 {
   display: none !important;
 }
 
-/* Ensure only first text shows */
-.btn-google .text-1 {
-  display: inline !important;
-  white-space: nowrap !important;
+/* Show only G character */
+.btn-google::after {
+  content: "G" !important;
+  font-size: 20px !important;
+  font-weight: var(--weight-bold) !important;
+}
+
+/* Sign In Icon - Default for all pages except index.html */
+.btn-signin {
+  width: 38px !important;
+  height: 38px !important;
+  background-color: var(--eerie-black-1) !important;
+  color: var(--white) !important;
+  border: none !important;
+  border-radius: 50% !important;
+  font-size: 20px !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  transition: background-color 0.3s ease, color 0.3s ease !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  min-width: 58px !important;
+  flex-shrink: 0 !important;
+}
+
+.btn-signin:hover {
+  background-color: var(--eerie-black-1) !important;
+  color: var(--white) !important;
+  animation: hoverPulse 0.6s ease-in-out !important;
+}
+
+/* Index.html specific Sign In icon styles */
+/* Non-sticky header state - gold background with special hover effect */
+body.home-page .header:not(.active) .btn-signin {
+  background-color: var(--gold-crayola) !important;
+  color: var(--black) !important;
+  transition: background-color 0.3s ease, color 0.3s ease !important;
+}
+
+body.home-page .header:not(.active) .btn-signin:hover {
+  background-color: var(--gold-crayola) !important;
+  color: var(--eerie-black-1) !important;
+  animation: indexHoverPulse 0.6s ease-in-out !important;
+}
+
+/* Sticky header state - black background with white text */
+body.home-page .header.active .btn-signin {
+  background-color: var(--eerie-black-1) !important;
+  color: var(--white) !important;
+  transition: background-color 0.3s ease, color 0.3s ease !important;
+}
+
+body.home-page .header.active .btn-signin:hover {
+  background-color: var(--eerie-black-1) !important;
+  color: var(--white) !important;
+  animation: stickyHoverPulse 0.6s ease-in-out !important;
+}
+
+/* Hide text content in sign-in button */
+.btn-signin .text,
+.btn-signin .text-1,
+.btn-signin .text-2 {
+  display: none !important;
+}
+
+/* Gallery Styles */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  margin-top: 60px;
+}
+
+.gallery-item {
+  position: relative;
+  border-radius: var(--radius-6);
+  overflow: hidden;
+  cursor: pointer;
+  transition: var(--transition-1);
+}
+
+.gallery-item:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-2);
+}
+
+.gallery-item .img-cover {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  transition: var(--transition-2);
+}
+
+.gallery-item:hover .img-cover {
+  transform: scale(1.05);
+}
+
+.gallery-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  color: var(--white);
+  padding: 30px 20px 20px;
+  transform: translateY(100%);
+  transition: var(--transition-2);
+}
+
+.gallery-item:hover .gallery-overlay {
+  transform: translateY(0);
+}
+
+.gallery-title {
+  font-family: var(--fontFamily-forum);
+  font-size: var(--fontSize-title-4);
+  margin-bottom: 10px;
+}
+
+.gallery-text {
+  font-size: var(--fontSize-body-4);
+  line-height: 1.6;
+}
+
+/* Media Styles */
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+  margin-top: 60px;
+}
+
+.media-item {
+  background-color: var(--eerie-black-2);
+  border-radius: var(--radius-6);
+  overflow: hidden;
+  transition: var(--transition-1);
+}
+
+.media-item:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-2);
+}
+
+.media-video {
+  position: relative;
+  width: 100%;
+  height: 250px;
+}
+
+.media-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-6) var(--radius-6) 0 0;
+}
+
+.media-content {
+  padding: 25px;
+  position: relative;
+}
+
+.media-title {
+  font-family: var(--fontFamily-forum);
+  font-size: var(--fontSize-title-4);
+  color: var(--white);
+  margin-bottom: 10px;
+}
+
+.media-text {
+  font-size: var(--fontSize-body-4);
+  color: var(--quick-silver);
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.media-duration {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: var(--white);
+  padding: 5px 10px;
+  border-radius: var(--radius-4);
+  font-size: var(--fontSize-label-1);
+  font-weight: var(--weight-bold);
 }
 
 /* Sign In button text should stay on one line */

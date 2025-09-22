@@ -1,0 +1,18 @@
+Directory structure:
+└── peppinos/
+    ├── blog-detail-1.html
+    ├── blog-detail-2.html
+    ├── blog-detail-3.html
+    ├── blog.html
+    ├── cart.html
+    ├── catering.html
+    ├── checkout.html
+    ├── chefs.html
+    ├── contact.html
+    ├── guest-checkout.html
+    ├── index.html
+    ├── menu.html
+    ├── order-confirmation.html
+    ├── order-tracking.html
+    ├── orders.html
+    ├── profile.html
