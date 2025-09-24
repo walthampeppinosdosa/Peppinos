@@ -204,15 +204,15 @@ class OrdersPage {
     // Reorder
   
 
-    // Cancel order (only for pending orders)
-    if (order.deliveryStatus === 'pending') {
-      actions.push(`
-        <button class="btn-small btn-danger-small" onclick="ordersPage.cancelOrder('${order._id}')">
-          <ion-icon name="close-outline"></ion-icon>
-          Cancel
-        </button>
-      `);
-    }
+    // // Cancel order (only for pending orders)
+    // if (order.deliveryStatus === 'pending') {
+    //   actions.push(`
+    //     <button class="btn-small btn-danger-small" onclick="ordersPage.cancelOrder('${order._id}')">
+    //       <ion-icon name="close-outline"></ion-icon>
+    //       Cancel
+    //     </button>
+    //   `);
+    // }
 
     return actions.join('');
   }

@@ -77,16 +77,6 @@ export const Menu: React.FC = () => {
   useEffect(() => {
     // Only fetch if we have valid parameters
     if (currentPage > 0 && itemsPerPage > 0) {
-      console.log('Fetching menu items with params:', {
-        page: currentPage,
-        limit: itemsPerPage,
-        search: debouncedSearchTerm,
-        category: selectedCategory !== 'all' ? selectedCategory : '',
-        isVegetarian: selectedType !== 'all' ? selectedType === 'veg' : '',
-        isActive: selectedStatus !== 'all' ? selectedStatus === 'active' : '',
-        sortBy,
-        sortOrder: 'desc'
-      });
 
       dispatch(fetchMenuItems({
         page: currentPage,
@@ -118,7 +108,6 @@ export const Menu: React.FC = () => {
   // Debug menu items to check for the "0" issue
   useEffect(() => {
     if (menuItems.length > 0) {
-      console.log('Menu items data:', menuItems.slice(0, 2)); // Log first 2 items
       // Check for any items with missing isVegetarian property
       const invalidItems = menuItems.filter(item =>
         !item || typeof item.isVegetarian !== 'boolean'

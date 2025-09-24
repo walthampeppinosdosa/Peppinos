@@ -2,6 +2,23 @@ const Order = require('../../models/Order');
 const User = require('../../models/User');
 const { validationResult } = require('express-validator');
 
+// Helper function to emit Socket.IO events
+const emitOrderEvent = (eventType, data) => {
+  try {
+    if (global.io) {
+      // Emit to all admin rooms with correct room names
+      global.io.to('admin:all').emit(eventType, data);
+      global.io.to('admin:super-admin').emit(eventType, data);  // Fixed: was 'admin:superadmin'
+      global.io.to('admin:veg_admin').emit(eventType, data);
+      global.io.to('admin:non_veg_admin').emit(eventType, data);
+
+
+    }
+  } catch (error) {
+    console.error('❌ Error emitting Socket.IO event:', error);
+  }
+};
+
 /**
  * Get all orders (both regular and guest) with filtering and pagination
  * GET /api/admin/orders
@@ -205,10 +222,30 @@ const updateOrderStatus = async (req, res) => {
     await order.populate('user', 'name email phoneNumber');
     await order.populate('items.menu', 'name images discountedPrice');
 
+    // Add customer type information
+    const orderWithCustomerType = {
+      ...order.toObject(),
+      customerType: order.user?.role === 'guest' ? 'guest' : 'registered',
+      isGuestOrder: order.user?.role === 'guest'
+    };
+
+    // Emit Socket.IO event for real-time updates
+    emitOrderEvent('orderUpdated', orderWithCustomerType);
+
+    // Also emit specific status change event
+    emitOrderEvent('orderStatusChanged', {
+      orderId: order._id.toString(),
+      orderNumber: order.orderNumber,
+      deliveryStatus: order.deliveryStatus,
+      paymentStatus: order.paymentStatus,
+      updatedBy: req.user._id,
+      timestamp: new Date().toISOString()
+    });
+
     res.status(200).json({
       success: true,
       message: 'Order status updated successfully',
-      data: { order }
+      data: { order: orderWithCustomerType }
     });
   } catch (error) {
     console.error('Update order status error:', error);

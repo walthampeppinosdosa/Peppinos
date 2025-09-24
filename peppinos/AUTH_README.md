@@ -132,7 +132,6 @@ import { isAuthenticated, getCurrentUser, loginUser, logoutUser } from './auth.j
 // Check if user is authenticated
 if (isAuthenticated()) {
   const user = getCurrentUser();
-  console.log('User:', user.name);
 }
 
 // Listen for authentication changes

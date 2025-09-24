@@ -949,10 +949,6 @@
                     <input type="radio" id="payOnline" name="paymentMethod" value="pay_online" checked>
                     <label for="payOnline">Pay Online</label>
                   </div>
-                  <div class="radio-option">
-                    <input type="radio" id="payInStore" name="paymentMethod" value="pay_in_store">
-                    <label for="payInStore">Pay in Store</label>
-                  </div>
                 </div>
               </div>
 
@@ -1153,8 +1149,7 @@
 
         // Debug user data
         const user = getCurrentUser();
-        console.log('🔍 Current user data in checkout:', user);
-        console.log('🔍 User properties:', Object.keys(user || {}));
+       
 
         // Wait for cart system to be ready (initialized by navigation.js) with timeout
         let waitTime = 0;
@@ -1170,13 +1165,7 @@
 
         this.setupEventListeners();
 
-        // Debug cart service state
-        console.log('🔍 Cart service state:', {
-          initialized: cartService._initialized,
-          isAuthenticated: cartService.isAuthenticated,
-          sessionId: cartService.sessionId,
-          cart: cartService.cart
-        });
+     
 
         this.updateCartSummary();
         this.setupFormValidation();
@@ -1271,20 +1260,16 @@
         try {
           // Get cart data - try cache first, then load from API if needed
           let cart = cartService.cart;
-          console.log('🔍 Initial cart cache:', cart);
 
           // If cache is empty, try to load from API
           if (!cart || !cart.items || cart.items.length === 0) {
-            console.log('🔄 Cart cache empty, loading from API...');
 
             // Force a fresh cart load by bypassing cache
             cartService._lastCartUpdate = null; // Reset debounce
             cart = await cartService.getCart();
-            console.log('🔍 Cart loaded from API:', cart);
 
             // If still empty, try one more time with a different approach
             if (!cart || !cart.items || cart.items.length === 0) {
-              console.log('🔄 Cart still empty, trying direct API call...');
               try {
                 const response = cartService.isAuthenticated
                   ? await httpClient.get('/api/shop/cart')
@@ -1301,16 +1286,13 @@
           }
 
           if (!cart || !cart.items || cart.items.length === 0) {
-            console.log('❌ Cart is empty after API call');
             this.cartItems.innerHTML = '<p>Your cart is empty.</p>';
             this.submitBtn.disabled = true;
             this.isUpdatingCart = false;
             return;
           }
 
-          console.log('🛒 Cart data loaded successfully:', cart);
-          console.log('🛒 Cart items:', cart.items);
-          console.log('🛒 Cart subtotal:', cart.subtotal);
+         
 
           // Render cart items
           this.cartItems.innerHTML = cart.items.map(item => this.renderCartItem(item)).join('');
@@ -1373,13 +1355,7 @@
         const statusElement = document.getElementById('restaurantStatus');
         const isOpen = restaurantHours.isCurrentlyOpen();
 
-        // Debug logging
-        console.log('🕐 Restaurant Status Check:', {
-          isOpen,
-          currentTime: new Date().toLocaleString(),
-          dayName: restaurantHours.getDayName(new Date()),
-          currentTimeFormatted: restaurantHours.formatTime(new Date())
-        });
+        
 
         // Allow ASAP option to be enabled even when restaurant is closed
         const forceEnableASAP = localStorage.getItem('force_enable_asap') === 'true';
@@ -1510,15 +1486,12 @@
           const isGuest = localStorage.getItem('peppinos_is_guest') === 'true';
           const endpoint = isGuest ? '/api/shop/guest/checkout' : '/api/shop/orders';
 
-          console.log('🔍 Using endpoint:', endpoint, 'for guest:', isGuest);
 
           // Submit order using httpClient with proper rate limiting
           const result = await httpClient.post(endpoint, orderData);
 
-          console.log('📦 Order creation result:', result);
 
           if (result.success) {
-            console.log('✅ Order created successfully, clearing cart...');
 
             // Clear cart (don't let this fail the order)
             try {
@@ -1530,11 +1503,8 @@
             }
 
             // Show success message
-            console.log('🎉 Showing success toast...');
             const order = result.data?.order || result.order;
-            console.log('🎉 Order object:', order);
             const successMessage = `Order placed successfully! Order #${order.orderNumber}. Confirmation emails have been sent.`;
-            console.log('🎉 Success message:', successMessage);
             showSuccess(successMessage);
 
             // Redirect to orders page after a short delay
@@ -1560,7 +1530,6 @@
             errorMessage = error.message;
           }
 
-          console.log('🚨 Showing error toast:', errorMessage);
           showError(errorMessage);
         } finally {
           this.submitBtn.disabled = false;
@@ -1574,7 +1543,6 @@
         const user = getCurrentUser();
         const isGuest = localStorage.getItem('peppinos_is_guest') === 'true';
 
-        console.log('🔍 Building order data with user:', user, 'isGuest:', isGuest);
 
         // For guest users, format data for guest checkout endpoint
         if (isGuest) {
@@ -1607,7 +1575,6 @@
             orderData.scheduledTime = formData.get('scheduledTime');
           }
 
-          console.log('📋 Guest order data built:', orderData);
           return orderData;
         }
 
@@ -1618,7 +1585,6 @@
           email: user?.email || ''
         };
 
-        console.log('📋 Customer info built:', customerInfo);
 
         // Validate required fields
         if (!customerInfo.name || !customerInfo.email) {

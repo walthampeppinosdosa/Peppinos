@@ -197,7 +197,7 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['pay_online', 'pay_in_store'],
+    enum: ['pay_online'],
     required: [true, 'Payment method is required'],
     default: 'pay_online'
   },

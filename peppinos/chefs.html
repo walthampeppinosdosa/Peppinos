@@ -40,7 +40,7 @@
     - custom overrides css
   -->
   <!-- <link rel="stylesheet" href="./assets/css/custom.css"> -->
-  
+
   <!--
     - header and hero specific css
   -->
@@ -256,7 +256,7 @@
         <a href="https://www.google.com/maps/place/Peppino's+Dosa" target="_blank" class="btn btn-google" rel="noopener" aria-label="Google Business">
         </a>
 
-   
+
 
         <!-- Auth buttons will be populated by JavaScript -->
         <div id="auth-buttons"></div>
@@ -303,50 +303,7 @@
 
           <!-- Chef profiles -->
           <div class="chefs-grid" style="margin-top: 50px;">
-            <!-- Chef Peppino Card -->
-            <div class="chef-profile-card">
-              <div class="chef-card-header">
-                <div class="chef-avatar">
-                  <img src="./assets/images/chef-peppino.png" width="120" height="120" loading="lazy" alt="Chef Peppino" class="chef-img">
-                </div>
-                <div class="chef-info">
-                  <h3 class="title-2 chef-name">Chef Peppino</h3>
-                  <p class="chef-title">Master Chef & Co-Founder</p>
-                  <div class="chef-specialty">
-                    <span class="specialty-tag">North Indian Cuisine</span>
-                    <span class="specialty-tag">Traditional Recipes</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="chef-description">
-                <p class="label-1">Master of authentic North and South Indian cuisine, Chef Peppino brings traditional recipes and innovative techniques to create exceptional dining experiences.</p>
-              </div>
-
-              <!-- Chef Peppino Video Section -->
-              <div class="chef-video-section">
-                <div class="video-header">
-                  <h4 class="video-title">Watch Chef Peppino in Action</h4>
-                  <div class="video-divider"></div>
-                </div>
-
-                <div class="chef-video-frame">
-                  <video class="chef-video-player" poster="./assets/images/chef-peppino.png" preload="metadata" data-chef="peppino">
-                    <source src="./assets/videos/chef-cooking.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                  </video>
-
-                  <div class="chef-video-overlay">
-                    <div class="video-play-button" data-chef-video-btn="peppino">
-                      <div class="play-icon">
-                        <ion-icon name="play" aria-hidden="true"></ion-icon>
-                      </div>
-                      <span class="play-text">Play Video</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+         
 
             <!-- Chef Laddi Card -->
             <div class="chef-profile-card">
@@ -392,6 +349,51 @@
                 </div>
               </div>
             </div>
+
+               <!-- Chef Peppino Card -->
+            <div class="chef-profile-card">
+              <div class="chef-card-header">
+                <div class="chef-avatar">
+                  <img src="./assets/images/chef-peppino.png" width="120" height="120" loading="lazy" alt="Chef Peppino" class="chef-img">
+                </div>
+                <div class="chef-info">
+                  <h3 class="title-2 chef-name">Chef Peppino</h3>
+                  <p class="chef-title">Master Chef & Co-Founder</p>
+                  <div class="chef-specialty">
+                    <span class="specialty-tag">North Indian Cuisine</span>
+                    <span class="specialty-tag">Traditional Recipes</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chef-description">
+                <p class="label-1">Master of authentic North and South Indian cuisine, Chef Peppino brings traditional recipes and innovative techniques to create exceptional dining experiences.</p>
+              </div>
+
+              <!-- Chef Peppino Video Section -->
+              <div class="chef-video-section">
+                <div class="video-header">
+                  <h4 class="video-title">Watch Chef Peppino in Action</h4>
+                  <div class="video-divider"></div>
+                </div>
+
+                <div class="chef-video-frame">
+                  <video class="chef-video-player" poster="./assets/images/chef-peppino.png" preload="metadata" data-chef="peppino">
+                    <source src="./assets/videos/chef-cooking.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                  </video>
+
+                  <div class="chef-video-overlay">
+                    <div class="video-play-button" data-chef-video-btn="peppino">
+                      <div class="play-icon">
+                        <ion-icon name="play" aria-hidden="true"></ion-icon>
+                      </div>
+                      <span class="play-text">Play Video</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <img src="./assets/images/shape-7.png" width="208" height="178" loading="lazy" alt="shape"
@@ -428,7 +430,7 @@
               </div>
 
               <div class="overlay-content">
-                <h3 class="overlay-title">Chef Peppino & Chef Laddi</h3>
+                <h3 class="overlay-title">Chef Laddi & Chef Peppino</h3>
                 <p class="overlay-text">Masters of Authentic Indian Cuisine</p>
               </div>
             </div>
@@ -458,7 +460,7 @@
           <h2 class="headline ">Our Chef's Specialties</h2>
 
           <p class="section-text">
-            Discover the unique techniques and signature dishes that make Chef Peppino and Chef Laddi masters of their craft.
+            Discover the unique techniques and signature dishes that make Chef Laddi and Chef Peppino masters of their craft.
           </p>
 
           <ul class="grid-list">
@@ -536,32 +538,64 @@
 
           <div class="testimonial-slider" data-testimonial-slider>
 
-            <!-- Testimonial 1 -->
+            <!-- Testimonial 1 - Elongen Jones -->
             <div class="testimonial-slide active" data-testimonial-slide>
-              <p class="headline-2 testi-text">
-                Chef Peppino and Chef Laddi have created something truly special here. Their passion for authentic Indian cuisine shines through in every dish they prepare.
+              <p class=" testi-text" data-testimonial-preview>
+                "The staff were very knowledgeable about the dishes and how they are served in India. Savio gave us great recommendations..."
+                <span class="read-more-btn" onclick="openTestimonialModal(1)">Read More</span>
               </p>
+              <div class="profile">
+                <p class="label-2">Elongen Jones</p>
+                <p class="review-meta">Local Guide • 135 reviews</p>
+              </div>
             </div>
 
-            <!-- Testimonial 2 -->
+            <!-- Testimonial 2 - Amy Patel -->
             <div class="testimonial-slide" data-testimonial-slide>
-              <p class="headline-2 testi-text">
-                The culinary expertise displayed by these chefs is remarkable. Every dosa is crafted to perfection with authentic South Indian techniques.
+              <p class=" testi-text" data-testimonial-preview>
+                "We love the food here. Visiting for 3+ years and the food has been consistently good. Savio was very helpful..."
+                <span class="read-more-btn" onclick="openTestimonialModal(2)">Read More</span>
               </p>
+              <div class="profile">
+                <p class="label-2">Amy Patel</p>
+                <p class="review-meta">Local Guide • 62 reviews</p>
+              </div>
             </div>
 
-            <!-- Testimonial 3 -->
+            <!-- Testimonial 3 - Anonymous -->
             <div class="testimonial-slide" data-testimonial-slide>
-              <p class="headline-2 testi-text">
-                Watching Chef Peppino work is like witnessing an artist at work. The precision and care in every dish is truly inspiring.
+              <p class=" testi-text" data-testimonial-preview>
+                "Every dish is meticulously prepared using fresh, high-quality ingredients. Beautiful fusion of traditional and innovative dishes..."
+                <span class="read-more-btn" onclick="openTestimonialModal(3)">Read More</span>
               </p>
+              <div class="profile">
+                <p class="label-2">Verified Customer</p>
+                <p class="review-meta">6 months ago • Dinner</p>
+              </div>
             </div>
 
-            <!-- Testimonial 4 -->
+            <!-- Testimonial 4 - Divya Prajapati -->
             <div class="testimonial-slide" data-testimonial-slide>
-              <p class="headline-2 testi-text">
-                These chefs bring generations of culinary tradition to Waltham. Their dedication to authentic flavors is unmatched in the area.
+              <p class=" testi-text" data-testimonial-preview>
+                "Great experience thanks to Savio and Sanket! Their service was excellent, very attentive and professional..."
+                <span class="read-more-btn" onclick="openTestimonialModal(4)">Read More</span>
               </p>
+              <div class="profile">
+                <p class="label-2">Divya Prajapati</p>
+                <p class="review-meta">3 reviews • 3 photos</p>
+              </div>
+            </div>
+
+            <!-- Testimonial 5 - Finding Jeffrey -->
+            <div class="testimonial-slide" data-testimonial-slide>
+              <p class=" testi-text" data-testimonial-preview>
+                "The food and service are top-notch with generous portions. Peppino's Platter is perfect - each item flavorful and perfectly cooked..."
+                <span class="read-more-btn" onclick="openTestimonialModal(5)">Read More</span>
+              </p>
+              <div class="profile">
+                <p class="label-2">Finding Jeffrey</p>
+                <p class="review-meta">Local Guide • 38 reviews</p>
+              </div>
             </div>
 
           </div>
@@ -574,39 +608,48 @@
 
           <div class="profile-slider" data-profile-slider>
 
-            <!-- Profile 1 -->
+            <!-- Profile 1 - Elongen Jones -->
             <div class="profile-slide active" data-profile-slide>
               <div class="profile">
-                <img src="./assets/images/testi-avatar-1.png" width="100" height="100" loading="lazy" alt="Maria Rodriguez" class="img">
-                <p class="label-2 profile-name">Maria Rodriguez</p>
-                <p class="body-4">Food Critic, Boston Globe</p>
+                <img src="./assets/images/testi-avatar-1.png" width="100" height="100" loading="lazy" alt="Elongen Jones" class="img">
+                <p class="label-2 profile-name">Elongen Jones</p>
+                <p class="body-4">Local Guide</p>
               </div>
             </div>
 
-            <!-- Profile 2 -->
+            <!-- Profile 2 - Amy Patel -->
             <div class="profile-slide" data-profile-slide>
               <div class="profile">
-                <img src="./assets/images/testi-avatar-2.png" width="100" height="100" loading="lazy" alt="James Wilson" class="img">
-                <p class="label-2 profile-name">James Wilson</p>
-                <p class="body-4">Culinary Institute Graduate</p>
+                <img src="./assets/images/testi-avatar-2.png" width="100" height="100" loading="lazy" alt="Amy Patel" class="img">
+                <p class="label-2 profile-name">Amy Patel</p>
+                <p class="body-4">Local Guide</p>
               </div>
             </div>
 
-            <!-- Profile 3 -->
+            <!-- Profile 3 - Verified Customer -->
             <div class="profile-slide" data-profile-slide>
               <div class="profile">
-                <img src="./assets/images/testi-avatar-3.png" width="100" height="100" loading="lazy" alt="Anita Sharma" class="img">
-                <p class="label-2 profile-name">Anita Sharma</p>
-                <p class="body-4">Food & Travel Writer</p>
+                <img src="./assets/images/testi-avatar-3.png" width="100" height="100" loading="lazy" alt="Verified Customer" class="img">
+                <p class="label-2 profile-name">Verified Customer</p>
+                <p class="body-4">Regular Diner</p>
               </div>
             </div>
 
-            <!-- Profile 4 -->
+            <!-- Profile 4 - Divya Prajapati -->
             <div class="profile-slide" data-profile-slide>
               <div class="profile">
-                <img src="./assets/images/testi-avatar-2.png" width="100" height="100" loading="lazy" alt="Robert Chen" class="img">
-                <p class="label-2 profile-name">Robert Chen</p>
-                <p class="body-4">Restaurant Consultant</p>
+                <img src="./assets/images/testi-avatar-4.jpg" width="100" height="100" loading="lazy" alt="Divya Prajapati" class="img">
+                <p class="label-2 profile-name">Divya Prajapati</p>
+                <p class="body-4">Food Enthusiast</p>
+              </div>
+            </div>
+
+            <!-- Profile 5 - Finding Jeffrey -->
+            <div class="profile-slide" data-profile-slide>
+              <div class="profile">
+                <img src="./assets/images/testi-avatar-1.png" width="100" height="100" loading="lazy" alt="Finding Jeffrey" class="img">
+                <p class="label-2 profile-name">Finding Jeffrey</p>
+                <p class="body-4">Local Guide</p>
               </div>
             </div>
 
@@ -614,6 +657,24 @@
 
         </div>
       </section>
+      <!-- Testimonial Modal -->
+      <div id="testimonialModal" class="testimonial-modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title">Customer Review</h3>
+            <span class="close-modal" onclick="closeTestimonialModal()">&times;</span>
+          </div>
+          <div class="modal-body">
+            <div class="modal-profile">
+              <h4 id="modalCustomerName"></h4>
+              <p id="modalCustomerMeta"></p>
+            </div>
+            <div class="modal-review">
+              <p id="modalReviewText"></p>
+            </div>
+          </div>
+        </div>
+      </div>
 
     </article>
   </main>
@@ -665,7 +726,7 @@
           </p> -->
 
           <form action="" class="input-wrapper">
-           
+
 
             <!-- <button type="submit" class="btn btn-secondary">
               <span class="text text-1">Subscribe</span>
@@ -766,6 +827,7 @@
   -->
   <script src="./assets/js/script.js"></script>
   <script src="./assets/js/custom.js"></script>
+  <script src="./assets/js/testimonials.js"></script>
 
   <!--
     - ionicon link

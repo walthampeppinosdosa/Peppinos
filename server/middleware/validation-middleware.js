@@ -611,8 +611,8 @@ const validateGuestCheckout = [
     .notEmpty()
     .withMessage('Country cannot be empty if provided'),
   body('paymentMethod')
-    .isIn(['pay_online', 'pay_in_store'])
-    .withMessage('Payment method must be pay_online or pay_in_store'),
+    .isIn(['pay_online'])
+    .withMessage('Payment method must be pay_online'),
   body('specialInstructions')
     .optional()
     .isLength({ max: 500 })

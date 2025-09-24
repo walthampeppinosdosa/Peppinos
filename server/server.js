@@ -2,10 +2,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const { createServer } = require('http');
+const { Server } = require('socket.io');
 const { corsOptions, helmetConfig, mongoSanitize } = require('./middleware/security-middleware');
 require('dotenv').config();
 
 const app = express();
+const server = createServer(app);
 
 // Security middleware
 app.use(helmetConfig);
@@ -278,6 +281,104 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Socket.IO configuration
+const io = new Server(server, {
+  cors: {
+    origin: process.env.NODE_ENV === 'production'
+      ? ["https://peppinos-admin.web.app", "https://walthampeppinos.web.app"]
+      : ["http://localhost:3000", "http://localhost:5173", "http://localhost:4173", "https://admin.socket.io"],
+    methods: ["GET", "POST"],
+    credentials: true
+  },
+  // Railway supports WebSockets - use both transports
+  transports: ['websocket', 'polling'],
+  pingTimeout: 60000,
+  pingInterval: 25000,
+  allowEIO3: true,
+  upgradeTimeout: 30000,
+  maxHttpBufferSize: 1e6
+});
+
+// Socket.IO middleware for authentication
+const jwt = require('jsonwebtoken');
+const User = require('./models/User');
+
+io.use(async (socket, next) => {
+  try {
+    const token = socket.handshake.auth.token ||
+                  socket.handshake.headers.authorization?.replace('Bearer ', '') ||
+                  socket.handshake.query.token;
+
+    if (!token) {
+      return next(new Error('Authentication error: No token provided'));
+    }
+
+    // Verify JWT token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id || decoded.userId; // Support both formats
+
+    const user = await User.findById(userId).select('-password');
+
+    if (!user) {
+      return next(new Error('Authentication error: User not found'));
+    }
+
+    // Check if user is admin (support both formats)
+    const adminRoles = ['superadmin', 'super-admin', 'veg_admin', 'non_veg_admin'];
+    if (!adminRoles.includes(user.role)) {
+      return next(new Error('Authentication error: Insufficient permissions'));
+    }
+
+    socket.userId = user._id.toString();
+    socket.userRole = user.role;
+    socket.userName = user.name;
+
+    next();
+  } catch (error) {
+    next(new Error('Authentication error: Invalid token'));
+  }
+});
+
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+  // Join admin room based on role
+  const adminRoom = socket.userRole === 'superadmin' ? 'admin:all' : `admin:${socket.userRole}`;
+  socket.join(adminRoom);
+  socket.join(`user:${socket.userId}`); // Personal room for user-specific events
+
+  // Handle admin-specific events
+  socket.on('joinAdminRoom', () => {
+    // Already handled in middleware, but we can send confirmation
+    socket.emit('adminRoomJoined', {
+      room: adminRoom,
+      role: socket.userRole,
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  socket.on('leaveAdminRoom', () => {
+    socket.leave(adminRoom);
+  });
+
+  socket.on('requestOrderUpdate', (orderId) => {
+    // This could trigger a fresh order fetch if needed
+    socket.emit('orderUpdateRequested', { orderId, timestamp: new Date().toISOString() });
+  });
+
+  // Handle disconnection
+  socket.on('disconnect', (reason) => {
+    // Connection closed
+  });
+
+  // Handle connection errors
+  socket.on('error', (error) => {
+    console.error('Socket error:', error);
+  });
+});
+
+// Export io instance for use in other modules
+global.io = io;
+
 const PORT = process.env.PORT || 5001;
 
 // For local development, start the server
@@ -289,8 +390,9 @@ if (process.env.NODE_ENV !== 'production') {
       await connectToDatabase();
 
       // Start the server only after successful database connection
-      app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
+      server.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`🔌 Socket.IO server ready`);
         console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
       });
     } catch (error) {

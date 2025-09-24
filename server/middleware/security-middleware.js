@@ -17,21 +17,13 @@ const corsOptions = {
       'http://localhost:3001',
       'http://localhost:5173',
       'http://localhost:8081',
+      'https://admin.socket.io',
       // Firebase hosting URLs
       'https://walthampeppinos.web.app',
       'https://peppinos-admin.web.app'
     ];
 
-    // Debug logging for CORS issues (only in development)
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 CORS Debug:', {
-        origin,
-        allowedOrigins,
-        CLIENT_URL: process.env.CLIENT_URL,
-        ADMIN_URL: process.env.ADMIN_URL,
-        NODE_ENV: process.env.NODE_ENV
-      });
-    }
+
     
     // Allow requests with no origin (like mobile apps, curl requests, or direct API access)
     if (!origin) {

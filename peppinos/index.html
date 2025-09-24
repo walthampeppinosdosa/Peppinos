@@ -25,7 +25,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-   
+
   <!--
     - custom css link
   -->
@@ -36,7 +36,7 @@
     - custom overrides css
   -->
   <!-- <link rel="stylesheet" href="./assets/css/custom.css"> -->
-  
+
   <!--
     - header and hero specific css
   -->
@@ -316,7 +316,7 @@
             </h1>
 
             <p class="body-2 hero-text slider-reveal">
-              Casual eatery in Waltham where Chef Peppino & Chef Laddi bring authentic North & South Indian cooking
+              Casual eatery in Waltham where Chef Laddi & Chef Peppino bring authentic North & South Indian cooking
             </p>
 
             <a href="menu.html" class="btn btn-primary slider-reveal">
@@ -517,7 +517,7 @@
               </div>
 
               <div class="overlay-content">
-                <h3 class="overlay-title">Chef Peppino & Chef Laddi</h3>
+                <h3 class="overlay-title">Chef Laddi & Chef Peppino</h3>
                 <p class="overlay-text">Masters of Authentic Indian Cuisine</p>
               </div>
             </div>
@@ -614,7 +614,7 @@
       <section class="special-dish text-center" aria-labelledby="dish-label">
 
         <div class="special-dish-banner">
-          <img src="./assets/images/special-dish-banner.png" width="940" height="900" loading="lazy" alt="special dish"
+          <img src="./assets/images/special-dish-banner.png" width="940" height="900" loading="lazy" alt="Chef's Special"
             class="img-cover">
         </div>
 
@@ -623,13 +623,13 @@
 
             <img src="./assets/images/badge-1.png" width="28" height="41" loading="lazy" alt="badge" class="abs-img">
 
-            <p class="section-subtitle label-2">Special Dish</p>
+            <p class="section-subtitle label-2">Chef's Special</p>
 
-            <h2 class="headline">Masala Dosa</h2>
+            <h2 class="headline">Chicken Tikka Masala</h2>
 
             <p class="section-text">
-              Our signature crispy golden dosa filled with spiced potato curry, served with fresh coconut chutney and sambar.
-              A perfect blend of traditional South Indian flavors that will transport you to the streets of Bangalore.
+              Tender chicken cooked in a rich, creamy tomato-based sauce with aromatic spices and herbs.
+              A true taste of India, perfect for sharing.
             </p>
 
             <div class="wrapper">
@@ -674,7 +674,7 @@
               <div class="menu-card hover:card">
 
                 <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-1.png" width="100" height="100" loading="lazy" alt="Masala Dosa"
+                  <img src="./assets/images/menu-1.png" width="100" height="100" loading="lazy" alt="Chicken Tikka Masala"
                     class="img-cover">
                 </figure>
 
@@ -682,7 +682,7 @@
 
                   <div class="title-wrapper">
                     <h3 class="title-3">
-                      <a href="menu.html" class="card-title">Masala Dosa</a>
+                      <a href="menu.html" class="card-title">Chicken Tikka Masala</a>
                     </h3>
 
                     <span class="badge label-1">Popular</span>
@@ -872,32 +872,64 @@
 
           <div class="testimonial-slider" data-testimonial-slider>
 
-            <!-- Testimonial 1 -->
+            <!-- Testimonial 1 - Elongen Jones -->
             <div class="testimonial-slide active" data-testimonial-slide>
-              <p class="headline-2 testi-text">
-                The authentic flavors and exceptional service at Peppino's Dosa make it our go-to place for Indian cuisine. Every dish is a masterpiece!
+              <p class=" testi-text" data-testimonial-preview>
+                "Amazing food. The best restaurant I've been to since moving here four years ago. The samosas were flaky and freshly made, nice portion size. The flavor and seasoning were so impressive..."
+                <br><span class="read-more-btn" onclick="openTestimonialModal(1)">Read More</span>
               </p>
+              <div class="profile">
+                <p class="label-2">Elongen Jones</p>
+                <p class="review-meta">Local Guide • 135 reviews</p>
+              </div>
             </div>
 
-            <!-- Testimonial 2 -->
+            <!-- Testimonial 2 - Amy Patel -->
             <div class="testimonial-slide" data-testimonial-slide>
-              <p class="headline-2 testi-text">
-                Chef Peppino's dosas are absolutely incredible! The perfect balance of spices and textures. This place is a hidden gem in Waltham.
+              <p class=" testi-text" data-testimonial-preview>
+                "My husband and I love the food here. We have been visiting this restaurant for the last 3+ years and the food has been consistently good. I highly recommend the vegetarian dishes..."
+                <br><span class="read-more-btn" onclick="openTestimonialModal(2)">Read More</span>
               </p>
+              <div class="profile">
+                <p class="label-2">Amy Patel</p>
+                <p class="review-meta">Local Guide • 62 reviews</p>
+              </div>
             </div>
 
-            <!-- Testimonial 3 -->
+            <!-- Testimonial 3 - Anonymous -->
             <div class="testimonial-slide" data-testimonial-slide>
-              <p class="headline-2 testi-text">
-                The lunch buffet is amazing! Fresh, flavorful, and authentic. The staff is incredibly welcoming and the atmosphere is perfect for family dining.
+              <p class=" testi-text" data-testimonial-preview>
+                "If you're looking for a true culinary journey through India, this restaurant delivers an exceptional experience. The separate non-veg section with separate kitchen is so thoughtful..."
+                <br><span class="read-more-btn" onclick="openTestimonialModal(3)">Read More</span>
               </p>
+              <div class="profile">
+                <p class="label-2">Verified Customer</p>
+                <p class="review-meta">6 months ago • Dinner</p>
+              </div>
             </div>
 
-            <!-- Testimonial 4 -->
+            <!-- Testimonial 4 - Divya Prajapati -->
             <div class="testimonial-slide" data-testimonial-slide>
-              <p class="headline-2 testi-text">
-                Outstanding Indian cuisine! The chefs truly understand traditional flavors. Every visit is a delightful culinary journey through India.
+              <p class=" testi-text" data-testimonial-preview>
+                "We had a great experience at the restaurant, thanks to Savio and Sanket! Their service was excellent, very attentive, polite, and professional. They made us feel welcome..."
+                <br><span class="read-more-btn" onclick="openTestimonialModal(4)">Read More</span>
               </p>
+              <div class="profile">
+                <p class="label-2">Divya Prajapati</p>
+                <p class="review-meta">3 reviews • 3 photos</p>
+              </div>
+            </div>
+
+            <!-- Testimonial 5 - Finding Jeffrey -->
+            <div class="testimonial-slide" data-testimonial-slide>
+              <p class=" testi-text" data-testimonial-preview>
+                "What a gem on Moody Street in Waltham! Peppino's Dosa is a unique spot with separate Vegan and Meat sections, making it super accommodating for different diets. The food and service are top-notch..."
+                <br><span class="read-more-btn" onclick="openTestimonialModal(5)">Read More</span>
+              </p>
+              <div class="profile">
+                <p class="label-2">Finding Jeffrey</p>
+                <p class="review-meta">Local Guide • 38 reviews</p>
+              </div>
             </div>
 
           </div>
@@ -910,39 +942,48 @@
 
           <div class="profile-slider" data-profile-slider>
 
-            <!-- Profile 1 -->
+            <!-- Profile 1 - Elongen Jones -->
             <div class="profile-slide active" data-profile-slide>
               <div class="profile">
-                <img src="./assets/images/testi-avatar-1.png" width="100" height="100" loading="lazy" alt="Sarah Johnson" class="img">
-                <p class="label-2 profile-name">Sarah Johnson</p>
-                <p class="body-4">Food Blogger</p>
+                <img src="./assets/images/testi-avatar-1.png" width="100" height="100" loading="lazy" alt="Elongen Jones" class="img">
+                <p class="label-2 profile-name">Elongen Jones</p>
+                <p class="body-4">Local Guide</p>
               </div>
             </div>
 
-            <!-- Profile 2 -->
+            <!-- Profile 2 - Amy Patel -->
             <div class="profile-slide" data-profile-slide>
               <div class="profile">
-                <img src="./assets/images/testi-avatar-2.png" width="100" height="100" loading="lazy" alt="Michael Chen" class="img">
-                <p class="label-2 profile-name">Michael Chen</p>
-                <p class="body-4">Local Food Critic</p>
+                <img src="./assets/images/testi-avatar-2.png" width="100" height="100" loading="lazy" alt="Amy Patel" class="img">
+                <p class="label-2 profile-name">Amy Patel</p>
+                <p class="body-4">Local Guide</p>
               </div>
             </div>
 
-            <!-- Profile 3 -->
+            <!-- Profile 3 - Verified Customer -->
             <div class="profile-slide" data-profile-slide>
               <div class="profile">
-                <img src="./assets/images/testi-avatar-3.png" width="100" height="100" loading="lazy" alt="Priya Patel" class="img">
-                <p class="label-2 profile-name">Priya Patel</p>
-                <p class="body-4">Regular Customer</p>
+                <img src="./assets/images/testi-avatar-3.png" width="100" height="100" loading="lazy" alt="Verified Customer" class="img">
+                <p class="label-2 profile-name">Verified Customer</p>
+                <p class="body-4">Regular Diner</p>
               </div>
             </div>
 
-            <!-- Profile 4 -->
+            <!-- Profile 4 - Divya Prajapati -->
             <div class="profile-slide" data-profile-slide>
               <div class="profile">
-                <img src="./assets/images/testi-avatar-4.jpg" width="100" height="100" loading="lazy" alt="David Rodriguez" class="img">
-                <p class="label-2 profile-name">David Rodriguez</p>
-                <p class="body-4">Restaurant Owner</p>
+                <img src="./assets/images/testi-avatar-4.jpg" width="100" height="100" loading="lazy" alt="Divya Prajapati" class="img">
+                <p class="label-2 profile-name">Divya Prajapati</p>
+                <p class="body-4">Food Enthusiast</p>
+              </div>
+            </div>
+
+            <!-- Profile 5 - Finding Jeffrey -->
+            <div class="profile-slide" data-profile-slide>
+              <div class="profile">
+                <img src="./assets/images/testi-avatar-1.png" width="100" height="100" loading="lazy" alt="Finding Jeffrey" class="img">
+                <p class="label-2 profile-name">Finding Jeffrey</p>
+                <p class="body-4">Local Guide</p>
               </div>
             </div>
 
@@ -950,6 +991,24 @@
 
         </div>
       </section>
+      <!-- Testimonial Modal -->
+      <div id="testimonialModal" class="testimonial-modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title">Customer Review</h3>
+            <span class="close-modal" onclick="closeTestimonialModal()">&times;</span>
+          </div>
+          <div class="modal-body">
+            <div class="modal-profile">
+              <h4 id="modalCustomerName"></h4>
+              <p id="modalCustomerMeta"></p>
+            </div>
+            <div class="modal-review">
+              <p id="modalReviewText"></p>
+            </div>
+          </div>
+        </div>
+      </div>
 
 
 
@@ -1133,7 +1192,7 @@
 
                 <h3 class="title-2 card-title">Expert Chefs</h3>
 
-                <p class="label-1 card-text">Chef Peppino and Chef Laddi bring years of expertise in Indian cuisine.</p>
+                <p class="label-1 card-text">Chef Laddi and Chef Peppino bring years of expertise in Indian cuisine.</p>
 
               </div>
             </li>
@@ -1304,7 +1363,7 @@
           </p> -->
 
           <form action="" class="input-wrapper">
-           
+
 
             <!-- <button type="submit" class="btn btn-secondary">
               <span class="text text-1">Subscribe</span>
@@ -1405,6 +1464,7 @@
   -->
   <script src="./assets/js/script.js"></script>
   <script type="module" src="./assets/js/navigation.js"></script>
+  <script src="./assets/js/testimonials.js"></script>
 
   <!-- Cart functionality is now handled by navigation.js -->
 

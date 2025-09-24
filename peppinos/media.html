@@ -288,152 +288,92 @@
     <article>
 
       <!--
-        - #HERO
-      -->
-
-      <section class="hero text-center" aria-label="home" id="home">
-        <ul class="hero-slider" data-hero-slider>
-
-          <li class="slider-item active" data-hero-slider-item>
-            <div class="slider-bg">
-              <img src="./assets/images/hero-slider-1.png" width="1880" height="950" alt="" class="img-cover">
-            </div>
-
-            <p class="label-2 section-subtitle slider-reveal">Explore Our</p>
-
-            <h1 class="display-1 hero-title slider-reveal">
-              Media & Videos
-            </h1>
-
-            <p class="body-2 hero-text slider-reveal">
-              Watch our culinary journey through videos and media coverage
-            </p>
-
-            <a href="#media" class="btn btn-primary slider-reveal">
-              <span class="text text-1">Watch Videos</span>
-              <span class="text text-2" aria-hidden="true">Watch Videos</span>
-            </a>
-
-          </li>
-
-        </ul>
-
-        <button class="slider-btn prev" aria-label="slide to previous" data-prev-btn>
-          <ion-icon name="chevron-back"></ion-icon>
-        </button>
-
-        <button class="slider-btn next" aria-label="slide to next" data-next-btn>
-          <ion-icon name="chevron-forward"></ion-icon>
-        </button>
-
-        <a href="#media" class="hero-btn has-after">
-          <img src="./assets/images/hero-icon.png" width="48" height="48" alt="booking icon">
-          <span class="label-2 text-center span">Watch Media</span>
-        </a>
-
-      </section>
-
-      <!--
         - #MEDIA
       -->
 
-      <section class="section media" aria-label="media" id="media">
+      <section class="section about text-center" aria-label="media" id="media">
         <div class="container">
+ <div class="about-content">
+          <p class="label-2 section-subtitle">Digital Experience</p>
 
-          <p class="section-subtitle text-center label-2">Digital Experience</p>
+          <h2 class="headline">Media & Videos</h2>
 
-          <h2 class="headline-1 section-title text-center">Media & Videos</h2>
-
-          <p class="section-text text-center">
+          <p class="section-text">
             Discover our restaurant through engaging videos, cooking demonstrations, and media features.
             Experience the passion and artistry that goes into every dish we serve.
           </p>
-
+</div>  
           <div class="media-grid">
 
-            <div class="media-item">
+            <a href="https://www.tripadvisor.com/Restaurant_Review-g41880-d20314803-Reviews-Peppino_s_Dosa-Waltham_Massachusetts.html" target="_blank" rel="noopener" class="media-item media-link">
               <div class="media-video">
-                <video poster="./assets/images/video-thumb-1.jpg" controls>
-                  <source src="./assets/videos/cooking-demo.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
+                <img src="./assets/images/tripadvisor-thumb.jpg" width="400" height="250" loading="lazy" alt="TripAdvisor Reviews" class="img-cover">
+                <div class="media-overlay">
+                  <ion-icon name="open-outline" class="external-link-icon"></ion-icon>
+                </div>
               </div>
               <div class="media-content">
-                <h3 class="media-title">Dosa Making Masterclass</h3>
-                <p class="media-text">Watch our expert chefs demonstrate the traditional art of dosa making</p>
-                <span class="media-duration">5:30</span>
+                <h3 class="media-title">TripAdvisor Reviews</h3>
+                <p class="media-text">Read authentic customer reviews and ratings on TripAdvisor</p>
+                <span class="media-source">TripAdvisor</span>
               </div>
-            </div>
+            </a>
 
-            <div class="media-item">
+            <a href="https://www.yelp.com/biz/peppinos-dosa-waltham-2?utm_campaign=search_listing&utm_medium=partnership&utm_source=yahoo" target="_blank" rel="noopener" class="media-item media-link">
               <div class="media-video">
-                <video poster="./assets/images/video-thumb-2.jpg" controls>
-                  <source src="./assets/videos/restaurant-tour.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
+                <img src="./assets/images/yelp-thumb.jpg" width="400" height="250" loading="lazy" alt="Yelp Reviews" class="img-cover">
+                <div class="media-overlay">
+                  <ion-icon name="open-outline" class="external-link-icon"></ion-icon>
+                </div>
               </div>
               <div class="media-content">
-                <h3 class="media-title">Restaurant Tour</h3>
-                <p class="media-text">Take a virtual tour of our beautiful restaurant and kitchen</p>
-                <span class="media-duration">3:45</span>
+                <h3 class="media-title">Yelp Reviews</h3>
+                <p class="media-text">Discover what our customers are saying about their dining experience</p>
+                <span class="media-source">Yelp</span>
               </div>
-            </div>
+            </a>
 
-            <div class="media-item">
+            <a href="https://www.masslive.com/news/2025/08/meet-eight-chefs-making-waves-in-massachusetts-food-scene.html" target="_blank" rel="noopener" class="media-item media-link">
               <div class="media-video">
-                <video poster="./assets/images/video-thumb-3.jpg" controls>
-                  <source src="./assets/videos/chef-interview.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
+                <img src="./assets/images/masslive-thumb.jpg" width="400" height="250" loading="lazy" alt="MassLive Feature" class="img-cover">
+                <div class="media-overlay">
+                  <ion-icon name="open-outline" class="external-link-icon"></ion-icon>
+                </div>
               </div>
               <div class="media-content">
-                <h3 class="media-title">Chef's Story</h3>
-                <p class="media-text">Meet our head chef and learn about our culinary philosophy</p>
-                <span class="media-duration">7:20</span>
+                <h3 class="media-title">MassLive Feature</h3>
+                <p class="media-text">Featured among eight chefs making waves in Massachusetts food scene</p>
+                <span class="media-source">MassLive</span>
               </div>
-            </div>
+            </a>
 
-            <div class="media-item">
+            <a href="https://www.bostonmagazine.com/restaurants/2025/07/02/hot-new-boston-restaurants-july-2025/" target="_blank" rel="noopener" class="media-item media-link">
               <div class="media-video">
-                <video poster="./assets/images/video-thumb-4.jpg" controls>
-                  <source src="./assets/videos/customer-reviews.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
+                <img src="./assets/images/boston-magazine-thumb.jpg" width="400" height="250" loading="lazy" alt="Boston Magazine Feature" class="img-cover">
+                <div class="media-overlay">
+                  <ion-icon name="open-outline" class="external-link-icon"></ion-icon>
+                </div>
               </div>
               <div class="media-content">
-                <h3 class="media-title">Customer Stories</h3>
-                <p class="media-text">Hear what our valued customers have to say about their experience</p>
-                <span class="media-duration">4:15</span>
+                <h3 class="media-title">Boston Magazine</h3>
+                <p class="media-text">Featured in hot new Boston restaurants for July 2025</p>
+                <span class="media-source">Boston Magazine</span>
               </div>
-            </div>
+            </a>
 
-            <div class="media-item">
+            <a href="https://www.wickedlocal.com/story/entertainment/dining/2025/09/12/waltham-ma-indian-restaurant-offers-kitchen-dining-room-for-vegetarians-vegans/86054423007/" target="_blank" rel="noopener" class="media-item media-link">
               <div class="media-video">
-                <video poster="./assets/images/video-thumb-5.jpg" controls>
-                  <source src="./assets/videos/spice-journey.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
+                <img src="./assets/images/wicked-local-thumb.jpg" width="400" height="250" loading="lazy" alt="Wicked Local Feature" class="img-cover">
+                <div class="media-overlay">
+                  <ion-icon name="open-outline" class="external-link-icon"></ion-icon>
+                </div>
               </div>
               <div class="media-content">
-                <h3 class="media-title">Spice Journey</h3>
-                <p class="media-text">Explore the authentic spices that make our dishes special</p>
-                <span class="media-duration">6:10</span>
+                <h3 class="media-title">Wicked Local</h3>
+                <p class="media-text">Waltham Indian restaurant offers dedicated kitchen and dining for vegetarians and vegans</p>
+                <span class="media-source">Wicked Local</span>
               </div>
-            </div>
-
-            <div class="media-item">
-              <div class="media-video">
-                <video poster="./assets/images/video-thumb-6.jpg" controls>
-                  <source src="./assets/videos/community-events.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-              <div class="media-content">
-                <h3 class="media-title">Community Events</h3>
-                <p class="media-text">See how we connect with our local Waltham community</p>
-                <span class="media-duration">8:30</span>
-              </div>
-            </div>
+            </a>
 
           </div>
 

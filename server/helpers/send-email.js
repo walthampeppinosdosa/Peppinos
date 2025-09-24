@@ -24,14 +24,7 @@ const createTransporter = () => {
  */
 const sendEmail = async (options) => {
   try {
-    console.log('📧 Attempting to send email:', {
-      to: options.to,
-      subject: options.subject,
-      from: process.env.EMAIL_FROM,
-      host: process.env.EMAIL_HOST,
-      port: process.env.EMAIL_PORT,
-      user: process.env.EMAIL_USER ? 'configured' : 'missing'
-    });
+
 
     const transporter = createTransporter();
 
@@ -44,11 +37,7 @@ const sendEmail = async (options) => {
     };
 
     const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent successfully:', {
-      messageId: result.messageId,
-      to: options.to,
-      subject: options.subject
-    });
+
     return result;
   } catch (error) {
     console.error('❌ Email send error:', {

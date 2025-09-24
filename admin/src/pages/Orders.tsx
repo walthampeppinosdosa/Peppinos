@@ -7,9 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { ExportDropdown } from '@/components/ui/export-dropdown';
+import { ConnectionStatus } from '@/components/ui/connection-status';
 import { useAlert } from '@/hooks/useAlert';
 import { useAuth } from '@/hooks/useAuth';
 import { formatters } from '@/utils/exportUtils';
+import { socket, connectSocket, disconnectSocket, joinAdminRoom } from '@/socket';
 import {
   Search,
   Filter,
@@ -30,7 +32,9 @@ import {
   Calendar,
   X,
   Leaf,
-  Utensils
+  Utensils,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import {
@@ -67,8 +71,8 @@ export const Orders: React.FC = () => {
     startDate: '',
     endDate: ''
   });
-  const [autoRefresh, setAutoRefresh] = useState(true);
-  const [refreshInterval, setRefreshInterval] = useState(30); // seconds
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [lastUpdateTime, setLastUpdateTime] = useState<Date | null>(null);
 
   // Date validation functions
   const handleStartDateChange = (newStartDate: string) => {
@@ -126,22 +130,114 @@ export const Orders: React.FC = () => {
     }
   }, [error, showAlert, dispatch]);
 
-  // Auto-refresh functionality
+
+
+  // Memoized event handlers to prevent recreation on every render
+  const onOrderCreated = useCallback((order: any) => {
+    setLastUpdateTime(new Date());
+    showAlert(`New order received: ${order.orderNumber}`, 'success', 'New Order');
+    // Refresh with current filters and pagination
+    const currentFilters = {
+      ...filters,
+      page: pagination.currentPage,
+      limit: pagination.itemsPerPage
+    };
+    dispatch(fetchOrders(currentFilters));
+    dispatch(fetchOrderStats({}));
+  }, [filters, pagination, dispatch, showAlert]);
+
+  const onOrderUpdated = useCallback((order: any) => {
+    setLastUpdateTime(new Date());
+    // Refresh with current filters and pagination
+    const currentFilters = {
+      ...filters,
+      page: pagination.currentPage,
+      limit: pagination.itemsPerPage
+    };
+    dispatch(fetchOrders(currentFilters));
+    dispatch(fetchOrderStats({}));
+  }, [filters, pagination, dispatch]);
+
+  const onOrderStatusChanged = useCallback((data: any) => {
+    setLastUpdateTime(new Date());
+    showAlert(`Order ${data.orderNumber} status updated`, 'info', 'Status Update');
+    // Refresh with current filters and pagination
+    const currentFilters = {
+      ...filters,
+      page: pagination.currentPage,
+      limit: pagination.itemsPerPage
+    };
+    dispatch(fetchOrders(currentFilters));
+    dispatch(fetchOrderStats({}));
+  }, [filters, pagination, dispatch, showAlert]);
+
+  // Socket.IO integration for real-time updates
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+    if (!token) {
+      return;
+    }
+
+    // Named event handler functions (required for proper cleanup)
+    function onConnect() {
+      setSocketConnected(true);
+      setLastUpdateTime(new Date());
+      joinAdminRoom();
+    }
+
+    function onDisconnect(reason: string) {
+      setSocketConnected(false);
+    }
+
+    function onConnectError(error: Error) {
+      setSocketConnected(false);
+    }
+
+    function onAdminRoomJoined(data: any) {
+      // Admin room joined successfully
+    }
+
+    // Register event listeners with named functions
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+    socket.on('connect_error', onConnectError);
+    socket.on('orderCreated', onOrderCreated);
+    socket.on('orderUpdated', onOrderUpdated);
+    socket.on('orderStatusChanged', onOrderStatusChanged);
+    socket.on('adminRoomJoined', onAdminRoomJoined);
+
+    // Set initial connection state
+    setSocketConnected(socket.connected);
+
+    // Connect to Socket.IO server with authentication
+    connectSocket();
+
+    // Cleanup function - remove only the specific named listeners
+    return () => {
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+      socket.off('connect_error', onConnectError);
+      socket.off('orderCreated', onOrderCreated);
+      socket.off('orderUpdated', onOrderUpdated);
+      socket.off('orderStatusChanged', onOrderStatusChanged);
+      socket.off('adminRoomJoined', onAdminRoomJoined);
+    };
+  }, [onOrderCreated, onOrderUpdated, onOrderStatusChanged]); // Only depend on memoized handlers
+
+  // Separate effect for component unmount cleanup (following React Socket.IO guide)
+  useEffect(() => {
+    return () => {
+      // Disconnect socket when component unmounts
+      disconnectSocket();
+    };
+  }, []);
+
+  // Manual refresh functionality
   const refreshData = useCallback(() => {
     dispatch(fetchOrders(filters));
     dispatch(fetchOrderStats({}));
+    setLastUpdateTime(new Date());
   }, [dispatch, filters]);
-
-  useEffect(() => {
-    if (!autoRefresh) return;
-
-    // Set up auto-refresh interval
-    const interval = setInterval(() => {
-      refreshData();
-    }, refreshInterval * 1000);
-
-    return () => clearInterval(interval);
-  }, [autoRefresh, refreshInterval, refreshData]);
 
   const handleFilterChange = (key: string, value: string) => {
     dispatch(updateFilters({ [key]: value, page: 1 }));
@@ -353,6 +449,7 @@ export const Orders: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <div className="space-y-6 flex-1 flex flex-col">
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -393,32 +490,11 @@ export const Orders: React.FC = () => {
             Refresh
           </Button>
 
-          {/* Auto-refresh Controls */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAutoRefresh(!autoRefresh)}
-              className={autoRefresh ? 'bg-green-50 border-green-200' : ''}
-            >
-              <Clock className="h-4 w-4 mr-2" />
-              Auto-refresh {autoRefresh ? 'On' : 'Off'}
-            </Button>
-
-            {autoRefresh && (
-              <Select value={refreshInterval.toString()} onValueChange={(value) => setRefreshInterval(Number(value))}>
-                <SelectTrigger className="w-20">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10s</SelectItem>
-                  <SelectItem value="30">30s</SelectItem>
-                  <SelectItem value="60">1m</SelectItem>
-                  <SelectItem value="300">5m</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-          </div>
+          {/* Connection Status */}
+          <ConnectionStatus
+            isConnected={socketConnected}
+            lastUpdateTime={lastUpdateTime}
+          />
         </div>
       </div>
 

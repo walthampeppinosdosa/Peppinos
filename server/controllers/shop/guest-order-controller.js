@@ -5,6 +5,23 @@ const Menu = require('../../models/Menu');
 const { getOrCreateGuestUser, getGuestUserBySession } = require('../../services/guest-service');
 const { sendEmail } = require('../../helpers/send-email');
 
+// Helper function to emit Socket.IO events
+const emitOrderEvent = (eventType, data) => {
+  try {
+    if (global.io) {
+      // Emit to all admin rooms with correct room names
+      global.io.to('admin:all').emit(eventType, data);
+      global.io.to('admin:super-admin').emit(eventType, data);  // Fixed: was 'admin:superadmin'
+      global.io.to('admin:veg_admin').emit(eventType, data);
+      global.io.to('admin:non_veg_admin').emit(eventType, data);
+
+
+    }
+  } catch (error) {
+    console.error('❌ Error emitting Socket.IO event:', error);
+  }
+};
+
 /**
  * Create guest order (checkout)
  * POST /api/shop/guest/checkout
@@ -123,13 +140,21 @@ const createGuestOrder = async (req, res) => {
       { path: 'user', select: 'name email phoneNumber role' }
     ]);
 
+    // Add customer type information
+    const orderWithCustomerType = {
+      ...guestOrder.toObject(),
+      customerType: 'guest',
+      isGuestOrder: true
+    };
+
+    // Emit Socket.IO event for new guest order
+    emitOrderEvent('orderCreated', orderWithCustomerType);
+
     // Send confirmation emails
     try {
-      console.log('📧 Attempting to send guest order confirmation emails for order:', guestOrder.orderNumber);
       await sendGuestOrderConfirmationEmails(guestOrder);
-      console.log('✅ Guest order confirmation emails sent successfully');
     } catch (emailError) {
-      console.error('❌ Failed to send guest order confirmation emails:', emailError);
+      console.error('Failed to send guest order confirmation emails:', emailError);
       // Don't fail the order creation if email fails
     }
 
@@ -137,7 +162,7 @@ const createGuestOrder = async (req, res) => {
       success: true,
       message: 'Guest order created successfully',
       data: {
-        order: guestOrder,
+        order: orderWithCustomerType,
         orderNumber: guestOrder.orderNumber
       }
     });
@@ -346,12 +371,7 @@ const sendGuestOrderConfirmationEmails = async (order) => {
   const customerName = order.user.name;
   const adminEmail = process.env.ADMIN_EMAIL || 'walthampeppinosdosa@gmail.com';
 
-  console.log('📧 Preparing guest order confirmation emails:', {
-    customerEmail,
-    customerName,
-    adminEmail,
-    orderNumber: order.orderNumber
-  });
+
 
   // Format order items for email
   const itemsHtml = order.items.map(item => `

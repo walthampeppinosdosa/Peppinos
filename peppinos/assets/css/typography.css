@@ -9,7 +9,7 @@
 .title-2,
 .title-3,
 .title-4 {
-  color: var(--white);
+
   font-family: var(--fontFamily-forum);
   font-weight: var(--weight-regular);
   line-height: var(--lineHeight-2);

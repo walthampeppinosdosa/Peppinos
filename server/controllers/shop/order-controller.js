@@ -4,6 +4,23 @@ const Menu = require('../../models/Menu');
 const { generateOrderNumber } = require('../../utils/orderUtils');
 const { sendEmail } = require('../../helpers/send-email');
 
+// Helper function to emit Socket.IO events
+const emitOrderEvent = (eventType, data) => {
+  try {
+    if (global.io) {
+      // Emit to all admin rooms with correct room names
+      global.io.to('admin:all').emit(eventType, data);
+      global.io.to('admin:super-admin').emit(eventType, data);  // Fixed: was 'admin:superadmin'
+      global.io.to('admin:veg_admin').emit(eventType, data);
+      global.io.to('admin:non_veg_admin').emit(eventType, data);
+
+
+    }
+  } catch (error) {
+    console.error('❌ Error emitting Socket.IO event:', error);
+  }
+};
+
 /**
  * Create a new order (guest or authenticated user)
  */
@@ -20,14 +37,7 @@ const createOrder = async (req, res) => {
       specialInstructions
     } = req.body;
 
-    // Debug logging
-    console.log('🔍 Order creation request body:', {
-      customerInfo,
-      hasCustomerInfo: !!customerInfo,
-      customerInfoKeys: customerInfo ? Object.keys(customerInfo) : [],
-      userId: req.user?.id || req.user?._id,
-      isAuthenticated: !!req.user
-    });
+
 
     // Check if this is a guest user (no req.user means guest)
     if (!req.user) {
@@ -39,12 +49,6 @@ const createOrder = async (req, res) => {
 
     // Validate required fields (phone is optional)
     if (!customerInfo || !customerInfo.name || !customerInfo.email) {
-      console.error('❌ Customer info validation failed:', {
-        customerInfo,
-        hasName: !!(customerInfo?.name),
-        hasPhone: !!(customerInfo?.phone),
-        hasEmail: !!(customerInfo?.email)
-      });
       return res.status(400).json({
         success: false,
         message: 'Customer name and email are required'
@@ -176,20 +180,28 @@ const createOrder = async (req, res) => {
       }
     ]);
 
+    // Add customer type information
+    const orderWithCustomerType = {
+      ...order.toObject(),
+      customerType: order.user?.role === 'guest' ? 'guest' : 'registered',
+      isGuestOrder: order.user?.role === 'guest'
+    };
+
+    // Emit Socket.IO event for new order
+    emitOrderEvent('orderCreated', orderWithCustomerType);
+
     // Send confirmation emails
     try {
-      console.log('📧 Attempting to send order confirmation emails for order:', order.orderNumber);
       await sendOrderConfirmationEmails(order);
-      console.log('✅ Order confirmation emails sent successfully');
     } catch (emailError) {
-      console.error('❌ Failed to send confirmation emails:', emailError);
+      console.error('Failed to send confirmation emails:', emailError);
       // Don't fail the order creation if email fails
     }
 
     res.status(201).json({
       success: true,
       message: 'Order created successfully',
-      order: order
+      order: orderWithCustomerType
     });
 
   } catch (error) {
@@ -210,12 +222,7 @@ const sendOrderConfirmationEmails = async (order) => {
   const customerName = order.user?.name;
   const adminEmail = process.env.ADMIN_EMAIL || 'walthampeppinosdosa@gmail.com';
 
-  console.log('📧 Preparing order confirmation emails:', {
-    customerEmail,
-    customerName,
-    adminEmail,
-    orderNumber: order.orderNumber
-  });
+
 
   // Format order items for email
   const itemsHtml = order.items.map(item => `
