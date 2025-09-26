@@ -30,36 +30,57 @@ class FeaturedMenuLoader {
   }
 
   /**
-   * Load featured menu items from API
+   * Load signature dishes marked by admin
    */
   async loadFeaturedItems() {
     try {
-      // Get menu items (limit to 6 for homepage)
-      const response = await menuAPI.getAll({ limit: 6, featured: true });
-      
+      // Fetch signature dishes directly
+      const response = await menuAPI.getAll({
+        isSignatureDish: 'true',
+        limit: 6,
+        isActive: true,
+        sortBy: 'createdAt',
+        sortOrder: 'desc'
+      });
+
       if (!response.success) {
-        throw new Error(response.message);
+        throw new Error('Failed to fetch signature dishes');
       }
 
-      const menuItems = response.data.menuItems;
-      
-      if (menuItems.length === 0) {
-        // If no featured items, get regular items
-        const regularResponse = await menuAPI.getAll({ limit: 6 });
-        if (regularResponse.success) {
-          this.renderMenuItems(regularResponse.data.menuItems);
+      const signatureDishes = response.data.menuItems || [];
+
+      if (signatureDishes.length === 0) {
+        // Fallback: show some featured items if no signature dishes are marked
+        const fallbackResponse = await menuAPI.getAll({
+          limit: 6,
+          isActive: true,
+          sortBy: 'averageRating',
+          sortOrder: 'desc'
+        });
+
+        if (fallbackResponse.success && fallbackResponse.data.menuItems.length > 0) {
+          this.renderMenuItems(fallbackResponse.data.menuItems);
         } else {
-          this.showError();
+          this.showNoItems();
         }
       } else {
-        this.renderMenuItems(menuItems);
+        this.renderMenuItems(signatureDishes);
       }
 
     } catch (error) {
-      console.error('Error loading featured items:', error);
-      this.showError();
+      console.error('Error loading signature dishes:', error);
+      this.showNoItems();
     }
   }
+
+  /**
+   * Show message when no signature dishes are available
+   */
+  showNoItems() {
+    this.container.innerHTML = '<li><div style="text-align: center; padding: 40px;"><p>Signature dishes will be available soon!</p></div></li>';
+  }
+
+
 
   /**
    * Render menu items in the existing HTML structure
@@ -75,7 +96,11 @@ class FeaturedMenuLoader {
   renderMenuItem(item) {
     const isVeg = item.isVegetarian;
     const cardClass = isVeg ? 'menu-card-veg' : 'menu-card-nonveg';
-    const indicator = isVeg ? '🌱' : '🍖';
+
+    // Use proper veg/non-veg indicators
+    const vegIndicator = '<span class="veg-indicator" title="Vegetarian"></span>';
+    const nonVegIndicator = '<span class="nonveg-indicator" title="Non-Vegetarian"></span>';
+    const indicator = isVeg ? vegIndicator : nonVegIndicator;
 
     // Use first image or fallback
     let imageUrl = './assets/images/menu-1.png';
@@ -86,9 +111,11 @@ class FeaturedMenuLoader {
     // Handle pricing
     const currentPrice = item.discountedPrice || item.price;
 
-    // Handle badges
+    // Handle badges - prioritize signature dish
     let badgeHTML = '';
-    if (item.featured) {
+    if (item.isSignatureDish === true) {
+      badgeHTML = '<span class="badge label-1">Signature Dish</span>';
+    } else if (item.featured) {
       badgeHTML = '<span class="badge label-1">Featured</span>';
     } else if (item.totalSales > 50) {
       badgeHTML = '<span class="badge label-1">Popular</span>';
@@ -110,7 +137,7 @@ class FeaturedMenuLoader {
 
                   <div class="title-wrapper">
                     <h3 class="title-3">
-                      <span style="margin-right: 8px;">${indicator}</span>
+                      ${indicator}
                       <a href="menu.html" class="card-title">${item.name}</a>
                     </h3>
 

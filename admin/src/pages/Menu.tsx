@@ -554,6 +554,13 @@ export const Menu: React.FC = () => {
                     Top Rated
                   </Badge>
                 )}
+
+                {/* Signature Dish Badge */}
+                {menuItem.isSignatureDish === true && (
+                  <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                    Signature Dish
+                  </Badge>
+                )}
               </div>
 
               <div className="text-xs text-muted-foreground">

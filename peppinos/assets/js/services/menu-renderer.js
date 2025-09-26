@@ -551,19 +551,39 @@ export class MenuRenderer {
     const itemsContainer = container.querySelector(`[data-category-items="${categoryId}"]`);
     const arrow = categorySection.querySelector('.dropdown-arrow');
 
-    if (this.expandedCategories.has(categoryId)) {
-      // Collapse
-      this.expandedCategories.delete(categoryId);
-      itemsContainer.classList.remove('expanded');
-      itemsContainer.classList.add('collapsed');
-      arrow.classList.remove('expanded');
-    } else {
+    // Close all other categories first
+    this.collapseAllCategories(container);
+
+    // Only expand if it wasn't already expanded
+    if (!this.expandedCategories.has(categoryId)) {
       // Expand
       this.expandedCategories.add(categoryId);
       itemsContainer.classList.remove('collapsed');
       itemsContainer.classList.add('expanded');
       arrow.classList.add('expanded');
     }
+  }
+
+  /**
+   * Collapse all categories
+   * @param {HTMLElement} container - Menu container
+   */
+  collapseAllCategories(container) {
+    // Clear all expanded categories
+    this.expandedCategories.clear();
+
+    // Collapse all category sections
+    const allItemsContainers = container.querySelectorAll('[data-category-items]');
+    const allArrows = container.querySelectorAll('.dropdown-arrow');
+
+    allItemsContainers.forEach(itemsContainer => {
+      itemsContainer.classList.remove('expanded');
+      itemsContainer.classList.add('collapsed');
+    });
+
+    allArrows.forEach(arrow => {
+      arrow.classList.remove('expanded');
+    });
   }
 
   /**

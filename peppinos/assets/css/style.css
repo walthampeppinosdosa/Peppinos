@@ -8097,14 +8097,10 @@ body.cart-open {
 
   .cart-item-controls {
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
   }
 
-  .cart-actions {
-    flex-direction: column;
-    gap: 10px;
-  }
 
   /* Ensure cart action buttons are properly clickable on mobile */
   .cart-actions .btn {

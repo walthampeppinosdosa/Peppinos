@@ -37,9 +37,9 @@ const menuItemSchema = z.object({
   description: z.string().min(1, 'Description is required').max(1000, 'Description cannot exceed 1000 characters'),
   parentCategory: z.string().optional(), // Only for super-admin
   category: z.string().min(1, 'Category is required'),
-  mrp: z.number().min(0, 'MRP must be positive'),
-  discountedPrice: z.number().min(0, 'Discounted price must be positive'),
-  quantity: z.number().min(1, 'Quantity must be at least 1').default(1),
+  mrp: z.coerce.number().min(0, 'MRP must be positive'),
+  discountedPrice: z.coerce.number().min(0, 'Discounted price must be positive'),
+  quantity: z.coerce.number().min(1, 'Quantity must be at least 1').default(1),
   sizes: z.array(z.object({
     name: z.string().min(1, 'Size name is required'),
     price: z.coerce.number().min(0, 'Size price must be 0 or greater'),
@@ -50,9 +50,10 @@ const menuItemSchema = z.object({
   ),
   spicyLevel: z.array(z.string()).optional(),
   preparation: z.array(z.string()).optional(),
-  preparationTime: z.number().min(1, 'Preparation time must be at least 1 minute'),
+  preparationTime: z.coerce.number().min(1, 'Preparation time must be at least 1 minute'),
   specialInstructions: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  isSignatureDish: z.boolean().optional().default(false),
 });
 
 type MenuItemFormData = z.infer<typeof menuItemSchema>;
@@ -100,12 +101,13 @@ export const AddMenuItem: React.FC = () => {
   } = useForm<MenuItemFormData>({
     resolver: zodResolver(menuItemSchema),
     defaultValues: {
-      quantity: 1,
+      quantity: undefined,
       sizes: [],
       spicyLevel: [],
       preparation: [],
-      preparationTime: 15,
-      tags: []
+      preparationTime: undefined,
+      tags: [],
+      isSignatureDish: false
     }
   });
 
@@ -246,6 +248,9 @@ export const AddMenuItem: React.FC = () => {
       if (currentMenuItem.specialInstructions) {
         setValue('specialInstructions', currentMenuItem.specialInstructions);
       }
+
+      // Set signature dish status
+      setValue('isSignatureDish', currentMenuItem.isSignatureDish || false);
     }
   }, [currentMenuItem, isEditMode, id, setValue, categories, parentCategories]);
 
@@ -584,6 +589,9 @@ export const AddMenuItem: React.FC = () => {
         }
 
         formData.append(key, JSON.stringify(sizesData));
+      } else if (key === 'isSignatureDish') {
+        // Handle boolean fields explicitly
+        formData.append(key, Boolean(value).toString());
       } else if (value !== undefined && value !== null && value !== '') {
         formData.append(key, value.toString());
       }
@@ -694,36 +702,27 @@ export const AddMenuItem: React.FC = () => {
     }
 
     try {
-      let result;
       if (isEditMode && id) {
-        result = await dispatch(updateMenuItem({ id, menuItemData: formData }));
-        if (updateMenuItem.fulfilled.match(result)) {
-          showAlert('Menu item updated successfully!', 'success', 'Success');
-          // Clear images to delete after successful update
-          setImagesToDelete([]);
-          navigate('/menu');
-        } else {
-          showAlert(result.payload as string || 'Failed to update menu item', 'error', 'Update Failed');
-        }
+        await dispatch(updateMenuItem({ id, menuItemData: formData })).unwrap();
+        showAlert('Menu item updated successfully!', 'success', 'Success');
+        // Clear images to delete after successful update
+        setImagesToDelete([]);
+        navigate('/menu');
       } else {
-        result = await dispatch(createMenuItem(formData));
-        if (createMenuItem.fulfilled.match(result)) {
-          showAlert('Menu item created successfully!', 'success', 'Success');
-          // Reset form state
-          setImagesToDelete([]);
-          setImageMetadata([]);
-          setImagePreviews([]);
-          setSelectedImages([]);
-          navigate('/menu');
-        } else {
-          showAlert(result.payload as string || 'Failed to create menu item', 'error', 'Creation Failed');
-        }
+        await dispatch(createMenuItem(formData)).unwrap();
+        showAlert('Menu item created successfully!', 'success', 'Success');
+        // Reset form state
+        setImagesToDelete([]);
+        setImageMetadata([]);
+        setImagePreviews([]);
+        setSelectedImages([]);
+        navigate('/menu');
       }
     } catch (error) {
       console.error('Form submission error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      const errorMessage = error instanceof Error ? error.message : (typeof error === 'string' ? error : 'Unknown error occurred');
       showAlert(
-        `${isEditMode ? 'Failed to update menu item' : 'Failed to create menu item'}: ${errorMessage}`,
+        errorMessage,
         'error',
         isEditMode ? 'Update Failed' : 'Creation Failed'
       );
@@ -958,8 +957,11 @@ export const AddMenuItem: React.FC = () => {
                     min="0"
                     step="0.01"
                     onWheel={(e) => e.currentTarget.blur()}
-                    {...register('mrp', { valueAsNumber: true })}
-                    placeholder="0"
+                    {...register('mrp', {
+                      valueAsNumber: true,
+                      setValueAs: (value) => value === '' ? 0 : Number(value)
+                    })}
+                    placeholder="Enter MRP"
                   />
                   {errors.mrp && (
                     <p className="text-sm text-destructive mt-1">{errors.mrp.message}</p>
@@ -974,8 +976,11 @@ export const AddMenuItem: React.FC = () => {
                     min="0"
                     step="0.01"
                     onWheel={(e) => e.currentTarget.blur()}
-                    {...register('discountedPrice', { valueAsNumber: true })}
-                    placeholder="0"
+                    {...register('discountedPrice', {
+                      valueAsNumber: true,
+                      setValueAs: (value) => value === '' ? 0 : Number(value)
+                    })}
+                    placeholder="Enter selling price"
                   />
                   {errors.discountedPrice && (
                     <p className="text-sm text-destructive mt-1">{errors.discountedPrice.message}</p>
@@ -998,8 +1003,11 @@ export const AddMenuItem: React.FC = () => {
                     min="0"
                     step="1"
                     onWheel={(e) => e.currentTarget.blur()}
-                    {...register('quantity', { valueAsNumber: true })}
-                    placeholder="0"
+                    {...register('quantity', {
+                      valueAsNumber: true,
+                      setValueAs: (value) => value === '' ? 1 : Number(value)
+                    })}
+                    placeholder="Enter quantity"
                   />
                   {errors.quantity && (
                     <p className="text-sm text-destructive mt-1">{errors.quantity.message}</p>
@@ -1014,14 +1022,32 @@ export const AddMenuItem: React.FC = () => {
                     min="1"
                     step="1"
                     onWheel={(e) => e.currentTarget.blur()}
-                    {...register('preparationTime', { valueAsNumber: true })}
-                    placeholder="15"
+                    {...register('preparationTime', {
+                      valueAsNumber: true,
+                      setValueAs: (value) => value === '' ? 15 : Number(value)
+                    })}
+                    placeholder="Enter preparation time (minutes)"
                   />
                   {errors.preparationTime && (
                     <p className="text-sm text-destructive mt-1">{errors.preparationTime.message}</p>
                   )}
                 </div>
               </div>
+
+              {/* Signature Dish Toggle */}
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isSignatureDish"
+                  checked={watch('isSignatureDish') || false}
+                  onCheckedChange={(checked) => setValue('isSignatureDish', checked)}
+                />
+                <Label htmlFor="isSignatureDish" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Mark as Signature Dish
+                </Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Signature dishes will be featured prominently on the homepage
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -1075,10 +1101,11 @@ export const AddMenuItem: React.FC = () => {
                               min="0"
                               step="0.01"
                               onWheel={(e) => e.currentTarget.blur()}
-                              value={existingSize?.price || 0}
+                              value={existingSize?.price === 0 ? '' : existingSize?.price || ''}
                               onChange={(e) => {
                                 const currentSizes = watch('sizes') || [];
-                                const newPrice = Number(e.target.value) || 0;
+                                const inputValue = e.target.value;
+                                const newPrice = inputValue === '' ? 0 : Number(inputValue);
                                 const updatedSizes = currentSizes.map(s =>
                                   s.name === sizeName
                                     ? { ...s, price: newPrice }
@@ -1275,8 +1302,12 @@ export const AddMenuItem: React.FC = () => {
                   step="0.01"
                   onWheel={(e) => e.currentTarget.blur()}
                   placeholder="Price"
-                  value={newAddon.price || ''}
-                  onChange={(e) => setNewAddon(prev => ({ ...prev, price: Number(e.target.value) }))}
+                  value={newAddon.price === 0 ? '' : newAddon.price || ''}
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    const price = inputValue === '' ? 0 : Number(inputValue);
+                    setNewAddon(prev => ({ ...prev, price }));
+                  }}
                   className="w-24"
                 />
                 <Button className='mt-2' type="button" onClick={addAddon} size="sm">

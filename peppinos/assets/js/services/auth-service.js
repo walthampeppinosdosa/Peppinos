@@ -210,7 +210,7 @@ class AuthService {
           align-items: center;
           justify-content: center;
           gap: 0.5rem;
-          padding: 0.875rem 1.5rem;
+          padding: 1rem 1.5rem;
           border: none;
           border-radius: 8px;
           font-size: 1rem;
@@ -218,44 +218,61 @@ class AuthService {
           cursor: pointer;
           transition: var(--transition-1);
           text-decoration: none;
+          width: 100%;
+          min-height: 48px;
+          line-height: 1.2;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .btn-signin {
           background: var(--gold-crayola);
           color: var(--eerie-black-1);
+          border: 2px solid var(--gold-crayola);
         }
 
         .btn-signin:hover {
           background: var(--golden-poppy);
+          border-color: var(--golden-poppy);
         }
 
         .btn-signup {
           background: var(--eerie-black-1);
           color: var(--white);
+          border: 2px solid var(--eerie-black-1);
         }
 
         .btn-signup:hover {
           background: var(--eerie-black-2);
+          border-color: var(--eerie-black-2);
         }
 
         .btn-guest {
           background: transparent;
           color: var(--eerie-black-1);
-          border: 1px solid var(--cultured);
+          border: 2px solid var(--eerie-black-1);
         }
 
         .btn-guest:hover {
-          background: var(--cultured);
+          background: var(--eerie-black-1);
+          color: var(--white);
         }
 
         @media (max-width: 480px) {
           .auth-modal {
             width: 95%;
           }
-          
+
           .auth-modal-header,
           .auth-modal-body {
             padding: 1rem;
+          }
+
+          .btn-auth {
+            padding: 1.125rem 1.5rem;
+            font-size: 1rem;
+            min-height: 52px;
           }
         }
       `;

@@ -51,6 +51,7 @@ export interface MenuItem {
   totalReviews: number;
   totalSales?: number;
   featured?: boolean;
+  isSignatureDish?: boolean;
   sortOrder?: number;
   discountPercentage?: number;
   availabilityStatus?: string;
@@ -149,6 +150,13 @@ export const createMenuItem = createAsyncThunk(
       });
       return response.data;
     } catch (error: any) {
+      // Handle validation errors with detailed messages
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        const validationErrors = error.response.data.errors.map((err: any) =>
+          `${err.path}: ${err.msg}`
+        ).join('\n• ');
+        return rejectWithValue(`Validation failed:\n• ${validationErrors}`);
+      }
       return rejectWithValue(error.response?.data?.message || 'Failed to create menu item');
     }
   }
@@ -167,6 +175,13 @@ export const updateMenuItem = createAsyncThunk(
       // We need to return response.data to get the actual menu item
       return response.data;
     } catch (error: any) {
+      // Handle validation errors with detailed messages
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        const validationErrors = error.response.data.errors.map((err: any) =>
+          `${err.path}: ${err.msg}`
+        ).join('\n• ');
+        return rejectWithValue(`Validation failed:\n• ${validationErrors}`);
+      }
       return rejectWithValue(error.response?.data?.message || 'Failed to update menu item');
     }
   }

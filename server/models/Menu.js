@@ -170,6 +170,10 @@ const menuSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  isSignatureDish: {
+    type: Boolean,
+    default: false
+  },
   sortOrder: {
     type: Number,
     default: 0

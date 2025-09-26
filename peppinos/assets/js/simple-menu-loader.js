@@ -248,10 +248,10 @@ class CategoryMenuLoader {
     let dropdownHTML = `
       <div class="category-dropdown">
         <div class="dropdown-header" data-dropdown="${dropdownId}">
-          <h3 class="category-title">${categoryName} (${vegLabel}) ▲</h3>
+          <h3 class="category-title">${categoryName} (${vegLabel}) ▼</h3>
           <span class="item-count">${items.length} items</span>
         </div>
-        <ul class="dropdown-content grid-list" id="${dropdownId}" style="display: block;">
+        <ul class="dropdown-content grid-list" id="${dropdownId}" style="display: none;">
     `;
 
     // Render items in this category
@@ -353,13 +353,34 @@ class CategoryMenuLoader {
         const content = document.getElementById(dropdownId);
         const isVisible = content.style.display !== 'none';
 
-        // Toggle visibility
-        content.style.display = isVisible ? 'none' : 'block';
+        // Close all other dropdowns first
+        this.closeAllDropdowns();
 
-        // Update arrow
-        const title = header.querySelector('.category-title');
-        title.textContent = title.textContent.replace(/[▼▲]/, isVisible ? '▼' : '▲');
+        // Toggle current dropdown only if it was closed
+        if (!isVisible) {
+          content.style.display = 'block';
+          // Update arrow
+          const title = header.querySelector('.category-title');
+          title.textContent = title.textContent.replace(/[▼▲]/, '▲');
+        }
       });
+    });
+  }
+
+  /**
+   * Close all dropdowns
+   */
+  closeAllDropdowns() {
+    const allDropdowns = this.container.querySelectorAll('.dropdown-content');
+    const allHeaders = this.container.querySelectorAll('.dropdown-header');
+
+    allDropdowns.forEach(dropdown => {
+      dropdown.style.display = 'none';
+    });
+
+    allHeaders.forEach(header => {
+      const title = header.querySelector('.category-title');
+      title.textContent = title.textContent.replace(/[▼▲]/, '▼');
     });
   }
 

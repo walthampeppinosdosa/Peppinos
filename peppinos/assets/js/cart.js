@@ -90,19 +90,19 @@ class CartPage {
     // Update cart summary content
     if (this.cartSummary) {
       this.cartSummary.innerHTML = `
-        <div class="cart-summary-row">
+        <div class="order-summary-row">
           <span class="cart-summary-label">Subtotal:</span>
           <span class="cart-summary-value">₹${(cart.subtotal || 0).toFixed(2)}</span>
         </div>
-        <div class="cart-summary-row">
+        <div class="order-summary-row">
           <span class="cart-summary-label">Tax:</span>
           <span class="cart-summary-value">₹${(cart.tax || 0).toFixed(2)}</span>
         </div>
-        <div class="cart-summary-row">
+        <div class="order-summary-row">
           <span class="cart-summary-label">Delivery Fee:</span>
           <span class="cart-summary-value">₹${(cart.deliveryFee || 0).toFixed(2)}</span>
         </div>
-        <div class="cart-summary-row cart-summary-total">
+        <div class="order-summary-row cart-summary-total">
           <span class="cart-summary-label">Total:</span>
           <span class="cart-summary-value">₹${(cart.total || cart.subtotal || 0).toFixed(2)}</span>
         </div>

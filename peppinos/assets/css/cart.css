@@ -134,7 +134,7 @@
   overflow-x: hidden;
   padding: 20px;
   min-height: 0; /* Allow flex child to shrink */
-  max-height: calc(100vh - 200px); /* Ensure scrolling works */
+  max-height: calc(100vh - 350px); /* Ensure scrolling works */
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
@@ -269,6 +269,7 @@
   padding: 20px;
   border-top: 1px solid var(--white-alpha-10);
   background: var(--eerie-black-4);
+  flex-shrink: 0; /* Prevent summary from shrinking */
 }
 
 .cart-summary-row {
@@ -295,7 +296,11 @@
 .cart-actions {
   padding: 20px;
   display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 10px;
+  flex-shrink: 0; /* Prevent actions from shrinking */
+  border-top: 1px solid var(--white-alpha-10);
 }
 
 .cart-actions .btn {
@@ -399,9 +404,7 @@ body.cart-open {
     align-items: center;
   }
   
-  .cart-actions {
-    flex-direction: column;
-  }
+
 }
 
 @media (max-width: 480px) {
@@ -415,13 +418,14 @@ body.cart-open {
   
   .cart-items {
     padding: 15px;
-    max-height: calc(100vh - 180px); /* Adjust for mobile header/footer */
+    max-height: calc(100vh - 320px); /* Adjust for mobile header/footer and ensure space for summary/actions */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   .cart-summary,
   .cart-actions {
     padding: 15px;
+    flex-shrink: 0; /* Ensure these sections don't shrink on mobile */
   }
 }

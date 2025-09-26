@@ -166,7 +166,8 @@ const createMenuItem = async (req, res) => {
       tags,
       addons,
       nutritionalInfo,
-      images
+      images,
+      isSignatureDish
     } = req.body;
 
     // Validate category and determine vegetarian status
@@ -313,6 +314,7 @@ const createMenuItem = async (req, res) => {
       images: imageData,
       isVegetarian: menuItemIsVegetarian,
       isActive: true,
+      isSignatureDish: isSignatureDish === 'true' || isSignatureDish === true,
       createdBy: req.user.id
     };
 
@@ -404,7 +406,8 @@ const updateMenuItem = async (req, res) => {
       isVegetarian,
       tags,
       nutritionalInfo,
-      isActive
+      isActive,
+      isSignatureDish
     } = req.body;
 
     // Permission check is handled by middleware
@@ -536,6 +539,7 @@ const updateMenuItem = async (req, res) => {
     }
     if (nutritionalInfo !== undefined) menuItem.nutritionalInfo = nutritionalInfo;
     if (isActive !== undefined) menuItem.isActive = isActive;
+    if (isSignatureDish !== undefined) menuItem.isSignatureDish = isSignatureDish === 'true' || isSignatureDish === true;
 
     // Handle image updates (deletions, reordering, and new uploads)
     const { existingImages, imagesToDelete } = req.body;
@@ -650,24 +654,46 @@ const deleteMenuItem = async (req, res) => {
     // Delete images from cloudinary
     if (menuItem.images && menuItem.images.length > 0) {
       try {
-        const deletePromises = menuItem.images.map(imageUrl => {
+        const deletePromises = menuItem.images.map(imageObj => {
           try {
-            // Extract public_id from Cloudinary URL
-            const urlParts = imageUrl.split('/');
-            const uploadIndex = urlParts.findIndex(part => part === 'upload');
+            // Check if imageObj has public_id (new format) or is a URL string (old format)
+            if (imageObj && typeof imageObj === 'object' && imageObj.public_id) {
+              // New format: use the stored public_id directly
+              console.log('Deleting image with public_id:', imageObj.public_id);
+              return deleteFromCloudinary(imageObj.public_id);
+            } else if (typeof imageObj === 'string' && imageObj.includes('cloudinary.com')) {
+              // Old format: extract public_id from URL string
+              console.log('Deleting image from URL:', imageObj);
+              const urlParts = imageObj.split('/');
+              const uploadIndex = urlParts.findIndex(part => part === 'upload');
 
-            if (uploadIndex !== -1 && uploadIndex + 2 < urlParts.length) {
-              // Skip version (v123456) and get folder + public_id
-              const pathAfterUpload = urlParts.slice(uploadIndex + 2).join('/');
-              const finalPublicId = pathAfterUpload.replace(/\.[^/.]+$/, ''); // Remove extension
-              return deleteFromCloudinary(finalPublicId);
+              if (uploadIndex !== -1 && uploadIndex + 2 < urlParts.length) {
+                // Skip version (v123456) and get folder + public_id
+                const pathAfterUpload = urlParts.slice(uploadIndex + 2).join('/');
+                const finalPublicId = pathAfterUpload.replace(/\.[^/.]+$/, ''); // Remove extension
+                return deleteFromCloudinary(finalPublicId);
+              } else {
+                // Fallback: try to extract just the filename
+                const publicId = imageObj?.split('/').pop().split('.')[0];
+                return deleteFromCloudinary(`menu-items/${publicId}`);
+              }
+            } else if (imageObj && typeof imageObj === 'object' && imageObj.url) {
+              // Handle case where object has url property but no public_id
+              console.log('Deleting image from object URL:', imageObj.url);
+              const urlParts = imageObj.url.split('/');
+              const uploadIndex = urlParts.findIndex(part => part === 'upload');
+
+              if (uploadIndex !== -1 && uploadIndex + 2 < urlParts.length) {
+                const pathAfterUpload = urlParts.slice(uploadIndex + 2).join('/');
+                const finalPublicId = pathAfterUpload.replace(/\.[^/.]+$/, '');
+                return deleteFromCloudinary(finalPublicId);
+              }
             } else {
-              // Fallback: try to extract just the filename
-              const publicId = imageUrl?.split('/').pop().split('.')[0];
-              return deleteFromCloudinary(`menu-items/${publicId}`);
+              console.warn('Skipping unknown image format:', imageObj);
+              return Promise.resolve();
             }
           } catch (error) {
-            console.error('Error processing image URL for deletion:', imageUrl, error);
+            console.error('Error processing image for deletion:', imageObj, error);
             return Promise.resolve(); // Don't fail the entire operation
           }
         });

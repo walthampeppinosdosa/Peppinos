@@ -124,9 +124,7 @@ class MenuController {
         <li>
           <div class="menu-card hover:card ${cardColorClass}" data-item-id="${item.id}">
             <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-              <img src="${item.image || './assets/images/default-menu.png'}" 
-                   width="100" height="100" loading="lazy" alt="${item.imageAlt}"
-                   class="img-cover">
+             
             </figure>
 
             <div>

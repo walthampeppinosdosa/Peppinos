@@ -14,6 +14,7 @@ const getAllMenuItems = async (req, res) => {
       search = '',
       category = '',
       isVegetarian = '',
+      isSignatureDish = '',
       minPrice = '',
       maxPrice = '',
       spicyLevel = '',
@@ -42,6 +43,11 @@ const getAllMenuItems = async (req, res) => {
     // Vegetarian filter
     if (isVegetarian !== '') {
       query.isVegetarian = isVegetarian === 'true';
+    }
+
+    // Signature dish filter
+    if (isSignatureDish !== '') {
+      query.isSignatureDish = isSignatureDish === 'true';
     }
 
     // Price range filter
@@ -408,7 +414,7 @@ const getFeaturedMenuItems = async (req, res) => {
       ]
     })
       .populate('category', 'name')
-      .select('name images discountedPrice mrp averageRating totalReviews')
+      .select('name images discountedPrice mrp averageRating totalReviews isSignatureDish')
       .sort({ averageRating: -1, totalReviews: -1 })
       .limit(parseInt(limit))
       .lean();
@@ -453,7 +459,7 @@ const searchMenuItems = async (req, res) => {
       ]
     })
       .populate('category', 'name')
-      .select('name images discountedPrice mrp averageRating')
+      .select('name images discountedPrice mrp averageRating isSignatureDish')
       .limit(parseInt(limit))
       .lean();
 

@@ -222,7 +222,7 @@ export const showLoginPrompt = (message = 'Please sign in to continue with your 
           <p>Your cart items will be saved and transferred to your account after signing in.</p>
 
           <div class="auth-options">
-            <button class="btn-auth btn-signin" id="signInBtn">
+            <button class="btn-auth btn-guest" id="signInBtn">
               <ion-icon name="log-in-outline"></ion-icon>
               Sign In
             </button>

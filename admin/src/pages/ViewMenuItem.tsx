@@ -148,14 +148,22 @@ export const ViewMenuItem: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <h4 className="font-medium mb-1">Status</h4>
                   <Badge variant={currentMenuItem.isActive ? "default" : "secondary"}>
                     {currentMenuItem.isActive ? "Active" : "Inactive"}
                   </Badge>
                 </div>
-                
+
+                <div>
+                  <h4 className="font-medium mb-1">Signature Dish</h4>
+                  <Badge variant={currentMenuItem.isSignatureDish === true ? "default" : "outline"}
+                         className={currentMenuItem.isSignatureDish === true ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" : ""}>
+                    {currentMenuItem.isSignatureDish === true ? "Yes" : "No"}
+                  </Badge>
+                </div>
+
                 <div>
                   <h4 className="font-medium mb-1">Spice Level</h4>
                   <div className="flex flex-wrap gap-1">

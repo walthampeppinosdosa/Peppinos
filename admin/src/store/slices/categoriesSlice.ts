@@ -187,6 +187,13 @@ export const createCategory = createAsyncThunk(
         return rejectWithValue(response.message || 'Failed to create category');
       }
     } catch (error: any) {
+      // Handle validation errors with detailed messages
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        const validationErrors = error.response.data.errors.map((err: any) =>
+          `${err.path}: ${err.msg}`
+        ).join('\n• ');
+        return rejectWithValue(`Validation failed:\n• ${validationErrors}`);
+      }
       return rejectWithValue(error.response?.data?.message || 'Failed to create category');
     }
   }
@@ -208,6 +215,13 @@ export const updateCategory = createAsyncThunk(
         return rejectWithValue(response.message || 'Failed to update category');
       }
     } catch (error: any) {
+      // Handle validation errors with detailed messages
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        const validationErrors = error.response.data.errors.map((err: any) =>
+          `${err.path}: ${err.msg}`
+        ).join('\n• ');
+        return rejectWithValue(`Validation failed:\n• ${validationErrors}`);
+      }
       return rejectWithValue(error.response?.data?.message || 'Failed to update category');
     }
   }
